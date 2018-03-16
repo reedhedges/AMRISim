@@ -670,7 +670,7 @@ void position_load( stg_model_t* mod, int wf_id )
         speed_cfg->default_speed.x, speed_cfg->default_speed.y, speed_cfg->default_speed.a
       );
 #endif
-    stg_model_property_changed(mod, "property_speed_config");
+    stg_model_property_changed(mod, "poosition_speed_config");
   }
 
   // we've probably poked the localization data, so we must refresh it
