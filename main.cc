@@ -391,7 +391,7 @@ void usage()
 "  --help :           Print this help text and exit\n"
 "  --version or -v :  Print MobileSim version number and exit\n"
 "\n"
-"MobileSim is based on the Stage 2.0 simulator library: see <http://playerstage.sf.net>\n\n"
+"MobileSim is based on the Stage 2.0 simulator library (see <http://playerstage.sf.net>)\n\n"
 COPYRIGHT_TEXT
 );
 }
@@ -917,7 +917,7 @@ int main(int argc, char** argv)
   /* Initialize Stage and GTK */
   stg_about_info_appname = (char*)"MobileSim";
   stg_about_info_description = (char*)"Simulator for MobileRobots/ActivMedia robots, based on the Stage robot simulator library (with modifications by MobileRobots Inc).";
-  stg_about_info_url = (char*)"http://robots.mobilerobots.com";
+  stg_about_info_url = (char*)"http://github.com/reedhedges/MobileSim";
   stg_about_info_copyright = (char*) COPYRIGHT_TEXT  ;
   stg_about_info_appversion = (char*)MOBILESIM_VERSION;
   stg_help_link = MOBILESIM_DEFAULT_HELP_URL;
