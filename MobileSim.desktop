@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Encoding=UTF-8
+Name=MobileSim
+Comment=Simulate MobileRobots/ActivMedia robots in their environment, for use with ARIA
+Icon=/usr/local/MobileSim/icon.png
+TryExec=/usr/local/MobileSim/MobileSim
+Path=/usr/local/bin
+Exec=/usr/local/bin/MobileSim
+Categories=Application;Science;
