@@ -115,7 +115,6 @@ public:
   bool echo_stage_worldfile;
   bool warn_unsupported_commands;
   bool log_sips_sent;
-  bool commercial;
   bool onHostWithEM;
   size_t mapLoadLinesPerChunk;
   size_t mapLoadPointsPerChunk;
@@ -149,7 +148,6 @@ public:
       echo_stage_worldfile = false;
       warn_unsupported_commands = false;
       log_sips_sent = false;
-      commercial = false;
       onHostWithEM = false;
       mapLoadLinesPerChunk = DEFAULT_MAP_LINES_PER_CHUNK;
       mapLoadPointsPerChunk = DEFAULT_MAP_POINTS_PER_CHUNK;

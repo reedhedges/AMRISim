@@ -270,7 +270,6 @@ void EmulatePioneer::init(const std::string& robotName, const MobileSim::Options
     setWarnUnsupportedCommands(userOptions->warn_unsupported_commands);
     setLogPacketsReceived(userOptions->log_packets_received);
     setLogSIPsSent(userOptions->log_sips_sent);
-    setCommercialRelease(userOptions->commercial);
     setCommandsToIgnore(userOptions->ignore_commands);
   }
 
@@ -1002,18 +1001,6 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
 
 
 
-    case ArCommands::ABSOLUTE_MAXES:
-      if(!myCommercial)
-      {
-        //ArLog::log(ArLog::Normal, "Ignoring new model config packet, because the --commercial flag is not set");
-        //warn("Ignoring new model config packet, because the --commercial flag is not set");
-        break;
-      }
-      //ArLog::log(ArLog::Normal, "Recieved AbsMax packet");
-      pkt->bufToByte();  // strip the 'STRARG' (0x2B)
-      robotInterface->configPositionVelMaxVals(pkt);
-      break;
-
     case ArCommands::RVEL:
     case ArCommands::ROTATE:
        if(session->eStopInProgress) break;
@@ -1188,29 +1175,6 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
        replyPkt.empty();
        replyPkt.setID(0x20);
 
-       if(myCommercial)
-       {
-         //ArLog::log(ArLog::Normal, "EmulatePioneer::handleCommand: myCommercial (true)");
-         // This is all the stub data sent to the robot in Commercial mode,
-         //   so that ARAM can run smoothly before it's sent all the config
-         //   data to flesh out the 'position' model, which is currently a stub
-         // We'll just change all the settings here, so we don't have to do
-         //   conditional checks all the way down, and won't perhaps have
-         //   incorrect values leak back out later
-         strcpy(params.RobotClass,"SIM");     // was 'Pioneer' in normal params
-         strcpy(params.RobotSubclass,"SIM");  // was 'mt400' in normal params
-         params.SIPFreq = 10;                 // was (100) in normal params
-       }
-       else
-       {
-         //ArLog::log(ArLog::Normal, "EmulatePioneer::handleCommand: myCommercial (false)");
-         // This is all the real data sent to the robot in Research mode,
-         //   so that ARAM can initialize its own data, configured from
-         //   the data in the 'position' model, which has been initialized
-         //   from the macros file "PioneerRobotModels.world.inc"
-
-       }
-
        replyPkt.strToBuf(params.RobotClass);
        replyPkt.strToBuf(params.RobotSubclass);
        replyPkt.strToBuf("SIM");  // Serial number
@@ -1225,16 +1189,8 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
        replyPkt.byteToBuf(0);  // host baud, irrelevant for TCP
        replyPkt.byteToBuf(0);  // baud rate for AUX1
        replyPkt.byte2ToBuf((ArTypes::Byte2)(robotInterface->haveGripper()?1:0)); // have gripper // StageInterface::haveGripper() { return false; }
-       if(myCommercial)
-       {
-         replyPkt.byte2ToBuf((ArTypes::Byte2)(0)); // (robotInterface->haveFrontSonar()?1:0) // not sure about this one. we have 'ranger' models, but they don't seem to operate in the sim anyway
-         replyPkt.byteToBuf((ArTypes::Byte)(0));   // (robotInterface->haveRearSonar()?1:0)  // not sure about this one. we have 'ranger' models, but they don't seem to operate in the sim anyway
-       }
-       else
-       {
-         replyPkt.byte2ToBuf((ArTypes::Byte2)(robotInterface->haveFrontSonar()?1:0)); // have front sonar
-         replyPkt.byteToBuf((ArTypes::Byte)(robotInterface->haveRearSonar()?1:0));    // have rear sonar (note byte not byte2, this is correct)
-       }
+       replyPkt.byte2ToBuf((ArTypes::Byte2)(robotInterface->haveFrontSonar()?1:0)); // have front sonar
+       replyPkt.byteToBuf((ArTypes::Byte)(robotInterface->haveRearSonar()?1:0));    // have rear sonar (note byte not byte2, this is correct)
        replyPkt.byte2ToBuf(0); // low battery alarm (decivolts)
        replyPkt.byte2ToBuf(0); // revcount const.
        replyPkt.byte2ToBuf((ArTypes::Byte2)(params.WatchdogTime));
@@ -1392,63 +1348,6 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
        robotInterface->resetSimulatorPose();
        break;
       
-    case ArCommands::SIM_MODEL_CONFIG:
-      if(!myCommercial)
-      {
-        ArLog::log(ArLog::Normal, "Ignoring new model config packet, because the --commercial flag is not set");
-        warn("Ignoring new model config packet, because the --commercial flag is not set");
-        break;
-      }
-      char typeArgBuff[256];
-      pkt->bufToByte();  // strip the 'STRARG' (0x2B) // No idea why this was here in the comDataN sends
-      pkt->bufToStr((char*)typeArgBuff, 255);
-      //ArLog::log(ArLog::Normal, "\tMOBILESIM_MODEL_INIT_BY_TCP: Packet Message: %s", typeArgBuff);
-      if(strcmp(typeArgBuff, "sendPositionConfig") == 0)
-      {
-        robotInterface->configPosition(pkt);
-      }
-      else if(strcmp(typeArgBuff, "sendVelParams") == 0)
-      {
-        robotInterface->configPositionVelVals(pkt);
-      }
-      else if(strcmp(typeArgBuff, "sendLaserNums") == 0)
-      {
-        int numLasers = (int)pkt->bufToByte();
-        //ArLog::log(ArLog::Normal, "\tnumLasers: %d", numLasers);
-        // TODO: add 'numLasers' stub lasers to the model (multiple lasers not yet supported by MobileSim)
-        robotInterface->addLaser();
-
-      }
-      else if(strcmp(typeArgBuff, "sendLaserConfig") == 0)
-      {
-        robotInterface->configLaser(pkt);
-      }
-      /* - Obsolete, 'sendSonarConfig' handles all sonar units
-      else if(strcmp(typeArgBuff, "sendSonarNums") == 0)
-      {
-        int numSonars = (int)pkt->bufToByte();
-        ArLog::log(ArLog::Normal, "\tnumSonars: %d", numSonars);
-        // TODO: add 'numSonars' stub lasers to the model
-      }
-      */
-      else if(strcmp(typeArgBuff, "sendSonarConfig") == 0)
-      {
-        robotInterface->configSonar(pkt);
-      }
-      else if(strcmp(typeArgBuff, "sendBatteryConfig") == 0)
-      {
-        // TODO: add model_battery to stage, or just add battery parameters to model_position (may be much easier considering the battery's sensitivity to driving)
-        robotInterface->configBattery(pkt);
-      }
-      else if(strcmp(typeArgBuff, "sendBatteryChargeState") == 0)
-      {
-        robotInterface->updateBatteryChargeState(pkt);
-      }
-
-      break;
-
-
-
     case OLD_LRF_ENABLE:
        if(!SRISimLaserCompat) 
        {
@@ -1490,11 +1389,6 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
        break;
 
     case OLD_LRF_CFG_START:
-       if(myCommercial)
-       {
-         //warn("Ignoring old LRF_CFG_START command, because the --commercial flag has been set");
-         break;
-       }
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_CFG_START", pkt->getID(), "SIM_LRF_SET_FOV_START", ArCommands::SIM_LRF_SET_FOV_START);
@@ -1515,11 +1409,6 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
        break;
 
     case OLD_LRF_CFG_END:
-       if(myCommercial)
-       {
-         //warn("Ignoring old LRF_CFG_END command, because the --commercial flag has been set");
-         break;
-       }
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_CFG_END", pkt->getID(), "SIM_LRF_SET_FOV_END", ArCommands::SIM_LRF_SET_FOV_END);
@@ -1540,11 +1429,6 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
        break;
 
     case OLD_LRF_CFG_INC:
-       if(myCommercial)
-       {
-         //warn("Ignoring old LRF_CFG_INC command, because the --commercial flag has been set");
-         break;
-       }
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_CFG_INC", pkt->getID(), "SIM_LRF_SET_FOV_RES", ArCommands::SIM_LRF_SET_RES);

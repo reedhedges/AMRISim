@@ -183,24 +183,6 @@ stg_world_t* create_stage_world(const char* mapfile,
     double world_res = 0.0,  
     void (*loop_callback)() = NULL);
 
-/* Return a name for a robot defined in a pfile that is usable in stage etc.
- * This will not be the same as the robot subtype, it's based on the pfile name.
- */
-const char *pfile_model_name(const char *pfile)
-{
-    /* Skip past any directories */
-    const char *modelname = strrchr(pfile, '/');
-    if(modelname) 
-    {
-      if(modelname[0] == '/') ++modelname;
-    }
-    else
-    {
-      modelname = pfile;
-    }
-    return modelname;
-}
-
 
 /* Figure out what directory to use for our external resources */
 const char* find_libdir();
@@ -213,14 +195,6 @@ void cleanup_temp_files();
 typedef std::map<std::string, std::pair<std::string, std::string> > RobotTypeMap;
 void add_model_to_robot_type_map_if_position(stg_model_t* model, char* model_name, void* map_p);
 */
-
-/* Write a model definition to the given file based on parameters loaded from
- * the given ARIA parameter file.
- * Returns the name the model type was defined as, which will be a substring in
- * pfile, or NULL on error.
- */
-const char* worldfile_define_model_from_pfile(FILE* fp, const char* pfile);
-
 
 
 
@@ -476,53 +450,6 @@ void load_map_done(MapLoadedInfo info)
   map_home_y = info.have_home ? info.home_y : 0;
   map_home_th = info.have_home ? info.home_th : 0;
 }
-
-// This is a bit hacky, relying the fact that the MobileSim launch script (in /usr/local/apps/MobileSim/init.sh)
-//   changes the working directory to '/home/admin' if EM is running on the same VM, and changes the working
-//   directory to '/home/admin/sim' if this instance of MS is running solo
-bool check_host_for_EM(const char* working_dir)
-{
-  if(working_dir && strcmp(working_dir, "/home/admin") == 0)
-  {
-    //ArLog::log(ArLog::Normal, "Matches: /home/admin");
-    return true;
-  }
-  else
-  {
-    //ArLog::log(ArLog::Normal, "Doesn't matche: /home/admin");
-    return false;
-  }
-}
-
-/* obsolete for now. could be useful later if we want to make it responsive to whether its running directory is 'home/admin' or 'home/admin/sim'
-bool check_host_for_process(const char *ps_name)
-{
-  bool foundProcess = false;
-  char search_string[256];
-  system("pwd");
-  sprintf(search_string, "ps -U root -u root -N | grep %s", ps_name);
-  sprintf(search_string, "ps -U root -u root -N | grep %s > searchresult.txt", ps_name);
-  system(search_string);
-
-  FILE *pFile;
-  pFile = fopen ("searchresult.txt", "r");
-  if (pFile != NULL)
-  {
-    char read_string[256];
-    read_string[0] = '\0';
-    fgets(read_string, 255, pFile);
-    if ((unsigned int)strlen(read_string) > 0)
-      foundProcess = true;
-  }
-  else
-  {
-    ArLog::log(ArLog::Normal, "Error opening file");
-  }
-  system("rm searchresult.txt");
-
-  return foundProcess;
-}
-*/
 
 ArGlobalFunctor1<MapLoadedInfo> load_map_done_cb(&load_map_done);
 
@@ -868,12 +795,6 @@ int main(int argc, char** argv)
     {
       opt.log_sips_sent = true;
     }
-    else if(command_argument_match(argv[i], "", "commercial"))
-    {
-      opt.commercial = true;
-      opt.run_network_discovery = false;
-      opt.odom_error_mode = MobileSim::Options::RANDOM_INIT;
-    }
     else if(command_argument_match(argv[i], "", "no-network-discovery"))
     {
       opt.run_network_discovery = false;
@@ -1217,10 +1138,6 @@ int main(int argc, char** argv)
   }
 
   mapLoader.setWorld(world);
-  //ArLog::log(ArLog::Normal, "main: Calling check_host_for_process(\"centralServer\") 1");
-  //opt.onHostWithEM = check_host_for_process("centralServer"); // This opt variable is just in case we need it elsewhere.
-  opt.onHostWithEM = check_host_for_EM(opt.change_to_directory);
-  mapLoader.setHostHasEM(opt.onHostWithEM);
   mapLoader.setMapLoadChunkSizes(opt.mapLoadLinesPerChunk, opt.mapLoadPointsPerChunk);
 
 
@@ -1311,7 +1228,7 @@ int main(int argc, char** argv)
   int facport = opt.port;
   for(std::list<std::string>::iterator i = robotFactoryRequests.begin(); i != robotFactoryRequests.end(); i++)
   {
-    const char *modelname = pfile_model_name((*i).c_str());
+    const char *modelname = (*i).c_str();
     stg_print_msg("MobileSim: Creating new robot factory for \"%s\"...", modelname);
     RobotFactory *stagefac;
     if(mobilesim_startplace == mobilesim_start_fixedpos) 
@@ -2047,37 +1964,6 @@ stg_world_t* create_stage_world(const char* mapfile,
   startPose.a = map_home_th;
 #endif
 
-#if 0
-  /* If a member of robotInstanceRequests or robotFactoryRequests is really a .p file, then create a model
-   * definition for that robot type: */
-  std::set<std::string> modelNames;
-  for(RobotModels::const_iterator i = robotInstanceRequests.begin(); i != robotInstanceRequests.end(); i++)
-    modelNames.insert( (*i).second );
-  for(std::list<std::string>::const_iterator i = robotFactoryRequests.begin(); i != robotFactoryRequests.end(); i++)
-    modelNames.insert( (*i) );
-  for(std::set<std::string>::const_iterator i = modelNames.begin(); i != modelNames.end(); i++)
-  {
-    const char* model = (*i).c_str();
-    struct stat filestat;
-	
-	if(loop_callback) (*loop_callback)();
-
-    if(stat( model, &filestat) == -1)
-    {
-      // file does not exist or other error accessing it
-      continue;
-    }
-    stg_print_msg("MobileSim: File \"%s\" exists, loading parameters to define the robot model.", model);
-    const char* pfile = model;
-    model = worldfile_define_model_from_pfile(world_fp, pfile);
-    if(!model)
-    {
-      stg_print_error("MobileSim: Could not read or parse parameter file \"%s\" to define robot model.", pfile);
-      exit(ERR_PFILE);
-    }
-    stg_print_msg("MobileSim: Loaded parameter file \"%s\" to define robot model \"%s\".", pfile, model);
-  }
-#endif   
   
 #if 0 // TODO move to outside the temp file
   /* Create robot models in the world */
@@ -2287,143 +2173,6 @@ void add_model_to_robot_type_map_if_position(stg_model_t* model, char* name, voi
 
 
 
-const char* worldfile_define_model_from_pfile(FILE* fp, const char* pfile)
-{
-  ArRobotParams p;
-  char err[256];
-  if(!p.parseFile(pfile, 
-      false,    // continueOnErrors
-      false,    // noFileNotFoundError
-      err, 255, // error message buffer
-      NULL      // sectionsToParse 
-  ))
-  {
-    stg_print_error("MobileSim: Error reading or parsing parameter file \"%s\": %s", pfile, err);
-    return NULL;
-  }
-
-  /* Start definition. */
-  const char* modelname = pfile_model_name(pfile);
-  /*
-  strrchr(pfile, '/');
-  if(modelname)
-  {
-    if(modelname != pfile)
-      modelname++;  // avoid '/'
-  }
-  else
-  {
-    modelname = (char*)pfile;
-  }
-  */
-  stg_print_msg("MobileSim: Defining model \"%s\" in world file based on parameter file \"%s\"...", modelname, pfile);
-  fprintf(fp, "define %s pioneer (\n", modelname);
-  fprintf(fp, "\tpioneer_robot_type \"%s\"\n", p.getClassName());
-  fprintf(fp, "\tpioneer_robot_subtype \"%s\"\n", p.getSubClassName());
-  
-  /* Speed profile: */
-  if(p.getAbsoluteMaxVelocity() > 0 || p.getAbsoluteMaxRotVelocity() > 0)
-    fprintf(fp, "\tmax_speed [%f 0 %f]\n", p.getAbsoluteMaxVelocity()/1000.0, ArMath::degToRad(p.getAbsoluteMaxRotVelocity()));
-  if(p.getTransAccel() > 0 || p.getRotAccel() > 0) 
-    fprintf(fp, "\taccel [%f 0 %f]\n", p.getTransAccel()/1000.0, ArMath::degToRad(p.getRotAccel()));
-  if(p.getTransDecel() > 0 || p.getRotDecel() >0)
-    fprintf(fp, "\tdecel [%f 0 %f]\n", p.getTransDecel()/1000.0, ArMath::degToRad(p.getRotDecel()));
-
-  /* Body shape: */
-  const double d = p.getRobotDiagonal()/1000.0;
-  const double w = p.getRobotWidth()/1000.0;
-  const double l = p.getRobotLength()/1000.0;
-  fprintf(fp, "\tsize [%f %f]\n", l, w);
-  fprintf(fp, "\tpolygons 1\n\tpolygon[0].points 8\n\tpolygon[0].filled 1\n");
-
-
-  /*
-  fprintf(fp, "\tpolygon[0].point[0] [%f %f]\n", l/2.0, -d);
-  fprintf(fp, "\tpolygon[0].point[1] [%f %f]\n", l/2.0, d);
-  fprintf(fp, "\tpolygon[0].point[2] [%f %f]\n", d, w/2.0);
-  fprintf(fp, "\tpolygon[0].point[3] [%f %f]\n", -d, w/2.0);
-  fprintf(fp, "\tpolygon[0].point[4] [%f %f]\n", -l/2.0, d);
-  fprintf(fp, "\tpolygon[0].point[5] [%f %f]\n", -l/2.0, -d);
-  fprintf(fp, "\tpolygon[0].point[6] [%f %f]\n", -d, -w/2.0);
-  fprintf(fp, "\tpolygon[0].point[7] [%f %f]\n", d, -w/2.0);
-  */
-
-  /* TODO: Use LengthFront and LengthRear to find center instead of 
-    Length/2.
-     TODO: If present, use Radius instead of Diagonal to fit to elpsoid.
-  */
-
-  /*          l
-       <--RobotLength->
-                   -d-
-       5 *----|----* 6     ^
-     4  /     |     \ }d   |
-       *      y      * 7   |
-      _|__-x__|__x___|_   Robot      Front->
-       |      |      |    Width w 
-     3 *     -y      * 0   |
-        \     |     / }d   |
-       2 *----|----* 1     v
-                    -d-
-  */
-  const double x = l/2.0;
-  const double y = w/2.0;
-  fprintf(fp, "\tpolygon[0].point[0] [%f %f]\n", x, -(y-d));
-  fprintf(fp, "\tpolygon[0].point[1] [%f %f]\n", (x-d), -y);
-  fprintf(fp, "\tpolygon[0].point[2] [%f %f]\n", -(x-d), -y);
-  fprintf(fp, "\tpolygon[0].point[3] [%f %f]\n", -x, -(y-d));
-  fprintf(fp, "\tpolygon[0].point[4] [%f %f]\n", -x, (y-d));
-  fprintf(fp, "\tpolygon[0].point[5] [%f %f]\n", -(x-d), y);
-  fprintf(fp, "\tpolygon[0].point[6] [%f %f]\n", (x-d), y);
-  fprintf(fp, "\tpolygon[0].point[7] [%f %f]\n", x, (y-d));
-  
-
-
-  /* Client conversion factors: */
-  fprintf(fp, "\tpioneer_diffconv %f\n", p.getDiffConvFactor());
-  fprintf(fp, "\tpioneer_distconv %f\n", p.getDistConvFactor());
-  fprintf(fp, "\tpioneer_rangeconv %f\n", p.getRangeConvFactor());
-  fprintf(fp, "\tpioneer_angleconv %f\n", p.getAngleConvFactor());
-
-  /* Sonar positions: */
-  if(p.getNumSonar() > 0)
-  {
-    fprintf(fp, "\tpioneerSonar (\n\t\tscount %d\n", p.getNumSonar());
-    for(int i = 0; i < p.getNumSonar(); i++)
-    {
-      fprintf(fp, "\t\tspose[%d] [%f %f %d]\n", i, p.getSonarX(i)/1000.0, p.getSonarY(i)/1000.0, p.getSonarTh(i));
-      if(!p.haveSonar(i))
-        fprintf(fp, "\t\tsview[%d] [5 5 0]\n", i);  // "disabled"
-    }
-    fprintf(fp, "\t)\n");
-  }
-
-  /* Laser?: */
-  const char *laserType = p.getLaserType(1);
-  if(p.getLaserPossessed() || (laserType != NULL && strlen(laserType) > 0))
-  {
-    if(laserType != NULL && strlen(laserType) > 0)
-    {
-      print_msg("MobileSim: %s has LaserType \"%s\" for Laser 1.", pfile, laserType);
-      if(strcmp(laserType, "lms2xx") != 0)
-        print_warning("In %s, LaserType for Laser 1 is \"%s\", but MobileSim only implements lms200. Will use lms200 instead of %s.", pfile, laserType, laserType);
-    }
-    else
-    {
-      print_msg("MobileSim: %s has LaserPossessed true for Laser 1, creating a sick lms200.", pfile);
-    }
-    fprintf(fp, "\tsicklms200 (\n\t\tpose [%f %f %f]\n", p.getLaserX()/1000.0, p.getLaserY()/1000.0, p.getLaserTh());
-    if(p.getLaserFlipped())
-      fprintf(fp, "\t\treverse_scan 1\n");
-    fprintf(fp, "\t)\n");
-  }
-
-
-  
-  /* Done. */
-  fprintf(fp, ")\n\n");
-  return modelname;
-}
 
 
 GtkWidget *busy_loading_dialog()

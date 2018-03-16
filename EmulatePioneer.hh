@@ -634,9 +634,6 @@ public:
 
     void setLogSIPsSent(bool l) { logSIPsSent = l; }
 
-    void setCommercialRelease(bool l) { myCommercial = l; }
-
-
   private:
     friend class EmulatePioneer::DeletionRequest;
 
@@ -685,7 +682,6 @@ public:
     static unsigned long currentEmulatorCount;
     bool logCommandsReceived;
     bool logSIPsSent;
-    bool myCommercial;
     bool sendSIMSTAT(ArDeviceConnection *con);
     bool SRISimCompat;
     bool SRISimLaserCompat;

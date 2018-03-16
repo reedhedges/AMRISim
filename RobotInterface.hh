@@ -314,17 +314,6 @@ class RobotInterface : public LogInterface {
     /// Set whether other robots can collide with this robot, if possible
   virtual void setEphemeral(bool s) = 0;
 
-  /// Initializing a robot model via TCP
-  virtual void configPosition(ArRobotPacket *pkt) = 0;
-  virtual void configPositionVelVals(ArRobotPacket *pkt) = 0;
-  virtual void configPositionVelMaxVals(ArRobotPacket *pkt) = 0;
-  virtual void addLaser() = 0;
-  virtual void configLaser(ArRobotPacket *pkt) = 0;
-  virtual void configSonar(ArRobotPacket *pkt) = 0;
-  virtual void configBattery(ArRobotPacket *pkt) = 0;
-  //virtual void updateBatteryChargeRates(ArRobotPacket *pkt) = 0;
-  virtual void updateBatteryChargeState(ArRobotPacket *pkt) = 0;
-
   unsigned char digoutState;
   unsigned char diginState;
   virtual void setDigoutState(unsigned char state)

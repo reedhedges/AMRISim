@@ -222,16 +222,6 @@ class StageInterface : public virtual RobotInterface
 
     virtual float getSimGPSDOP();
 
-    /// Initializing a robot model via TCP
-    virtual void configPosition(ArRobotPacket *pkt);
-    virtual void configPositionVelVals(ArRobotPacket *pkt);
-    virtual void configPositionVelMaxVals(ArRobotPacket *pkt);
-    virtual void addLaser();
-    virtual void configLaser(ArRobotPacket *pkt);
-    virtual void configSonar(ArRobotPacket *pkt);
-    virtual void configBattery(ArRobotPacket *pkt);
-    //virtual void updateBatteryChargeRates(ArRobotPacket *pkt);
-    virtual void updateBatteryChargeState(ArRobotPacket *pkt);
 };
 
  

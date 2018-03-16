@@ -129,11 +129,7 @@ void RobotFactory::acceptNewClient(unsigned int /*maxTime*/)
 
   log("Accepted client. Creating robot...");
 
-  RobotInterface *ri = NULL;
-  if(myUserOptions != NULL && myUserOptions->commercial)
-    ri = createStubRobot(myModelName, clientSocket->getIPString()); // Create a stub robot (just a default 'position' model)
-  else
-    ri = createRobot(myModelName, clientSocket->getIPString());
+  RobotInterface *ri = createRobot(myModelName, clientSocket->getIPString());
   if(!ri)
   {
     log("Robot factory: Error creating new robot. Closing client socket.");
@@ -192,11 +188,7 @@ void RobotFactory::createNewRobotsFromClientsList()
     myClientSocketsMutex.unlock();
 
     //ArLog::log(ArLog::Normal, "RobotFactory::createNewRobotsFromClientsList(): %s factory. Creating one robot...", myModelName.c_str());
-    RobotInterface *ri = NULL;
-    if(myUserOptions != NULL && myUserOptions->commercial)
-      ri = createStubRobot(myModelName, clientSocket->getIPString()); // Create a stub robot (just a default 'position' model)
-    else
-      ri = createRobot(myModelName, clientSocket->getIPString());
+    RobotInterface *ri = createRobot(myModelName, clientSocket->getIPString());
     if(!ri)
     {
       log("Robot factory: Error creating new robot. Closing client socket.");
