@@ -129,8 +129,6 @@ SOURCE_DISTRIBUTED_FILES_EXEC=stage/configure stage/config.guess stage/config.su
 SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 
 CFLAGS+=-DMOBILESIM
-SIMBOX_EXCLUDE_FILES=README.txt README.md README.html columbia.map \
-  MobileSim.desktop icon.png screenshot.png Makefile INSTALL.txt AMROffice.map
 
 
 
@@ -185,7 +183,6 @@ STAGE_CONFIGURE_ARGS+=--enable-profile --enable-debug --disable-optimize
 endif	 #MOBILESIM_PROFILE
 
 
-# Simbox rule overrides this 
 ifndef TAR_DIRECTORY
 TAR_DIRECTORY:=MobileSim-$(VERSION)
 endif
@@ -539,12 +536,12 @@ convertBitmapToArMap: convertBitmapToArMap.cc $(LIBARIA)
 
 help:
 	@echo 'Usage:'
-	@echo '       make help       This message'
-	@echo '       make all or make MobileSim  Build MobileSim program'
-	@echo '       make debug        Build MobileSim program in debug mode'
+	@echo '       make help                     This message'
+	@echo '       make all or make MobileSim    Build MobileSim program'
+	@echo '       make debug                    Build MobileSim program in debug mode'
 	@echo '       make clean'
 	@echo '       make install'
-	@echo '       make distclean  Clean temporary files, but leave binaries to be distributed'
+	@echo '       make distclean                Clean temporary files, but leave binaries to be distributed'
 	@echo '       make release-dist'
 	@echo '       make dev-dist'
 	@echo '       make release-srcdist'
@@ -557,8 +554,6 @@ help:
 	@echo '       make dev-rpm'
 	@echo '       make deb'
 	@echo '       make dev-deb'
-	@echo '       make simbox'
-	@echo '       make dev-simbox'
 	@echo 'Set environment variable MOBILESIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable MOBILESIM_PROFILE to build with profiling information (for use with gprof)'
 
@@ -717,46 +712,6 @@ base-bindist: $(BINARY_DISTRIBUTED_FILES)
 
 bindist-info: $(DISTINFO_FILE)
 
-
-simbank-dist: release-simbox
-
-simbox: release-simbox
-
-simbox-dist: release-simbox
-
-release-simbox: clean
-	$(MAKE) base-bindist MOBILESIM_RELEASE=1 CFLAGS=-DMOBILESIM_DEFAULT_ODOM_ERROR_MODE=RANDOM_INIT TAR_DIRECTORY=MobileSim BINDIST_SUFFIX=-simbox EXCLUDE_FILES="$(SIMBOX_EXCLUDE_FILES)"
-	$(MAKE) MobileSim/control
-	$(MAKE) MobileSim/md5sums
-
-MobileSim/control: Makefile dist/version.num
-	echo Package: MobileSim >$@
-	echo FullName: MobileSim >>$@
-	echo Description: Mobile Robot Simulation Engine >>$@
-	echo Removable: yes >>$@
-	echo Executable: yes >>$@
-	echo Visible: yes >>$@
-	echo HasDownload: no >>$@
-	echo Platform: EM >>$@
-	echo Version: $(VERSION) >>$@
-
-MobileSim/md5sums: MobileSim/MobileSim$(binary_suffix) MobileSim/PioneerRobotModels.world.inc MobileSim/version.txt MobileSim/LICENSE.txt MobileSim/gdbhelper Makefile
-	-rm $@
-	for f in MobileSim/*; do echo md5sum $$f; md5sum $$f >>$@ ; done
-
-#	@if [ ! -e /is_MTX_chroot ] ; then \
-#		echo "Cannot build MTX generation (4.0+) releases (like SimBox) except on the official MTX chroot"; \
-#		exit -1; \
-#	fi; 
-
-release-simbank: release-simbox
-
-dev-simbox:
-	$(MAKE) base-bindist TAR_DIRECTORY=MobileSim CFLAGS=-DMOBILESIM_DEFAULT_ODOM_ERROR_MOODE=RANDOM_INIT BINDIST_SUFFIX=-simbox EXCLUDE_FILES="$(SIMBOX_EXCLUDE_FILES)"
-	echo lastDevReleaseVer=$(DEV_RELEASE_VER) > lastDevReleaseVer
-
-dev-simbank: dev-simbox
-
 optimize: opt
 
 opt: FORCE
@@ -768,33 +723,11 @@ debug: FORCE
 %-opt:
 	$(MAKE) $* MOBILESIM_RELEASE=1
 
-WEBSITE_VERSION_NUMBERS_FILES:=MobileSimVersion.php
-
-# Make PHP files with version numbers for use on website
-website-version-numbers: $(WEBSITE_VERSION_NUMBERS_FILES)
-
-# XXX TODO get debian and redhat package revisions from somewhere
-%Version.php:
-	echo "<?php" > $@
-	echo "$$"$*Version=\"$(VERSION)\"\; >> $@
-	echo "$$"$*DebianVersion=\"$(VERSION)$(DEBIAN_PKG_REV_APPEND)\"\; >> $@
-	echo "$$"$*RedHatVersion=\"$(VERSION)-$(RPM_PKG_REV)\"\; >> $@
-	echo "$$"$*TgzVersion=\"$(VERSION)\"\; >> $@
-	echo "$$"$*WindowsVersion=\"$(VERSION)\"\; >> $@
-	echo "?>" >> $@
-
-upload-website-version-numbers: $(WEBSITE_VERSION_NUMBERS_FILES)
-	rsync --update $^ root@192.168.0.8:/var/www/mediawiki/MobileRobotsSoftwareVersionNumbers/
-
-# XXX TODO add rule to rsync the package
-# files in with website download directories, creating them as neccesary
-# for new versions.
-
 ctags: tags
 
 tags: $(SOURCES) $(HEADERS) $(STAGE_SRC)
 	ctags $(SOURCES) $(HEADERS) $(STAGE_SRC)
 
-.PHONY: all clean distclean dep cleanDep install uninstall dist-install sudo-install sudo-dist-install rpm deb debian dist srcdist bindist test-dist undo-dist simbank opt optimize  stageconf windist base-windist base-bindist base-srcdist dev-debian dev-deb dev-srcdist dev-bindist dev-simbank release-simbank release-srcdist release-bindist ctags
+.PHONY: all clean distclean dep cleanDep install uninstall dist-install sudo-install sudo-dist-install rpm deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf windist base-windist base-bindist base-srcdist dev-debian dev-deb dev-srcdist dev-bindist release-srcdist release-bindist ctags MobileSimAppBundle
 
 FORCE:
