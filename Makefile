@@ -40,11 +40,6 @@
 # using the $(host) Make variable.  If $(host) is MINGW32 or MINGW64, it is reset to MINGW, and
 # both platforms are treated the same.  (However only 32-bit MinGW install is really supported.) 
 #
-# If MobileSim source code is detected (namely main.cc), then a rule for MobileSim depending
-# on MobileSim, libstage and libAria being built/rebuilt if neccesary is included, otherwise
-# there is no rule for "MobileSim" (used in any distribution package that includes prebuilt
-# binaries and uses this Makefile for installation, but omits source code.)
-#
 # The "pandoc" tool is required to convert README.md into other formats for packaging.
 #
 # GNU autotools are required to build libstage.
@@ -411,8 +406,6 @@ cleanDep: clean-dep
 clean-dep:
 	-rm Makefile.dep
 
-ifeq (main.cc,$(wildcard main.cc))
-
 # We have source code, depend on it being built
 # could depend on $(STAGELIBS) instead of just libstage.a to get both libs, but that can cause make to try
 # to build stage twice in parallel if using parallel jobserver, which causes
@@ -422,12 +415,6 @@ MobileSim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(ST
 
 mobilesimd: $(STAGE_DIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage_nogui.a $(OBJS) $(LIBARIA)
 	$(CXX) $(MSIM_CFLAGS) -DMOBILESIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(SYSTEM_LINK)
-
-else
-
-# We don't have source code, no dependencies for MobileSim
-
-endif
 
 MobileSim_debug$(binary_suffix): MobileSim
 	cp MobileSim$(binary_suffix) MobileSim_debug$(binary_suffix)

@@ -1,0 +1,11 @@
+
+* Rename
+* Debian standard Packaging
+* Remove unused stuff 
+* Fix last temp file issue
+* True no-GUI build with daemon mode
+* Include some useful startup scripts for unattended operation eg systemd, 
+  maybe docker config or info?
+* Extend command line flags to config file? (Or hook into system standard config
+  frameworks; systemd?)
+
