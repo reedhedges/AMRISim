@@ -17,7 +17,7 @@
 #   LFLAGS       Linker flags (e.g. library directories). This Makefile will also append various options (see below)
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
-#   ARIA         Location of ARIA library, default is /usr/local/Aria
+#   ARIA         Location of ARIA library, default is ../AriaCoda TODO change to installation dir
 #
 # Some variables that set build options:
 #   MOBILESIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
@@ -183,7 +183,7 @@ TAR_DIRECTORY:=MobileSim-$(VERSION)
 endif
 
 ifndef ARIA
-ARIA=/usr/local/Aria
+ARIA=../AriaCoda
 endif
 
 #### Different options for Windows or Linux:
