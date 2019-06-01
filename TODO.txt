@@ -4,7 +4,7 @@
 * Remove unused stuff 
 * Fix last temp file issue
 * True no-GUI build with daemon mode
-* ROS inerface. Maybe separate builds for Pioneer/ARIA and ROS
+* ROS client inerface. Maybe separate builds for Pioneer/ARIA and ROS
 * Include some useful startup scripts for unattended operation eg systemd, 
   maybe docker config or info, AWS template (at least document requirements in
   README), etc.
@@ -14,4 +14,5 @@
 * Dynamically configurable model hierarcy and properties in GUI.
 * Replace GUI?  Remotely acessible web view (or start with simple
   status/control/config web interface)?
+* Internal client interface to embedded scripting language
 
