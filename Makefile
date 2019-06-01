@@ -268,6 +268,9 @@ endif #host is MINGW32 or not
 LIBARIA:=$(ARIA)/lib/libAria.a
 ARIA_CFLAGS:=-I$(ARIA)/include 
 
+ROS_CFLAGS:=
+ROS_LINK:=
+
 SOURCES:=\
 	main.cc \
 	EmulatePioneer.cc \
@@ -346,9 +349,9 @@ GTK_LINK:=$(GTK_LIBS)
 #		-lXi -lX11 -ldl
 
 
-MSIM_CFLAGS := -DMOBILESIM_VERSION=\"$(VERSION)\" -DMOBILESIM_BUILDDATE="\"$(DATESTR)\"" \
+MSIM_CFLAGS := -DMOBILESIM_PIONEER -DMOBILESIM_ROS -DMOBILESIM_VERSION=\"$(VERSION)\" -DMOBILESIM_BUILDDATE="\"$(DATESTR)\"" \
   -I. $(CFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
-	$(GTK_CFLAGS) $(ARIA_CFLAGS)
+	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS_CFLAGS)
 
 MSIM_LFLAGS := $(LFLAGS) 
 
@@ -411,10 +414,10 @@ clean-dep:
 # to build stage twice in parallel if using parallel jobserver, which causes
 # corrupted output files.
 MobileSim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -o MobileSim$(binary_suffix) $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
 
 mobilesimd: $(STAGE_DIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage_nogui.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) -DMOBILESIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) -DMOBILESIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
 
 MobileSim_debug$(binary_suffix): MobileSim
 	cp MobileSim$(binary_suffix) MobileSim_debug$(binary_suffix)
