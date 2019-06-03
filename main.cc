@@ -56,13 +56,19 @@
 #include "Config.hh"
 #include "util.h"
 #include "StageInterface.hh"
-#include "EmulatePioneer.hh"
 #include "RobotFactory.hh"
 #include "StageRobotFactory.hh"
 #include "MapLoader.hh"
 #include "Socket.hh"
 #include "NetworkDiscovery.hh"
 
+#ifdef MOBILESIM_PIONEER
+#include "EmulatePioneer.hh"
+#endif
+
+#ifdef MOBILESIM_ROS
+#include "ROSNode.hh"
+#endif
 
 using namespace MobileSim;
 
@@ -276,8 +282,10 @@ void usage()
 "                     instance of the model for each client, and destroying it\n"
 "                     when the client disconnects.\n"
 "  -R <model>       : Same as --robot-factory <model>\n"
+#ifdef MOBILESIM_PIONEER
 "  -p <port>        : Emulate Pioneer connections starting with TCP port <port>.\n"
 "                     (Default: 8101)\n"
+#endif
 #ifndef MOBILESIM_NOGUI
 "  --fullscreen-gui : Display window in fullscreen mode.\n"
 "  --maximize-gui   : Display window maximized.\n"
@@ -1288,6 +1296,7 @@ int main(int argc, char** argv)
   }
     
 
+#ifdef MOBILESIM_PIONEER
   /* Create Pioneer emulators for each position model.
    * TODO create robot models in stage here too instead of in the world file in create_stage_world. */
   for(std::map<std::string, std::string>::const_iterator i = robotInstanceRequests.begin();
@@ -1302,21 +1311,33 @@ int main(int argc, char** argv)
     if(map)
 	    emulator->loadMapObjects(map);
     robotInterfaces.insert(stageint);
-    //emulators.insert(emulator);  
     emulator->setSimulatorIdentification("MobileSim", MOBILESIM_VERSION);
-    //emulator->setCommandsToIgnore(opt.ignore_commands);
-    //emulator->setVerbose(opt.verbose);
-    //emulator->setSRISimCompat(opt.srisim_compat, opt.srisim_laser_compat);
-    //emulator->setLogPacketsReceived(opt.log_packets_received);
-    //emulator->setWarnUnsupportedCommands(opt.warn_unsupported_commands);
-    //emulator->setLogSIPsSent(opt.log_sips_sent);
     if(opt.listen_address != "")
       emulator->setListenAddress(opt.listen_address);
-    // TODO just pass opt in to EmulatePioneer constructor, let it take options
-    // from that rather than having to set them individually here.
     if(!emulator->openSocket())
       delete emulator;
   }
+#endif
+
+#ifdef MOBILESIM_ROS
+  /* Create ROS nodes for each position model.
+   * TODO create robot models in stage here too instead of in the world file in create_stage_world. */
+  for(std::map<std::string, std::string>::const_iterator i = robotInstanceRequests.begin();
+      i != robotInstanceRequests.end(); i++)
+  {
+    const std::string& name = (*i).first;
+    const std::string& model = (*i).second;
+    //    stg_print_msg("MobileSim: Creating emulated Pioneer connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), port);
+    //    stg_world_display_message(world, 0, "MobileSim", STG_MSG_INFORMATION, "Creating emulated Pioneer connection for \"%s\" (\"%s\") on TCP port %d.", (*i).second.c_str(), (*i).first.c_str(), port);
+    StageInterface* stageint = new StageInterface(world, model, name); 
+    ROSNode* rosnode = new ROSNode(stageint, model, false, &opt);
+    //if(map)
+	  //  rosnode->loadMapObjects(map);
+    robotInterfaces.insert(stageint);
+    if(!rosnode->start())
+      delete rosnode;
+  }
+#endif
 
   /* Change Stage's window title. TODO: include map file name? */
   stg_world_set_window_title(world, "MobileSim");
@@ -1456,7 +1477,7 @@ int main(int argc, char** argv)
     }
     else
     {
-      /* Client output and other periodic EmulatePioneer work */
+      /* Client output and other periodic client interface work */
       //ArTime t;
       MobileSim::sleep(untilClientOutput);
       //print_debug("Waiting for client output: sleep(%ld) took %ld ms", untilClientOutput, t.mSecSince());
@@ -1465,7 +1486,12 @@ int main(int argc, char** argv)
       lastClientOutput.setToNow();
       clientOutputDue.setToNow();
       clientOutputDue.addMSec(clientOutputFreq);
+#ifdef MOBILESIM_PIONEER
       EmulatePioneer::processAll();
+#endif
+#ifdef MOBILESIM_ROS
+      ros::spinOnce();
+#endif
     }
 /*
     // If ClientInput, MapLoader, or RobotFactory has waited for longer than this time,

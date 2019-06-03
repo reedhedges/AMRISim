@@ -27,6 +27,8 @@
 #include "RobotInterface.hh"
 #include "MapLoader.hh"
 
+#include "ClientInterface.hh"
+
 #include <assert.h>
 //#include <pthread.h>
 #include <string>
@@ -471,7 +473,7 @@ public:
  *  @todo eliminate some of the useless accessors
  * 
  */
-class EmulatePioneer : public LogInterface
+class EmulatePioneer : public ClientInterface, public LogInterface
 {
   public:
 
