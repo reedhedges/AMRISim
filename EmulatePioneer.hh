@@ -570,13 +570,15 @@ public:
      *  @sa processAll()
      *  @sa stat
      */
-    bool processSession() throw(DeletionRequest, Disconnected);
+    bool processSession();
 
     /** Call processSession() on all EmulatePioneer instances.
       * If instance indicated client disconnect and its deleteOnDisconnect value is
       * true, delete it.
       * @return the bitwise or of all processSession() status codes.
       * @param maxTime if nonzero, stop processing after this amount of time (msec). Processing will resume with the next EmulatePioneer instance in the next call to processAll(). Note, this may result in clients not getting packets on time depending on how long until the next call to processAll(). If 0, process each client once.
+        @throws DeletionRequest
+        @throws Disconnected
       */
     static int processAll(int maxTime = 0);
 
@@ -595,12 +597,27 @@ protected:
     */
     void acceptNewClient(unsigned int maxTime = 0);
 
-    /** End session, close connection, clean up */
-    void endSession() throw (DeletionRequest, Disconnected);
+    /** End session, close connection, clean up 
+        @throws DeletionRequest
+        @throws Disconneced
+      */
+    void endSession();
 
-    void handlePacket(ArRobotPacket *pkt) throw (DeletionRequest, Disconnected);
-    bool handleSyncPacket(ArRobotPacket *pkt) throw (DeletionRequest, Disconnected);
-    bool handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, Disconnected);
+    /**
+      @throws DeletionRequest
+      @throws Disconnected
+    */
+    void handlePacket(ArRobotPacket *pkt);
+    /**
+      @throws DeletionRequest
+      @throws Disconnected
+    */
+    bool handleSyncPacket(ArRobotPacket *pkt);
+    /**
+      @throws DeletionRequest
+      @throws Disconnected
+    */
+    bool handleCommand(ArRobotPacket *pkt);
 
     void newSession();
     void setupSessionClientConnection();

@@ -499,7 +499,7 @@ void EmulatePioneer::readClientInput(unsigned int maxTime)
   }
 }
 
-void EmulatePioneer::handlePacket(ArRobotPacket *pkt) throw(DeletionRequest, Disconnected)
+void EmulatePioneer::handlePacket(ArRobotPacket *pkt) 
 {
 
   if(!session)
@@ -531,7 +531,7 @@ void EmulatePioneer::handlePacket(ArRobotPacket *pkt) throw(DeletionRequest, Dis
     handleCommand(pkt);
 }
 
-bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt) throw (DeletionRequest, Disconnected)
+bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt) 
 {
   if(session->handshakeAttempt++ >= 10)
   {
@@ -761,7 +761,7 @@ int EmulatePioneer::processAll(int maxTime)
   return allStat;
 }
 
-bool EmulatePioneer::processSession() throw (DeletionRequest, Disconnected)
+bool EmulatePioneer::processSession() 
 {
     ArTime time;
 
@@ -892,7 +892,7 @@ bool EmulatePioneer::processSession() throw (DeletionRequest, Disconnected)
 
 
 // Command implementations:
-bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, Disconnected)
+bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) 
 {
   //printf("handling command packet with ID %d", pkt->getID());fflush(stdout);
 
@@ -1785,7 +1785,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) throw (DeletionRequest, D
   return true;
 } // handleCommand()
 
-void EmulatePioneer::endSession() throw (DeletionRequest, Disconnected)
+void EmulatePioneer::endSession() 
 {
   if(!sessionActive)
   {
