@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux-ariacoda-rosmelodic",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "../AriaCoda/include",
+                "/opt/ros/melodic/include/**"
+            ],
+            "defines": [
+              "MOBILESIM_PIONEER",
+              "MOBILESIM_ROS",
+              "MOBILESIM_VERSION=xxx",
+              "MOBILESIM_BUILDDATE=xxx"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
