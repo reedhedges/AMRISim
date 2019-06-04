@@ -2,8 +2,18 @@
 #define MOBILESIM_ROSNODE_HH
 
 #include "MobileSim.hh"
+#include "RobotInterface.hh"
+#include "ros/ros.h"
+#include "ros/callback_queue.h"
+#include "ros/callback_queue_interface.h"
+#include "geometry_msgs/Twist.h"
+#include "tf/tf.h"
+#include "tf/transform_broadcaster.h"
+#include "tf/transform_datatypes.h"
+#include "std_srvs/Empty.h"
+#include "std_msgs/Bool.h"
 
-/** @TODO configurable frame IDs */
+/** @TODO XXX configurable frame IDs */
 
 class ROSNode : public LogInterface {
 private:
@@ -14,6 +24,7 @@ private:
   ros::Publisher bumpers_pub; 
   ros::Publisher sonar_pub;
   ros::Publisher sonar_pointcloud2_pub;
+  bool publish_sonar, publish_sonar_pointcloud2;
   ros::Publisher motors_state_pub;
   std_msgs::Bool motors_state;
   bool published_motors_state;
@@ -32,22 +43,26 @@ private:
   std::string frame_id_bumper;
   std::string frame_id_sonar;
 
-  class PublishCallback : public virtual ros::CallbackIntetrface {
+  class PublishCallback : public virtual ros::CallbackInterface {
     ROSNode *target;
   public:
     PublishCallback(ROSNode *rn) : target(rn) {}
-    virtual CallResult call() {
+    virtual ros::CallbackInterface::CallResult call() {
       target->publish();
+      return CallResult::TryAgain;
     }
     virtual bool ready() {
       return true; // TODO could get hint from simulation loop in main about whether it's time, but this is not neccesary as long as that main loop calls ros::spinOnce() to determine interval.
     }
   };
 
-  PublishCallback publishCB;
+ // PublishCallback publishCB;
+  //boost::shared_ptr<PublishCallback> publishCBPtr;
+
+  void cmdvel_cb(const geometry_msgs::TwistConstPtr &);
 
 public:
-  ROSNode(StageInterface *_stageInterface, MobileSim::Options* opts);
+  ROSNode(RobotInterface *r, MobileSim::Options* opts);
   ~ROSNode();
   bool start();
   void publish(); ///< Normally called automatically by ROS callback spin loop

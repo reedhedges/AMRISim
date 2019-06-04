@@ -18,6 +18,7 @@
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
 #   ARIA         Location of ARIA library, default is ../AriaCoda TODO change to installation dir
+#   ROSRELEASE   Name of ROS release to use. Default is melodic. 
 #
 # Some variables that set build options:
 #   MOBILESIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
@@ -268,8 +269,6 @@ endif #host is MINGW32 or not
 LIBARIA:=$(ARIA)/lib/libAria.a
 ARIA_CFLAGS:=-I$(ARIA)/include 
 
-ROS_CFLAGS:=
-ROS_LINK:=
 
 SOURCES:=\
 	main.cc \
@@ -282,7 +281,8 @@ SOURCES:=\
   MapLoader.cc \
   ClientPacketReceiver.cpp \
   Socket.cc \
-  ListeningSocket.cc
+  ListeningSocket.cc \
+  ROSNode.cc
 
 HEADERS:=\
 	EmulatePioneer.hh \
@@ -296,7 +296,8 @@ HEADERS:=\
   ListeningSocket.hh \
   RobotFactory.hh \
   util.h \
-  NetworkDiscovery.hh
+  NetworkDiscovery.hh \
+  ROSNode.hh
 
 _stage_all_src=$(shell ls stage/src/*.c stage/src/*.h stage/src/*.cc stage/src/*.hh)
 _stage_unused_src=$(shell ls stage/src/zoo_* stage/src/p_* stage/src/ptest.c stage/src/stest.c)
@@ -347,6 +348,19 @@ GTK_LINK:=$(GTK_LIBS)
 #		-lXinerama -lXrandr -lfreetype -lexpat -ltiff -ljpeg -lpng -lz -lm \
 #	-Wl,-Bdynamic \
 #		-lXi -lX11 -ldl
+
+
+ifndef ROSRELEASE
+ROSRELEASE:=melodic
+endif
+
+
+$(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/ros/$(ROSRELEASE).)
+ros_modules_used:=roscpp std_msgs sensor_msgs geometry_msgs tf 
+ROS_CFLAGS:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
+ROS_LINK:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
+
+# For more info about using ROS from Make or CMake without using catkin etc see https://github.com/gerkey/ros1_external_use
 
 
 MSIM_CFLAGS := -DMOBILESIM_PIONEER -DMOBILESIM_ROS -DMOBILESIM_VERSION=\"$(VERSION)\" -DMOBILESIM_BUILDDATE="\"$(DATESTR)\"" \
@@ -562,6 +576,9 @@ info:
 	@echo GTK_LINK=$(GTK_LINK)
 	@echo GTK_LIBS=$(GTK_LIBS)
 	@echo GTK_CFLAGS=$(GTK_CFLAGS)
+	@echo
+	@echo ROS_CFLAGS=$(ROS_CFLAGS)
+	@echo ROS_LINK=$(ROS_LINK)
 	@echo
 	@echo SYSTEM_LINK=$(SYSTEM_LINK)
 	@echo

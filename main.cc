@@ -20,7 +20,7 @@
  *
  */
 
-#define _BSD_SOURCE 1	// to get getcwd() from Linux's <unistd.h> 
+#define _BSD_SOURCE 1	// to get getcwd() from LiOnux's <unistd.h> 
 
 #include <stage.h>
 
@@ -1296,48 +1296,79 @@ int main(int argc, char** argv)
   }
     
 
-#ifdef MOBILESIM_PIONEER
-  /* Create Pioneer emulators for each position model.
+#ifdef MOBILESIM_ROS
+  ros::init(argc, argv, "MobileSim", ros::init_options::NoSigintHandler); //ros::init_options::AnonymousName);
+  // XXX TODO need to do multtiple ros nodes correctly here and below.
+  // in particular need better node names (matching pioneer unique names and easier to remember and type)
+
+
+  if(!ros::master::check())
+  {
+    if(options.NonInteractive)
+    {
+      print_error("MobileSim: Error: No ROS Master (roscore) detected running. Run roscore first, or run MobileSim with ROS disabled.");
+      exit(ERR_NO_ROSMASTER);
+    }
+    else
+    {
+      print_warning("MobileSim: No ROS Master detected.");
+      GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Did not detect any ROS Master (roscore) running. Would you like to run 'roscore' in a new terminal?");
+      gint r = gtk_dialog_run(GTK_DIALOG(dialog));
+      if(r == GTK_RESPONSE_NO)
+      {
+        exit(ERR_NO_ROSMASTER);
+      }
+      gtk_widget_destroy(dialog);
+      // try running gnome-terminal
+      // TODO check evironment. if ROS environment already included, don't.
+      // TODO option to choose ROS version, in command line, and config GUI when enabling ROS
+      print_msg("Running gnome-terminal. Will import ROS melodic setup environment into shell, then will run roscore.");
+      // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
+      system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; . /opt/ros/melodic/setup.sh && roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
+      MobileSim::sleep(8*1000);
+     }
+  }
+#endif
+
+  /* Create interfaces for each position model.
    * TODO create robot models in stage here too instead of in the world file in create_stage_world. */
   for(std::map<std::string, std::string>::const_iterator i = robotInstanceRequests.begin();
       i != robotInstanceRequests.end(); i++)
   {
     const std::string& name = (*i).first;
     const std::string& model = (*i).second;
-    //    stg_print_msg("MobileSim: Creating emulated Pioneer connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), port);
-    //    stg_world_display_message(world, 0, "MobileSim", STG_MSG_INFORMATION, "Creating emulated Pioneer connection for \"%s\" (\"%s\") on TCP port %d.", (*i).second.c_str(), (*i).first.c_str(), port);
+
     StageInterface* stageint = new StageInterface(world, model, name); 
+    robotInterfaces.insert(stageint);
+
+#ifdef MOBILESIM_PIONEER
+    stg_print_msg("MobileSim: Creating emulated Pioneer client connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), opt.port);
     EmulatePioneer* emulator = new EmulatePioneer(stageint, model, opt.port++, false, true, &opt);
     if(map)
 	    emulator->loadMapObjects(map);
-    robotInterfaces.insert(stageint);
     emulator->setSimulatorIdentification("MobileSim", MOBILESIM_VERSION);
     if(opt.listen_address != "")
       emulator->setListenAddress(opt.listen_address);
     if(!emulator->openSocket())
       delete emulator;
-  }
 #endif
 
 #ifdef MOBILESIM_ROS
-  /* Create ROS nodes for each position model.
-   * TODO create robot models in stage here too instead of in the world file in create_stage_world. */
-  for(std::map<std::string, std::string>::const_iterator i = robotInstanceRequests.begin();
-      i != robotInstanceRequests.end(); i++)
-  {
-    const std::string& name = (*i).first;
-    const std::string& model = (*i).second;
-    //    stg_print_msg("MobileSim: Creating emulated Pioneer connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), port);
-    //    stg_world_display_message(world, 0, "MobileSim", STG_MSG_INFORMATION, "Creating emulated Pioneer connection for \"%s\" (\"%s\") on TCP port %d.", (*i).second.c_str(), (*i).first.c_str(), port);
-    StageInterface* stageint = new StageInterface(world, model, name); 
-    ROSNode* rosnode = new ROSNode(stageint, model, false, &opt);
-    //if(map)
-	  //  rosnode->loadMapObjects(map);
-    robotInterfaces.insert(stageint);
+
+      // note, it may also be possible for ROS and Pioneer interfaces to have
+      // separate StageInterface objects?  not sure 
+    stg_print_msg("MobileSim: Creating ROS client connection for robot named \"%s\" (\"%s\")", (*i).first.c_str(), (*i).second.c_str());
+    ROSNode* rosnode = new ROSNode(stageint, &opt);
     if(!rosnode->start())
       delete rosnode;
-  }
 #endif
+
+#if !defined(MOBILESIM_PIONEER) && !defined(MOBILESIM_ROS)
+#error Neither MOBILESIM_PIONEER nor MOBILESIM_ROS are defined. One or both must be defined to include any client interfaces
+#endif
+
+  }
+
 
   /* Change Stage's window title. TODO: include map file name? */
   stg_world_set_window_title(world, "MobileSim");

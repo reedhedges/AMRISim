@@ -83,20 +83,23 @@ class RobotInterface : public LogInterface {
  
     std::string getRobotName() const { return robotName; }
 
-    /** Use the given params struct. The implementation of this function might
-     change them based on values read for this robot type from the simulator.
-     You should call this before accepting a connection with a client, as this function
+    /** Use the given params struct to store certain parameters retrieved
+     from simulater robot model configuration (e.g. Stage model definitions). 
+     You must call this before accepting a connection with a client, as this function
      may connect to the robot/sim and retrieve configuration from the robot/sim 
-     you will need for the client session.
+     you will need for the client session, and prepare the interface for
+     receiving data.  No valid data may be available from the simulated robot if
+      not previously called.
     */
-    virtual void connect(RobotParams* params) = 0;
+    virtual void connect(RobotParams* params = NULL) = 0;
 
     /// Cleanup from connect(), and also clear any session state such as odometry etc.
     virtual void disconnect() = 0;
 
 
     // commands:
-    virtual void enableMotors(bool e) = 0;
+    virtual void enableMotors(bool e = true) = 0;
+    void disableMotors() { enableMotors(false); }
     virtual void transVel(int v) = 0;  ///< mm/s
     virtual void latVel(int v) = 0;   ///< mm/s for omnidirectionals only
     virtual void rotVel(int v) = 0;    ///< deg/s
