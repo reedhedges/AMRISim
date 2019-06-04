@@ -127,7 +127,7 @@ void StageInterface::connect(RobotParams* params)
 
 
   /* Set initial robot subtype from name the user used to make it */
-  strncpy(params->RobotSubclass, robotModel.c_str(), ROBOT_IDENTIFIER_LEN);
+  if(params) strncpy(params->RobotSubclass, robotModel.c_str(), ROBOT_IDENTIFIER_LEN);
 
   // initialize command struct for position commands:
   memset(&positionCmd, 0, sizeof(positionCmd));
@@ -149,17 +149,17 @@ void StageInterface::connect(RobotParams* params)
 
   stg_model_subscribe(positionModel);
 
-  // Get the robot subtype from the position model, that's important:
+  // Get the robot subtype from the position model, that's important for
+  // EmulatePioneer:
   size_t len;
   const char* s = (const char*) stg_model_get_property(positionModel, "pioneer_robot_subtype", &len);
-  if(s != NULL)
+  if(params && s)
   {
     strncpy(params->RobotSubclass, s, ROBOT_IDENTIFIER_LEN);
   }
 
-  s = (const char*) stg_model_get_property(positionModel, "pioneer_robot_type",
-&len);
-  if(s != NULL)
+  s = (const char*) stg_model_get_property(positionModel, "pioneer_robot_type", &len);
+  if(params && s)
     strncpy(params->RobotClass, s, ROBOT_IDENTIFIER_LEN);
 
   // Get other models that are children of the position: 
@@ -206,61 +206,65 @@ void StageInterface::connect(RobotParams* params)
   /* Get our custom parameters from Stage's model definitions (these properties
   * were registered by MobileSim's main.cc): */
 
-  /// @todo Need to get *all* robot parameters, including speed config etc. !!
-
-  this->params = params;  // make a copy to store the original defaults
-  //assert(positionModel);
-
-  float *f;
-  int *i;
-
-  f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_distconv", sizeof(float));
-  if(f) params->DistConvFactor = *f;
-
-  f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_diffconv", sizeof(float));
-  if(f) params->DiffConvFactor = *f;
-
-  f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_angleconv", sizeof(float));
-  if(f) params->AngleConvFactor = *f;
-
-  f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_rangeconv", sizeof(float));
-  if(f) params->RangeConvFactor = *f;
-
-  f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_vel2div", sizeof(float));
-  if(f) params->Vel2DivFactor = *f;
-
-  f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_velconv", sizeof(float));
-  if(f) params->VelConvFactor = *f;
-
-  //i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_sip_cycle", sizeof(int));
-  //if(i) params->SIPFreq = *i;
-
-  i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_watchdog", sizeof(int));
-  if(i) params->WatchdogTime = *i;
-
-  if(sonarModel)
+  if(params)
   {
-    i = (int*) stg_model_get_property_fixed(sonarModel, "pioneer_max_readings_per_packet", sizeof(int));
-    if(i) params->Sim_MaxSonarReadingsPerSIP = *i;
-  }
 
-  i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_batterytype", sizeof(int));
-  if(!i) i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_battery_type", sizeof(int));
-  if(i) 
-  {
-    log("Read battery type %d from model definition", *i);
-    params->BatteryType = *i;
-  }
-  else 
-  {
-    params->BatteryType = 0;
-  }
+    /// @todo Need to get *all* robot parameters, including speed config etc. !!
 
-  f = (float*) stg_model_get_property_fixed(positionModel, "pioneer_gps_pos_x", sizeof(float));
-  if(f) params->GPSPosX = (int) (*f * 1000.0);
-  f = (float*) stg_model_get_property_fixed(positionModel, "pioneer_gps_pos_y", sizeof(float));
-  if(f) params->GPSPosY = (int) (*f * 1000.0);
+    this->params = params;  // make a copy to store the original defaults
+    //assert(positionModel);
 
+    float *f;
+    int *i;
+
+    f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_distconv", sizeof(float));
+    if(f) params->DistConvFactor = *f;
+
+    f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_diffconv", sizeof(float));
+    if(f) params->DiffConvFactor = *f;
+
+    f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_angleconv", sizeof(float));
+    if(f) params->AngleConvFactor = *f;
+
+    f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_rangeconv", sizeof(float));
+    if(f) params->RangeConvFactor = *f;
+
+    f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_vel2div", sizeof(float));
+    if(f) params->Vel2DivFactor = *f;
+
+    f = (float*)stg_model_get_property_fixed(positionModel, "pioneer_velconv", sizeof(float));
+    if(f) params->VelConvFactor = *f;
+
+    //i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_sip_cycle", sizeof(int));
+    //if(i) params->SIPFreq = *i;
+
+    i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_watchdog", sizeof(int));
+    if(i) params->WatchdogTime = *i;
+
+    if(sonarModel)
+    {
+      i = (int*) stg_model_get_property_fixed(sonarModel, "pioneer_max_readings_per_packet", sizeof(int));
+      if(i) params->Sim_MaxSonarReadingsPerSIP = *i;
+    }
+
+    i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_batterytype", sizeof(int));
+    if(!i) i = (int*)stg_model_get_property_fixed(positionModel, "pioneer_battery_type", sizeof(int));
+    if(i) 
+    {
+      log("Read battery type %d from model definition", *i);
+      params->BatteryType = *i;
+    }
+    else 
+    {
+      params->BatteryType = 0;
+    }
+
+    f = (float*) stg_model_get_property_fixed(positionModel, "pioneer_gps_pos_x", sizeof(float));
+    if(f) params->GPSPosX = (int) (*f * 1000.0);
+    f = (float*) stg_model_get_property_fixed(positionModel, "pioneer_gps_pos_y", sizeof(float));
+    if(f) params->GPSPosY = (int) (*f * 1000.0);
+
+  }
 
 // For Debugging:
 /*

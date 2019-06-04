@@ -60,6 +60,7 @@ class ArSocket;
 #define ERR_CHDIR -9
 // -10 through -19 are used by the EmulatePioneer class.
 #define ERR_CRASH -20 // becomes 236
+#define ERR_NO_ROSMASTER -21 // 237
 
 
 /* Default real update interval */

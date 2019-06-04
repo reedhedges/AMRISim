@@ -111,9 +111,9 @@ class StageInterface : public virtual RobotInterface
     //static ArMutex stageWorldMutex; ///< Mutex for calls to Stage affecting the world (models can be individually locked)
 
   protected:
-    /// easier accossor than stage's property interface. does NOT lock stage mutex.
+    /// easier accossor than stage's property interface. does NOT lock stage mutex. may reurn NULL
     stg_position_data_t* stagePositionData();
-    /// easier accossor than stage's property interface. does NOT lock stage mutex.
+    /// easier accossor than stage's property interface. does NOT lock stage mutex. may return NULL
     stg_velocity_t* stageVelocityData();
     //@}
 
@@ -131,7 +131,7 @@ class StageInterface : public virtual RobotInterface
     virtual void openLaser(size_t i);
     virtual void closeLaser(size_t i);
     virtual bool laserOpen(size_t i) { return i < lasers.size() && lasers[i].opened; }
-    virtual void enableMotors(bool e) ;
+    virtual void enableMotors(bool e);
     virtual void transVel(int v);
     virtual void latVel(int v);
     virtual void rotVel(int v);

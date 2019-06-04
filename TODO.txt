@@ -4,7 +4,24 @@
 * Remove unused stuff 
 * Fix last temp file issue
 * True no-GUI build with daemon mode
-* ROS client inerface. Maybe separate builds for Pioneer/ARIA and ROS
+* Improve ROS client inerface. 
+  * Maybe separate builds for Pioneer/ARIA and ROS
+  * Enable/disable in GUI
+  * Verify we are creating multiple ROS nodes in one process correcly.
+  * Fix "XXX" and "TODO" items marked in code
+  * EmulatePioneer and ROSNode interfaces share a RobotInterface. Better to have
+    separate interfaces (what state does StageIntetrface have?)
+  * StageInterface class still assumes Pioneer robots in some places (eg with
+    Pioneer parameters struct provided by EmulatePioneer to be filled in with
+    specific parameters from Stage model definitions.  This could be generalized or
+    inverted i.e. EmulatePioneer using an interface in RobotInterface to query
+    parameters. )
+  * Could publish more available data
+  * Map loading
+  * Configuration
+  * Improve build. (Use CMake? Support system-default-install (/usr), 
+    etc.
+  * Document
 * Include some useful startup scripts for unattended operation eg systemd, 
   maybe docker config or info, AWS template (at least document requirements in
   README), etc.
@@ -15,5 +32,5 @@
 * Dynamically configurable model hierarcy and properties in GUI.
 * Replace GUI?  Remotely acessible web view (or start with simple
   status/control/config web interface)?
-* Internal client interface to embedded scripting language
-
+* Internal client interface to embedded scripting language?
+* LogInterface needs to include multiple identifiers in messages (robot name, interface name, etc.)

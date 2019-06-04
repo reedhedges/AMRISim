@@ -366,7 +366,7 @@ bool EmulatePioneer::openSocket()
     if(myListenSocket.open(myTCPPort, ArSocket::TCP, (myListenAddress == "" ? NULL : myListenAddress.c_str())))
     {
       portOpened = true;
-      inform("Port opened. Listening on TCP port %d... [%d]", myTCPPort, myListenSocket.getFD());
+      inform("Pioneer port opened. Listening on TCP port %d... [%d]", myTCPPort, myListenSocket.getFD());
       break;
     }
     inform("TCP port %d unavailable. Trying again in %d seconds...", myTCPPort, TCP_PORT_RETRY_TIME/1000);
@@ -384,23 +384,23 @@ bool EmulatePioneer::openSocket()
       if(myListenSocket.open(myTCPPort, ArSocket::TCP, (myListenAddress == "" ? NULL : myListenAddress.c_str())) )
       {
         portOpened = true;
-        inform("Port opened. Listening on TCP port %d... [%d]", myTCPPort, myListenSocket.getFD());
+        inform("Pioneer port opened. Listening on TCP port %d... [%d]", myTCPPort, myListenSocket.getFD());
         break;
       }
     }
   }
 
   if(!portOpened) {
-    error("Could not open a TCP port!");
+    error("Could not open a TCP port for Pioneer interface!");
     return false;
   }
 
   if(myRequestedTCPPort != myTCPPort)
     warn("Requested TCP port %d was unavailable. Using %d instead.", myRequestedTCPPort, myTCPPort);
   if(myListenAddress != "")
-    inform("Ready for a client to connect to address %s on TCP port %d.", myListenAddress.c_str(), myTCPPort);
+    inform("Pioneer interface ready for a client to connect to address %s on TCP port %d.", myListenAddress.c_str(), myTCPPort);
   else
-    inform("Ready for a client to connect on TCP port %d.", myTCPPort);
+    inform("Pioneer interface ready for a client to connect on TCP port %d.", myTCPPort);
 
   myListenSocket.setReuseAddress();
   myListenSocket.setNonBlock();
