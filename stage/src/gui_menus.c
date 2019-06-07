@@ -1252,7 +1252,7 @@ void gui_enable_load_file_menu_item(gui_window_t* win, gboolean enable)
     gtk_widget_hide(menu);
 #endif
 
-  // Under GTK 2.0 I don't know how to turn it off yet. It's ok, only MobileSim
+  // Under GTK 2.0 I don't know how to turn it off yet. It's ok, only AMRISim
   // uses GTK 2.0.
 }
 

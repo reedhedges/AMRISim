@@ -1,25 +1,27 @@
-/*
 
-  Copyright (C) 2005, ActivMedia Robotics, LLC
-  Copyright (C) 2006-2010 MobileRobots, Inc.
-  Copyright (C) 2011-2015 Adept Technology Inc.
-  Copyright (C) 2016-2017 Omron Adept Technologies
-
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; either version 2 of the License, or
-     (at your option) any later version.
-
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
-
-     You should have received a copy of the GNU General Public License
-     along with this program; if not, write to the Free Software
-     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
+/*  
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
+ *
+ *  Copyright 2018 Reed Hedges and others
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 /* TODO add map loading into a new "World" interface ? */
 
@@ -279,7 +281,7 @@ bool MapLoader::process(unsigned int maxTime)
 
     if (myNumLines > 0)
     {
-      //myPolysPerChunk      =  10000;   // TODO: Hardcoded for now. Create MobileSim commandline parameter to overwrite this value
+      //myPolysPerChunk      =  10000;   // TODO: Hardcoded for now. Create AMRISim commandline parameter to overwrite this value
       myNumMapPolysChunks  = myNumLines / myPolysPerChunk;
       if (myNumLines % myPolysPerChunk != 0) ++myNumMapPolysChunks;
       myMapPolysChunks.clear();
@@ -331,7 +333,7 @@ bool MapLoader::process(unsigned int maxTime)
       // Make sure we have time left for one more iteration
       if (!processTimeCheck(maxTime, mapProcessStart, MapLoader::NEWMAP_LOADLINECONT))
       {
-        //ArLog::log(ArLog::Normal, "MobileSim map loader: exiting this process loop at %lu lines...", myNumPolys);
+        //ArLog::log(ArLog::Normal, "AMRISim map loader: exiting this process loop at %lu lines...", myNumPolys);
         //ArLog::log(ArLog::Normal, "MapLoader::process(): NEWMAP_LOADLINECONT section took %d msec.", timer.mSecSince());
         return true;
       }
@@ -350,7 +352,7 @@ bool MapLoader::process(unsigned int maxTime)
 
 #if PRINT_NUM_LINES_CREATED
       if(myNumPolys % myPolysPerChunk == 0)
-        ArLog::log(ArLog::Normal, "MobileSim map loader: At %lu lines...", myNumPolys);
+        ArLog::log(ArLog::Normal, "AMRISim map loader: At %lu lines...", myNumPolys);
 #endif
       ++myNumPolys;
     }
@@ -373,7 +375,7 @@ bool MapLoader::process(unsigned int maxTime)
 
     if(myNumPoints > 0)
     {
-      //myPointsPerChunk     = 100000;  // TODO: Hardcoded for now. Create MobileSim commandline parameter to overwrite this value
+      //myPointsPerChunk     = 100000;  // TODO: Hardcoded for now. Create AMRISim commandline parameter to overwrite this value
       myNumMapPointsChunks  = myNumPoints / myPointsPerChunk;
       if (myNumPoints % myPointsPerChunk != 0) ++myNumMapPointsChunks;
       myMapPointsChunks.clear();
@@ -446,7 +448,7 @@ bool MapLoader::process(unsigned int maxTime)
 
 #if PRINT_NUM_POINTS_CREATED
       if(myPointCount % myPointsPerChunk == 0)
-        ArLog::log(ArLog::Normal, "MobileSim map loader: At %lu points...", myPointCount);
+        ArLog::log(ArLog::Normal, "AMRISim map loader: At %lu points...", myPointCount);
 #endif
       ++myPointCount;
     }
@@ -467,9 +469,9 @@ bool MapLoader::process(unsigned int maxTime)
     DEBUG_LOG_STATE_ACTION();
     if(!myLoadedData)
     {
-      stg_print_warning("MobileSim: No obstacle data loaded from map file \"%s\"!", mapfile.c_str());
-      //if(!loadPoints) stg_print_warning("MobileSim: Requested not to load point data, try enabling.");
-      //if(!loadLines) stg_print_warning("MobileSim: Requested not to load line data, try enabling.");
+      stg_print_warning("AMRISim: No obstacle data loaded from map file \"%s\"!", mapfile.c_str());
+      //if(!loadPoints) stg_print_warning("AMRISim: Requested not to load point data, try enabling.");
+      //if(!loadLines) stg_print_warning("AMRISim: Requested not to load line data, try enabling.");
     }
 
     // Load origin georeference
@@ -479,7 +481,7 @@ bool MapLoader::process(unsigned int maxTime)
       mapOriginLLA.setX(map->getOriginLatLong().getX());
       mapOriginLLA.setY(map->getOriginLatLong().getY());
       mapOriginLLA.setZ(map->getOriginAltitude());
-      stg_print_msg("MobileSim: Map has OriginLatLon point, will be able to send simulated GPS coordinates if requested.");
+      stg_print_msg("AMRISim: Map has OriginLatLon point, will be able to send simulated GPS coordinates if requested.");
     }
 
     myProcessState = MapLoader::NEWMAP_STAGECREATE;
@@ -500,7 +502,7 @@ bool MapLoader::process(unsigned int maxTime)
       ;
     if(id == STG_ID_T_MAX)
     {
-      stg_print_error("MobileSim: !!! too many models in the world, can't create a new one.");
+      stg_print_error("AMRISim: !!! too many models in the world, can't create a new one.");
       return false;
     }
 
@@ -816,7 +818,7 @@ bool MapLoader::process(unsigned int maxTime)
       const char *type_name = (*myCusType_it)->getArg(1);
       if( strncmp(type_name, "Name=", 5) != 0 )
       {
-        //stg_print_warning("MobileSim: First MapInfo attribute is not \"Name\", skipping.");
+        //stg_print_warning("AMRISim: First MapInfo attribute is not \"Name\", skipping.");
         continue;
       }
       type_name += strlen("Name="); // skip past the "Name=" prefix
@@ -829,7 +831,7 @@ bool MapLoader::process(unsigned int maxTime)
         continue;
 
       // Reflectors can be built-in reflectors, or have a name that
-      // previous versions of MobileSim interpreted as automatically being
+      // previous versions of AMRISim interpreted as automatically being
       // reflectors.
       int val = 1;
       const char* endTag = strrchr(type_name, '.');
@@ -855,14 +857,14 @@ bool MapLoader::process(unsigned int maxTime)
             new_class.laser_return = 0;
           else
             new_class.laser_return = atoi( buf + strlen("Sim.LaserReflect=") ) + 1;   // Need to add one because Stage starts highly reflective objects at 2, but SICK/Aria at 1
-          stg_print_msg("MobileSim: Will use reflection value %d for objects with type %s (from Sim.LaserReflect attribute in MapInfo)", new_class.laser_return, type_name);
+          stg_print_msg("AMRISim: Will use reflection value %d for objects with type %s (from Sim.LaserReflect attribute in MapInfo)", new_class.laser_return, type_name);
         }
 
         // To sonar?
         if(strncmp(buf, "Sim.SonarReflect=no", strlen("Sim.SonarReflect=no")) == 0 || strncmp(buf, "Sim.SonarReflect=false", strlen("Sim.SonarReflect=false")) == 0)
         {
           new_class.sonar_return = false;
-          stg_print_msg("MobileSim: Objects of type %s %s be visible to sonar (from Sim.SonarReflect attribute in MapInfo)", type_name, new_class.sonar_return?"will":"will not");
+          stg_print_msg("AMRISim: Objects of type %s %s be visible to sonar (from Sim.SonarReflect attribute in MapInfo)", type_name, new_class.sonar_return?"will":"will not");
         }
 
 
@@ -871,14 +873,14 @@ bool MapLoader::process(unsigned int maxTime)
         // Obstacle to robot?
         if(strcasecmp(buf, "Sim.Obstacle=yes") == 0 || strcasecmp(buf, "Sim.Obstacle=true") == 0)
         {
-          stg_print_msg("MobileSim: Objects of type %s will be represented as obstacles (from Sim.Obstacle attribute in MapInfo for %s)", type_name, type_name);
+          stg_print_msg("AMRISim: Objects of type %s will be represented as obstacles (from Sim.Obstacle attribute in MapInfo for %s)", type_name, type_name);
           new_class.obstacle = true;
         }
 
         // Non-obstacle to robot?
         if(strcasecmp(buf, "Sim.Obstacle=no") == 0 || strcasecmp(buf, "Sim.Obstacle=false") == 0)
         {
-          stg_print_msg("MobileSim: Objects of type %s will be represented as non-obstacle objects (from Sim.Obstacle attribute in MapInfo for %s)", type_name, type_name);
+          stg_print_msg("AMRISim: Objects of type %s will be represented as non-obstacle objects (from Sim.Obstacle attribute in MapInfo for %s)", type_name, type_name);
           new_class.obstacle = false;
         }
       }
@@ -1111,7 +1113,7 @@ stg_model_t* MapLoader::loadReflector(ArMapObject* obj, stg_model_t* /*map_model
 {
   if(!obj->hasFromTo()) 
   {
-    stg_print_warning("MobileSim: Found a Reflector Cairn in the map, but the line has no 'from' and 'to' position; skipping.");
+    stg_print_warning("AMRISim: Found a Reflector Cairn in the map, but the line has no 'from' and 'to' position; skipping.");
     return NULL;
   }
 
@@ -1222,11 +1224,11 @@ stg_model_t* MapLoader::loadBoxObstacle(ArMapObject* obj, stg_model_t* /*map_mod
   // type of obstacle. (e.g. Sim.SonarOnly, Sim.Invisible, etc.)
   if(!obj->hasFromTo())
   {
-    stg_print_warning("MobileSim: Found a Sim.BoxObstacle Cairn in the map, but the line has no 'from' and 'to' position. Skipping.");
+    stg_print_warning("AMRISim: Found a Sim.BoxObstacle Cairn in the map, but the line has no 'from' and 'to' position. Skipping.");
     return NULL;
   }
 
-  stg_print_msg("MobileSim: Found a Box Obstacle in the map file at pose (%.0fmm,%.0fmm,%.0fdeg); a box from (%.0fmm,%.0fmm) to (%.0fmm,%.0fmm)",
+  stg_print_msg("AMRISim: Found a Box Obstacle in the map file at pose (%.0fmm,%.0fmm,%.0fdeg); a box from (%.0fmm,%.0fmm) to (%.0fmm,%.0fmm)",
   obj->getPose().getX(), obj->getPose().getY(), obj->getPose().getTh(), 
   obj->getFromPose().getX(), obj->getFromPose().getY(), 
   obj->getToPose().getX(), obj->getToPose().getY());

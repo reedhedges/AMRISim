@@ -127,6 +127,7 @@ FILE *CWorldFile::FileOpen(const char *filename, const char* method)
    // else, search other places, and set this->filename
    // accordingly if found:
    char *stagepath = getenv("STAGEPATH");
+   if(!stagepath) return NULL;
    char *token = strtok(stagepath, ":");
    char *fullpath = (char*) malloc(PATH_MAX);
    char *tmp = strdup(filename);

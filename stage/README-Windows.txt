@@ -42,8 +42,8 @@ MSYS-- in MSYS /usr is the same as /).  Or you could edit /etc/fstab to
 map /usr/local to wherever you unpack these.  I added
 C:\msys\1.0\lib;C:\msys\1.0\local\lib to PATH in the System control
 panel (click Advanced...) so Windows could find the DLLs at program runtime.
-(When we package our MobileSim simulator based on stage, then we just copy
-the required DLLs and other runtime files into the same directory as MobileSim.)
+(When we package our AMRISim simulator based on stage, then we just copy
+the required DLLs and other runtime files into the same directory as AMRISim.)
     
 I generated the Stage configure script like this:
 

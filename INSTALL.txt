@@ -1,5 +1,5 @@
 
-Installing MobileSim
+Installing AMRISim
 ====================
 
 
@@ -7,48 +7,48 @@ To install on Linux from a Debian/Ubuntu package
 (mobilesim_0.9.8_i386.deb)
 -----------------------------------------
 
-1. Use dpkg to install MobileSim in /usr/local/MobileSim, and place symbolic
+1. Use dpkg to install AMRISim in /usr/local/AMRISim, and place symbolic
 links in /usr/bin etc.:
   sudo dpkg -i mobilesim_0.9.8_i386.deb
 
 2. If dependencies are missing, install them using apt-get.
 
 3. To uninstall later, use apt-get:
-  apt-get remove mobilesim
+  apt-get remove amrisim
 
 
 
 
 To install on Windows
-(MobileSim-0.9.8.exe
+(AMRISim-0.9.8.exe
 -----------------------------------------
 
 Run the installer program, and follow the steps.  To uninstall later,
-run the "uninstall" program in Program Files -> MobileRobots -> MobileSim,
+run the "uninstall" program in Program Files -> MobileRobots -> AMRISim,
 or use Add/Remove Programs in the System preferences.
 
 
 
 To build and on Linux or Mac OSX from a source package
-(MobileSim-0.9.8.tar.gz) 
+(AMRISim-0.9.8.tar.gz) 
 ------------------------------------------------
 
 1. Unpack the .tgz file using tar:
-  tar xzf MobileSim-0.9.8.tar.gz
-  cd MobileSim-0.9.8
+  tar xzf AMRISim-0.9.8.tar.gz
+  cd AMRISim-0.9.8
 
 2. Read README.src.txt:
   less README.src.txt
 
 3. After setting up any neccesary dependencies as described in README.src.txt,
-build MobileSim:
+build AMRISim:
   make
 
-4. If desired, use 'make install' to install MobileSim in /usr/local/MobileSim:
+4. If desired, use 'make install' to install AMRISim in /usr/local/AMRISim:
   sudo make install
 
-Otherwise, set a MOBILESIM environment variable to your
-MobileSim-0.9.8 build directory.
+Otherwise, set a AMRISIM environment variable to your
+AMRISim-0.9.8 build directory.
 
 
 

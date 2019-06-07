@@ -1,10 +1,12 @@
-/*
- *  Pioneer emulator over TCP.
- *  Copyright (C) 2005, ActivMedia Robotics
- *  Copyright (C) 2006-2010 MobileRobots, Inc.
- *  Copyright (C) 2011-2015 Adept Technology
- *  Copyright (C) 2016-2017 Omron Adept Technologies
+
+/*  
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
  *
+ *  Copyright 2018 Reed Hedges and others
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -60,7 +62,7 @@ class ArDeviceConnection;
 #define DEFAULT_SIP_FREQ       100        // defaut SIP cycle time, ms.
 #define DEFAULT_WATCHDOG_TIME  2000       // ms of no activity to stop robot.
 #define DEFAULT_MAX_SONAR_READINGS_PER_SIP 32  // Set to a low number like 4 to crudely simulate sonar timing delay
-#define DEFAULT_ROBOT_NAME     "MobileSim"
+#define DEFAULT_ROBOT_NAME     "AMRISim"
 #define DEFAULT_ROBOT_CLASS       "Pioneer"
 #define DEFAULT_ROBOT_SUBCLASS    "p3dx"
 #define DEFAULT_DIFFCONV          0.0056
@@ -122,7 +124,7 @@ enum {
  */
 class RobotParams {
 public:
-    char RobotName[ROBOT_IDENTIFIER_LEN];  ///< Note, this is used in the MobileSim UI, but the name is always reported to clients as "MobileSim".
+    char RobotName[ROBOT_IDENTIFIER_LEN];  ///< Note, this is used in the AMRISim UI, but the name is always reported to clients as "AMRISim".
     char RobotClass[ROBOT_IDENTIFIER_LEN];
     char RobotSubclass[ROBOT_IDENTIFIER_LEN];
     int SIPFreq;
@@ -478,7 +480,7 @@ class EmulatePioneer : public ClientInterface, public LogInterface
   public:
 
     // exception to request deletion of this EmulatePioneer instance, thrown by a callback function within that instance
-    class DeletionRequest : public virtual MobileSim::DeletionRequest
+    class DeletionRequest : public virtual AMRISim::DeletionRequest
     {
     private:
       EmulatePioneer* instance;
@@ -500,7 +502,7 @@ class EmulatePioneer : public ClientInterface, public LogInterface
      *  The socket must already be connected to the client. EmulatePioneer will
      *  not reopen it.
      */
-    EmulatePioneer(RobotInterface *rif, std::string robotModel, ArSocket *clientSocket, bool deleteRobotInterfaceOnDisconnect = false, bool deleteClientSocketOnDisconnect = true, const MobileSim::Options *userOptions = NULL);
+    EmulatePioneer(RobotInterface *rif, std::string robotModel, ArSocket *clientSocket, bool deleteRobotInterfaceOnDisconnect = false, bool deleteClientSocketOnDisconnect = true, const AMRISim::Options *userOptions = NULL);
 
     /** Create a new EmulatePioneer using the given RobotInterface for the given
      *  robot model. Use @a port as the default when opening a new listening
@@ -508,10 +510,10 @@ class EmulatePioneer : public ClientInterface, public LogInterface
      */
     EmulatePioneer(RobotInterface *rif, std::string robotModel, int port =
 DEFAULT_PIONEER_SIM_PORT, bool deleteRobotInterface = false, bool
-trySubsequentPorts = true, const MobileSim::Options *userOptions = NULL);
+trySubsequentPorts = true, const AMRISim::Options *userOptions = NULL);
 
 private:
-    void init(const std::string& robotName, const MobileSim::Options *userOptions);   // helper for the above constructors
+    void init(const std::string& robotName, const AMRISim::Options *userOptions);   // helper for the above constructors
 
 public:
 
@@ -721,14 +723,14 @@ public:
     {
       const ArTypes::UByte curr = robotInterface->getDigoutState();
       robotInterface->setDigoutState( (curr & ~mask) | (~curr & mask & states) );
-      inform("Pioneer digital output changed to %s", MobileSim::byte_as_bitstring(robotInterface->getDigoutState()).c_str());
+      inform("Pioneer digital output changed to %s", AMRISim::byte_as_bitstring(robotInterface->getDigoutState()).c_str());
     }
 
     void changeDigin(ArTypes::UByte mask, ArTypes::UByte states)
     {
       const ArTypes::UByte curr = robotInterface->getDiginState();
       robotInterface->setDiginState( (curr & ~mask) | (~curr & mask & states) );
-      inform("Pioneer digital input changed to %s", MobileSim::byte_as_bitstring(robotInterface->getDiginState()).c_str());
+      inform("Pioneer digital input changed to %s", AMRISim::byte_as_bitstring(robotInterface->getDiginState()).c_str());
     }
 
 

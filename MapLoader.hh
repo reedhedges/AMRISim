@@ -1,24 +1,27 @@
 
 /*  
-    Copyright (C) 2005, ActivMedia Robotics LLC <http://www.activmedia.com>
-    Copyright (C) 2006-2010 MobileRobots, Inc. <http://www.mobilerobots.com>
-    Copyright (C) 2011-2015 Adept Technology
-    Copyright (C) 2016-2017 Omron Adept Technologies
-
-    This is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This software is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this software; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
+ *
+ *  Copyright 2018 Reed Hedges and others
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 #ifndef _EP_STAGE_MAP_LOADER_HH_
 #define _EP_STAGE_MAP_LOADER_HH_
@@ -60,7 +63,7 @@ typedef ArFunctor1<MapLoadedInfo>* MapLoadedCallback;
  * a Stage world, and keep track of models created. This class contains
  * the methods to do so, as well as keeps track of in-progress loading (loading
  * can be performed incrementally to avoid blocking the program for too long while doing so).
- * Generally this class is meant to be a singleton (MobileSim should just keep one instance to track loading).
+ * Generally this class is meant to be a singleton (AMRISim should just keep one instance to track loading).
  */
 class MapLoader
 {
@@ -75,7 +78,7 @@ private:
   ArMap *map; ///< points to an ArMap object while we are using it to load a map
   bool created_map; ///< we created map, and can delete it.
   bool loading; ///< true while we are in the process of loading a map, false when done.
-  bool hostHasEM; // If this MobileSim is on the same VM as the EM, then shouldReloadMap can simply check the file mod timestamp directly from the source file
+  bool hostHasEM; // If this AMRISim is on the same VM as the EM, then shouldReloadMap can simply check the file mod timestamp directly from the source file
   time_t lastMapReloadTime;
 
   ArLLACoords mapOriginLLA;

@@ -1,9 +1,12 @@
+
 /*  
- *  Copyright (C) 2005 ActivMedia Robotics
- *  Copyright (C) 2006-2010 MobileRobots Inc.
- *  Copyright (C) 2011-2015 Adept Technology
- *  Copyright (C) 2016-2017 Omron Adept Technologies
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
  *
+ *  Copyright 2018 Reed Hedges and others
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -31,7 +34,7 @@
 
 #include <assert.h>
 
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
 #include <gtk/gtk.h>
 #include <glib.h>
 #endif
@@ -52,7 +55,7 @@
 #include "ArMap.h"
 #include "ArSocket.h"
 
-#include "MobileSim.hh"
+#include "AMRISim.hh"
 #include "Config.hh"
 #include "util.h"
 #include "StageInterface.hh"
@@ -62,15 +65,15 @@
 #include "Socket.hh"
 #include "NetworkDiscovery.hh"
 
-#ifdef MOBILESIM_PIONEER
+#ifdef AMRISIM_PIONEER
 #include "EmulatePioneer.hh"
 #endif
 
-#ifdef MOBILESIM_ROS
+#ifdef AMRISIM_ROS
 #include "ROSNode.hh"
 #endif
 
-using namespace MobileSim;
+using namespace AMRISim;
 
 #include "ArSocket.h"
 
@@ -100,7 +103,7 @@ using namespace MobileSim;
 /* Arbitrary limit for number of robots allowed in the initial
  * configuration dialog.  Theoretically, we're only limited by
  * the number of TCP ports possible (1024 through 65545).
- * MobileSim will probably become more and more unusable, however, 
+ * AMRISim will probably become more and more unusable, however, 
  * the closer you approach this limit.
  */
 #define ROBOTS_MENU_LIMIT 200
@@ -111,25 +114,26 @@ using namespace MobileSim;
 #define CLEANUP_TEMP_FILES 1
 
 
-#define COPYRIGHT_TEXT "Stage 2.0 is (C) Copyright 2007  Richard Vaughan, Brian Gerkey, Andrew Howard, and others.\n" \
-"MobileSim is (C) Copyright 2005, ActivMedia Robotics LLC, (C) Copyright 2006-2010 MobileRobots Inc.,\n" \
-"(C) Copyright 2011-2015, Adept Technology Inc., (C) Copyright 2016-2017 Omron Adept Technologies.\n" \
-"This software is released under the GNU General Public License.\n" \
+#define COPYRIGHT_TEXT \
+"AMRISim is based on Stage 2.0 (Copyright 2007  Richard Vaughan, Brian Gerkey, Andrew Howard, and others)\n" \
+"and MobileSim (C Copyright 2005, ActivMedia Robotics LLC,  2006-2010 MobileRobots Inc.,\n" \
+"2011-2015, Adept Technology Inc., 2016-2017 Omron Adept Technologies)\n" \
+"This software is released under the GNU General Public License (version 2).\n" \
 "This software comes with NO WARRANTY.  This is free software, and you are\n" \
 "welcome to redistribute it under certain conditions; see the LICENSE.txt file\n" \
 "for details.\n\n"
 
-#ifndef MOBILESIM_DEFAULT_DIR
+#ifndef AMRISIM_DEFAULT_DIR
 
 #ifdef WIN32
-#define MOBILESIM_DEFAULT_DIR "\\Program Files\\MobileRobots\\MobileSim"
-#define MOBILESIM_DEFAULT_HELP_URL "file:C:/Program%20Files/MobileRobots/MobileSim/README.html";
+#define AMRISIM_DEFAULT_DIR "\\Program Files\\MobileRobots\\AMRISim"
+#define AMRISIM_DEFAULT_HELP_URL "file:C:/Program%20Files/MobileRobots/AMRISim/README.html";
 #elif defined(__APPLE__)
-#define MOBILESIM_DEFAULT_DIR "/usr/local/MobileSim" // TODO this should be inside MobileSim.app bundle directory
-#define MOBILESIM_DEFAULT_HELP_URL "file:///usr/local/MobileSim/README.html" // TODO this should be inside MobileSim.app bundle directory
+#define AMRISIM_DEFAULT_DIR "/usr/local/AMRISim" // TODO this should be inside AMRISim.app bundle directory
+#define AMRISIM_DEFAULT_HELP_URL "file:///usr/local/AMRISim/README.html" // TODO this should be inside AMRISim.app bundle directory
 #else
-#define MOBILESIM_DEFAULT_DIR "/usr/local/MobileSim"
-#define MOBILESIM_DEFAULT_HELP_URL "file:///usr/local/MobileSim/README.html" 
+#define AMRISIM_DEFAULT_DIR "/usr/local/AMRISim"
+#define AMRISIM_DEFAULT_HELP_URL "file:///usr/local/AMRISim/README.html" 
 #endif
 
 #endif
@@ -178,7 +182,7 @@ MapLoader mapLoader;
 
 ArMap *map = NULL;
 
-unsigned long MobileSim::log_stats_freq = 0;
+unsigned long AMRISim::log_stats_freq = 0;
 
 /* Create a temporary world file and load it. Return NULL on error */
 stg_world_t* create_stage_world(const char* mapfile, 
@@ -204,7 +208,7 @@ void add_model_to_robot_type_map_if_position(stg_model_t* model, char* model_nam
 
 
 
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
 
 #ifdef GTK_CHECK_VERSION
 
@@ -242,9 +246,9 @@ void add_model_to_robot_type_map_if_position(stg_model_t* model, char* model_nam
  * shown, and entries are added to the map accordingly.
  * @return 0 if window is closed (cancelled), 1 if map was selected, 2 if "no map" was chosen
  */
-int map_options_dialog(std::string& map, RobotModels* robotInstanceRequests, RobotFactoryRequests *robotFactoryRequests, MobileSim::Options *opts);
+int map_options_dialog(std::string& map, RobotModels* robotInstanceRequests, RobotFactoryRequests *robotFactoryRequests, AMRISim::Options *opts);
 
-int map_options_dialog(std::string& map, MobileSim::Options *opts) {
+int map_options_dialog(std::string& map, AMRISim::Options *opts) {
   return map_options_dialog(map, NULL, NULL, opts);
 }
 
@@ -259,8 +263,8 @@ void usage()
 {
   puts(
 /*                                                                   column 80--v */
-"MobileSim " MOBILESIM_VERSION "\n"
-"Usage: MobileSim [-m <map>] [-r <robot model> ...] [...options...]\n\n"
+"AMRISim " AMRISIM_VERSION "\n"
+"Usage: AMRISim [-m <map>] [-r <robot model> ...] [...options...]\n\n"
 "  --map <map>      : Load map file (e.g. created with Mapper3)\n"
 "  -m <map>         : Same as -map <map>.\n"
 "  --nomap          : Create an \"empty\" map to start with.\n"
@@ -268,7 +272,7 @@ void usage()
 "  --robot <model>[:<name>] :\n"
 "                     Create a simulated robot of the given model.\n"
 "                     If an ARIA robot parameter file is given for <model>,\n"
-"                     then MobileSim attempts to load that file from the\n"
+"                     then AMRISim attempts to load that file from the\n"
 "                     current working directory, and create an equivalent\n"
 "                     model definition. May be repeated with different names\n"
 "                     and models to create multiple simulated robots. Name \n"
@@ -282,11 +286,11 @@ void usage()
 "                     instance of the model for each client, and destroying it\n"
 "                     when the client disconnects.\n"
 "  -R <model>       : Same as --robot-factory <model>\n"
-#ifdef MOBILESIM_PIONEER
+#ifdef AMRISIM_PIONEER
 "  -p <port>        : Emulate Pioneer connections starting with TCP port <port>.\n"
 "                     (Default: 8101)\n"
 #endif
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
 "  --fullscreen-gui : Display window in fullscreen mode.\n"
 "  --maximize-gui   : Display window maximized.\n"
 "  --minimize-gui   : Display window minimized (iconified)\n"
@@ -304,7 +308,7 @@ void usage()
 "                     (still creates GUI). Forces noninteractive mode.  \n"
 "                     Not available on Windows.\n"
 #endif
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
 "  --lite-graphics  : Disable some graphics for slightly better performance\n"
 "  --no-graphics    : Disable all graphics drawing for slightly better\n"
 "                     performance\n"\
@@ -344,8 +348,8 @@ void usage()
 "                     sensors. Default is 20mm (2cm)\n"
 "  --ignore-command <num> :\n"
 "                     Ignore the command whose number is given. Refer to robot\n"
-"                     manual and MobileSim documentation for command numbers.\n"
-"                     May be repeated. Warning, MobileSim and/or your program\n"
+"                     manual and AMRISim documentation for command numbers.\n"
+"                     May be repeated. Warning, AMRISim and/or your program\n"
 "                     may not function correctly if some critical commands are\n"
 "                     ignored.\n"
 "  --verbose   :      Be a more verbose about logging, especially things \n"
@@ -369,19 +373,19 @@ void usage()
 "                     Enable compatability with SRISim by accepting \n"
 "                     OLD_SIM_EXIT (62), OLD_SET_TRUE_X (66), OLD_SET_TRUE_Y (67),\n"
 "                     OLD_SET_TRUE_TH (68), OLD_RESET_TO_ORIGIN (69). See the\n"
-"                     MobileSim docs for details on new replacement commands.\n"
+"                     AMRISim docs for details on new replacement commands.\n"
 "  --no-srisim-laser-compat :\n"
 "                     Disable compatability with SRISim laser commands\n"
 "                     OLD_LRF_ENABLE (35), OLD_LRF_CFG_START (36),\n"
 "                     OLD_LRF_CFG_END (37), and OLD_LRF_CFG_INC (38).\n"
-"                     See MobileSim docs for details on new replacement commands.\n"
+"                     See AMRISim docs for details on new replacement commands.\n"
 "  --log-packets-received :\n"
 "                     Log all packets received from client.\n"
 "  --log-movement-sent :\n"
 "                     Log position and velocity values sent to client in SIP \n"
 "                     (including with protocol conversion factors applied)."
 "  --echo-stage-worldfile :\n"
-"                     Print contents of stage world file while loading (for MobileSim debugging)\n"
+"                     Print contents of stage world file while loading (for AMRISim debugging)\n"
 "  --warn-unsupported-commands : \n"
 "                     Warn when unrecognized or unsupported commands are received and ignored.\n"
 "  --lines-chunksize: \n"
@@ -397,9 +401,9 @@ void usage()
 "  --odom-error-mode <random_init|random_each_update|constant|none> :\n"
 "                     Specify odometry error behavior (see documentation).\n"
 "  --help :           Print this help text and exit\n"
-"  --version or -v :  Print MobileSim version number and exit\n"
+"  --version or -v :  Print AMRISim version number and exit\n"
 "\n"
-"MobileSim is based on the Stage 2.0 simulator library (see <http://playerstage.sf.net>)\n\n"
+"AMRISim is based on the Stage 2.0 simulator library (see <http://playerstage.sf.net>)\n\n"
 COPYRIGHT_TEXT
 );
 }
@@ -464,8 +468,8 @@ ArGlobalFunctor1<MapLoadedInfo> load_map_done_cb(&load_map_done);
 int stage_load_file_cb(stg_world_t* /*world*/, char* filename, void* userdata)
 {
  MapLoader *loader = (MapLoader*)userdata;
- //print_debug("MobileSim load file callback for filename %s!\n", filename);
- stg_print_msg("MobileSim load file callback for filename %s!\n", filename);
+ //print_debug("AMRISim load file callback for filename %s!\n", filename);
+ stg_print_msg("AMRISim load file callback for filename %s!\n", filename);
  loader->newMap(filename, NULL, &load_map_done_cb);
  return 0;
 }
@@ -477,13 +481,13 @@ std::set<RobotFactory*> robotFactories;
 
 void log_file_full_cb(FILE* /*fp*/, size_t /*sz*/, size_t max)
 {
-    stg_print_warning("MobileSim: This log file is full (maximum size %d bytes). Rotating logs and starting a new one...", max);
+    stg_print_warning("AMRISim: This log file is full (maximum size %d bytes). Rotating logs and starting a new one...", max);
     mobilesim_rotate_log_files(NULL);
 }
 
 
 // Command line arguments
-MobileSim::Options options;
+AMRISim::Options options;
 
 
 void do_gtk_iteration()
@@ -495,7 +499,7 @@ void do_gtk_iteration()
 int main(int argc, char** argv) 
 {
 
-  MobileSim::Options& opt = options; // shortcut
+  AMRISim::Options& opt = options; // shortcut
 
   // save command-line arguments 
   opt.argc = argc;
@@ -508,7 +512,7 @@ int main(int argc, char** argv)
   RobotFactoryRequests robotFactoryRequests;
 //
 //  // Stored config
-//  MobileSimConfig config;
+//  AMRISimConfig config;
 
   for(int i = 1; i < argc; ++i) {
     if(command_argument_match(argv[i], "h", "help")) {
@@ -516,7 +520,7 @@ int main(int argc, char** argv)
       exit(0);
     }
     else if(command_argument_match(argv[i], "v", "version")) {
-      puts("MobileSim " MOBILESIM_VERSION "\nUse --help for more information.\n");
+      puts("AMRISim " AMRISIM_VERSION "\nUse --help for more information.\n");
       exit(0);
     }
     else if(command_argument_match(argv[i], "p", "port")) {
@@ -559,7 +563,7 @@ int main(int argc, char** argv)
           model = arg.substr(0, sep);
           name = arg.substr(sep+1);
         }
-        //stg_print_msg("MobileSim: Robot named \"%s\" will be a \"%s\" model.", name.c_str(), model.c_str());
+        //stg_print_msg("AMRISim: Robot named \"%s\" will be a \"%s\" model.", name.c_str(), model.c_str());
         robotInstanceRequests[name] = model;
       } else {
         usage();
@@ -568,14 +572,14 @@ int main(int argc, char** argv)
     } 
     else if(command_argument_match(argv[i], "R", "robot-factory")) {
       if(++i < argc) {
-        stg_print_msg("MobileSim: Will create robot factory for model \"%s\".", argv[i]);
+        stg_print_msg("AMRISim: Will create robot factory for model \"%s\".", argv[i]);
         robotFactoryRequests.push_back(argv[i]);
       } else {
         usage();
         exit(ERR_USAGE);
       }
     }
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
     else if(command_argument_match(argv[i], "", "maximize") || command_argument_match(argv[i], "", "maximize-gui"))
     {
       opt.windowmode = opt.MAXIMIZE_WINDOW;
@@ -599,7 +603,7 @@ int main(int argc, char** argv)
       opt.Daemon = true;
     }
 #endif
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
     else if(command_argument_match(argv[i], "", "no-graphics") || 
             command_argument_match(argv[i], "", "nographics") ||
             command_argument_match(argv[i], "", "disable-graphics"))
@@ -730,7 +734,7 @@ int main(int argc, char** argv)
         exit(ERR_USAGE);
       }
       int c = atoi(argv[++i]);
-      stg_print_msg("MobileSim: Will ignore command #%d.", c);
+      stg_print_msg("AMRISim: Will ignore command #%d.", c);
       opt.ignore_commands.insert(c);
     }
     else if(command_argument_match(argv[i], "", "verbose"))
@@ -742,8 +746,8 @@ int main(int argc, char** argv)
       int sec = 30;
       if(i+1 < argc && argv[i+1][0] != '-')
         sec = atoi(argv[++i]);
-      MobileSim::log_stats_freq = stg_log_stats_freq = sec*1000; // msec
-      stg_print_msg("MobileSim: Will log timing information every %d seconds.", sec);
+      AMRISim::log_stats_freq = stg_log_stats_freq = sec*1000; // msec
+      stg_print_msg("AMRISim: Will log timing information every %d seconds.", sec);
     }
     else if(command_argument_match(argv[i], "", "bind-to-address"))
     {
@@ -837,19 +841,19 @@ int main(int argc, char** argv)
       {
         if(strcasecmp(argv[i], "random_init") == 0)
         {
-          opt.odom_error_mode = MobileSim::Options::RANDOM_INIT;
+          opt.odom_error_mode = AMRISim::Options::RANDOM_INIT;
         }
         else if(strcasecmp(argv[i], "random_each_update") == 0)
         {
-          opt.odom_error_mode = MobileSim::Options::RANDOM_EACH_UPDATE; 
+          opt.odom_error_mode = AMRISim::Options::RANDOM_EACH_UPDATE; 
         }
         else if(strcasecmp(argv[i], "constant") == 0)
         {
-          opt.odom_error_mode = MobileSim::Options::CONSTANT;
+          opt.odom_error_mode = AMRISim::Options::CONSTANT;
         }
         else if(strcasecmp(argv[i], "none") == 0)
         { 
-          opt.odom_error_mode = MobileSim::Options::NONE;
+          opt.odom_error_mode = AMRISim::Options::NONE;
         }
         else
         {
@@ -876,12 +880,12 @@ int main(int argc, char** argv)
       opt.map = argv[i];
     }
     else {
-      stg_print_warning("MobileSim: Ignoring unrecognized command-line argument \"%s\".", argv[i]);
+      stg_print_warning("AMRISim: Ignoring unrecognized command-line argument \"%s\".", argv[i]);
     }
   }
 
 
-#ifdef MOBILESIM_NOGUI
+#ifdef AMRISIM_NOGUI
   opt.NonInteractive = true;
   opt.graphicsmode = NO_GUI;
 #endif
@@ -892,12 +896,12 @@ int main(int argc, char** argv)
     if(!opt.log_html)
       stg_set_print_format(STG_PRINT_PLAIN_TEXT);
 
-    stg_print_msg("MobileSim: Rotating log files (%s) if present...", opt.log_file);
+    stg_print_msg("AMRISim: Rotating log files (%s) if present...", opt.log_file);
     mobilesim_rotate_log_files(NULL);
     FILE* fp = ArUtil::fopen(opt.log_file, "w");
     if(!fp)
     {
-      stg_print_error("MobileSim: Could not open log file \"%s\" for writing.", opt.log_file);
+      stg_print_error("AMRISim: Could not open log file \"%s\" for writing.", opt.log_file);
       exit(ERR_USAGE);
     }
     stg_set_log_file(fp);
@@ -908,12 +912,12 @@ int main(int argc, char** argv)
   }
 
 
-  print_msg("MobileSim version " MOBILESIM_VERSION " built " MOBILESIM_BUILDDATE);
+  print_msg("AMRISim version " AMRISIM_VERSION " built " AMRISIM_BUILDDATE);
   opt.log_argv();
 
   for(RobotModels::const_iterator i = robotInstanceRequests.begin(); i != robotInstanceRequests.end(); ++i)
   {
-    stg_print_msg("MobileSim: Robot named \"%s\" will be a \"%s\"", i->first.c_str(), i->second.c_str());
+    stg_print_msg("AMRISim: Robot named \"%s\" will be a \"%s\"", i->first.c_str(), i->second.c_str());
   }
 
   /* Directory where supporting files (robot model defs, icons)
@@ -923,12 +927,12 @@ int main(int argc, char** argv)
 
 
   /* Initialize Stage and GTK */
-  stg_about_info_appname = (char*)"MobileSim";
+  stg_about_info_appname = (char*)"AMRISim";
   stg_about_info_description = (char*)"Simulator for MobileRobots/ActivMedia robots, based on the Stage robot simulator library (with modifications by MobileRobots Inc).";
-  stg_about_info_url = (char*)"http://github.com/reedhedges/MobileSim";
+  stg_about_info_url = (char*)"http://github.com/reedhedges/AMRISim";
   stg_about_info_copyright = (char*) COPYRIGHT_TEXT  ;
-  stg_about_info_appversion = (char*)MOBILESIM_VERSION;
-  stg_help_link = MOBILESIM_DEFAULT_HELP_URL;
+  stg_about_info_appversion = (char*)AMRISIM_VERSION;
+  stg_help_link = AMRISIM_DEFAULT_HELP_URL;
 
 
 #ifndef WIN32
@@ -962,16 +966,16 @@ int main(int argc, char** argv)
 
   switch(opt.odom_error_mode) 
   {
-    case MobileSim::Options::RANDOM_INIT:
+    case AMRISim::Options::RANDOM_INIT:
       stg_position_force_odom_error_mode_all_models(STG_POSITION_ODOM_ERROR_RANDOM_INIT);
       break;
-    case MobileSim::Options::RANDOM_EACH_UPDATE:
+    case AMRISim::Options::RANDOM_EACH_UPDATE:
       stg_position_force_odom_error_mode_all_models(STG_POSITION_ODOM_ERROR_RANDOM_EACH_UPDATE);
       break;
-    case MobileSim::Options::CONSTANT:
+    case AMRISim::Options::CONSTANT:
       stg_position_force_odom_error_mode_all_models(STG_POSITION_ODOM_ERROR_CONSTANT);
       break;
-    case MobileSim::Options::NONE:
+    case AMRISim::Options::NONE:
       stg_position_force_odom_error_mode_all_models(STG_POSITION_ODOM_ERROR_NONE);
       break;
   }
@@ -979,7 +983,7 @@ int main(int argc, char** argv)
   stg_init(argc, argv);
 
   if(opt.RestartedAfterCrash)
-    stg_print_warning("MobileSim crashed and was automatically restarted.  See log files (-crash) for diagnostic information.");
+    stg_print_warning("AMRISim crashed and was automatically restarted.  See log files (-crash) for diagnostic information.");
 
 #ifndef WIN32
   // ignore this signal, instead let write() return an error 
@@ -997,7 +1001,7 @@ int main(int argc, char** argv)
   }
 #endif
 
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
 #if GTK_CHECK_VERSION(2,2,0)
   /* Set GTK's default icon so Stage uses it */
   char iconfile[MAX_PATH_LEN];
@@ -1005,7 +1009,7 @@ int main(int argc, char** argv)
   GError* err = NULL;
   if(!gtk_window_set_default_icon_from_file(iconfile, &err))
   {
-    stg_print_warning("MobileSim: Could not load program icon \"%s\": %s", iconfile, err->message);
+    stg_print_warning("AMRISim: Could not load program icon \"%s\": %s", iconfile, err->message);
     g_error_free(err);
   }
 #endif
@@ -1021,11 +1025,11 @@ int main(int argc, char** argv)
   if(opt.map == "" && !opt.nomap) // neither -m or -nomap opt given
   {
     strncpy(initmapfile, g_get_home_dir(), MAX_PATH_LEN-1);
-    strncat(initmapfile, "/.MobileSim/init.map", MAX_PATH_LEN-1);
+    strncat(initmapfile, "/.AMRISim/init.map", MAX_PATH_LEN-1);
     struct stat s;
     if( stat(initmapfile, &s) == 0 )
     {
-      stg_print_msg("MobileSim: Found init. map file \"%s\".", initmapfile);
+      stg_print_msg("AMRISim: Found init. map file \"%s\".", initmapfile);
       opt.map = initmapfile;
     }
   }
@@ -1036,12 +1040,12 @@ int main(int argc, char** argv)
    */
   if(opt.change_to_directory)
   {
-    stg_print_msg("MobileSim: Changing to directory \"%s\"...", opt.change_to_directory);
+    stg_print_msg("AMRISim: Changing to directory \"%s\"...", opt.change_to_directory);
     if(getcwd(opt.before_change_to_directory, MAX_PATH_LEN) == NULL)
         opt.before_change_to_directory[0] = '\0';
     if( chdir(opt.change_to_directory) != 0 )
     {
-      print_error("MobileSim: Error changing to directory \"%s\"", opt.change_to_directory);
+      print_error("AMRISim: Error changing to directory \"%s\"", opt.change_to_directory);
       exit(ERR_CHDIR);
     }
   }
@@ -1049,14 +1053,14 @@ int main(int argc, char** argv)
 
 
   if(opt.nomap)
-    stg_print_msg("MobileSim: Will start with no map.");
+    stg_print_msg("AMRISim: Will start with no map.");
   else if (opt.map != "")
-    stg_print_msg("MobileSim: Will use map \"%s\" for simulation environment.", opt.map.c_str());
+    stg_print_msg("AMRISim: Will use map \"%s\" for simulation environment.", opt.map.c_str());
   else
   {
     if(opt.NonInteractive)
     {
-      stg_print_error("MobileSim: No map given in noninteractive mode. Use --map to specify a map file, or use --nomap for an empty map.");
+      stg_print_error("AMRISim: No map given in noninteractive mode. Use --map to specify a map file, or use --nomap for an empty map.");
       exit(ERR_USAGE);
     }
 
@@ -1124,7 +1128,7 @@ int main(int argc, char** argv)
   /* You need to specify a map or nomap if you specify any arguments: */
   if(opt.map == "" && !opt.nomap)
   {
-    stg_print_error("MobileSim: No mapfile given. Use --map to specify a map file, or --nomap.");
+    stg_print_error("AMRISim: No mapfile given. Use --map to specify a map file, or --nomap.");
     exit(ERR_USAGE);
   }
 
@@ -1181,7 +1185,7 @@ int main(int argc, char** argv)
   {
     case mobilesim_start_fixedpos:
     {
-        stg_print_msg("MobileSim: Starting robots at position given by --start option: %f, %f, %f.", opt.start_pos_override_pose_x/1000.0, opt.start_pos_override_pose_y/1000.0, opt.start_pos_override_pose_th);
+        stg_print_msg("AMRISim: Starting robots at position given by --start option: %f, %f, %f.", opt.start_pos_override_pose_x/1000.0, opt.start_pos_override_pose_y/1000.0, opt.start_pos_override_pose_th);
       map_home_x = opt.start_pos_override_pose_x;
       map_home_y = opt.start_pos_override_pose_y;
       map_home_th = opt.start_pos_override_pose_th;
@@ -1193,14 +1197,14 @@ int main(int argc, char** argv)
       map_home_x = map_min_x - 2000.0;
       map_home_y = map_max_y;
       map_home_th = 0;
-      stg_print_msg("MobileSim: Starting robots 2m outside edge of map, at: %f, %f, %f.", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
+      stg_print_msg("AMRISim: Starting robots 2m outside edge of map, at: %f, %f, %f.", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
     }
     break;
 
     case mobilesim_start_random:
     {
       /* Nothing, will be randomly generated below */
-      stg_print_msg("MobileSim: Starting robots at random positions in map.");
+      stg_print_msg("AMRISim: Starting robots at random positions in map.");
       map_home_x = map_home_y = map_home_th = 0.0;
     }
     break;
@@ -1217,7 +1221,7 @@ int main(int argc, char** argv)
         map_home_y = home->getPose().getY();
         map_home_th = home->getPose().getTh();
       }
-      stg_print_msg("MobileSim: Starting robots at map's default starting place of: %f, %f, %f", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
+      stg_print_msg("AMRISim: Starting robots at map's default starting place of: %f, %f, %f", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
     }
   }
 
@@ -1237,7 +1241,7 @@ int main(int argc, char** argv)
   for(std::list<std::string>::iterator i = robotFactoryRequests.begin(); i != robotFactoryRequests.end(); i++)
   {
     const char *modelname = (*i).c_str();
-    stg_print_msg("MobileSim: Creating new robot factory for \"%s\"...", modelname);
+    stg_print_msg("AMRISim: Creating new robot factory for \"%s\"...", modelname);
     RobotFactory *stagefac;
     if(mobilesim_startplace == mobilesim_start_fixedpos) 
       stagefac = new StageRobotFactory(world, modelname, opt.start_pos_override_pose_x, opt.start_pos_override_pose_y, opt.start_pos_override_pose_th, &opt);
@@ -1247,17 +1251,17 @@ int main(int argc, char** argv)
     //stagefac->setVerbose(opt.verbose)
     //stagefac->setSRISimCompat(opt.srisim_compat, opt.srisim_laser_compat);
     //stagefac->setWarnUnsupportedCommands(opt.warn_unsupported_commands);
-    stg_print_msg("MobileSim: opening factory port %d...", facport);
+    stg_print_msg("AMRISim: opening factory port %d...", facport);
     ArSocket *facsock = stagefac->open(facport, (opt.listen_address == "" ? NULL : opt.listen_address.c_str()));
     if(!facsock) {
-      stg_print_error("MobileSim: Could not open port %d for robot factory %s.  Try another with -p.\n", facport, modelname);
+      stg_print_error("AMRISim: Could not open port %d for robot factory %s.  Try another with -p.\n", facport, modelname);
       exit(ERR_OPEN_PORT);
     }
     robotFactories.insert(stagefac);
     if(opt.listen_address != "")
-      stg_print_msg("MobileSim: Robot factory for \"%s\" ready on %s port %d", modelname, opt.listen_address.c_str(), facport);
+      stg_print_msg("AMRISim: Robot factory for \"%s\" ready on %s port %d", modelname, opt.listen_address.c_str(), facport);
     else
-      stg_print_msg("MobileSim: Robot factory for \"%s\" ready on port %d", modelname, facport);
+      stg_print_msg("AMRISim: Robot factory for \"%s\" ready on port %d", modelname, facport);
     ++facport;
 
     if(!opt.NonInteractive) gtk_main_iteration_do(FALSE);
@@ -1282,7 +1286,7 @@ int main(int argc, char** argv)
 
     stg_model_t *model = stg_world_new_model(world, modelname.c_str(), NULL, (robotname=="")?NULL:robotname.c_str());
     if(!model) {
-      stg_print_error("MobileSim: could not create a model of type \"%s\".", modelname.c_str());
+      stg_print_error("AMRISim: could not create a model of type \"%s\".", modelname.c_str());
       continue;
     }
 
@@ -1296,8 +1300,8 @@ int main(int argc, char** argv)
   }
     
 
-#ifdef MOBILESIM_ROS
-  ros::init(argc, argv, "MobileSim", ros::init_options::NoSigintHandler); //ros::init_options::AnonymousName);
+#ifdef AMRISIM_ROS
+  ros::init(argc, argv, "AMRISim", ros::init_options::NoSigintHandler); //ros::init_options::AnonymousName);
   // XXX TODO need to do multtiple ros nodes correctly here and below.
   // in particular need better node names (matching pioneer unique names and easier to remember and type)
 
@@ -1306,12 +1310,12 @@ int main(int argc, char** argv)
   {
     if(options.NonInteractive)
     {
-      print_error("MobileSim: Error: No ROS Master (roscore) detected running. Run roscore first, or run MobileSim with ROS disabled.");
+      print_error("AMRISim: Error: No ROS Master (roscore) detected running. Run roscore first, or run AMRISim with ROS disabled.");
       exit(ERR_NO_ROSMASTER);
     }
     else
     {
-      print_warning("MobileSim: No ROS Master detected.");
+      print_warning("AMRISim: No ROS Master detected.");
       GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Did not detect any ROS Master (roscore) running. Would you like to run 'roscore' in a new terminal?");
       gint r = gtk_dialog_run(GTK_DIALOG(dialog));
       if(r == GTK_RESPONSE_NO)
@@ -1325,7 +1329,7 @@ int main(int argc, char** argv)
       print_msg("Running gnome-terminal. Will import ROS melodic setup environment into shell, then will run roscore.");
       // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
       system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; . /opt/ros/melodic/setup.sh && roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
-      MobileSim::sleep(8*1000);
+      AMRISim::sleep(5*1000);
      }
   }
 #endif
@@ -1341,42 +1345,42 @@ int main(int argc, char** argv)
     StageInterface* stageint = new StageInterface(world, model, name); 
     robotInterfaces.insert(stageint);
 
-#ifdef MOBILESIM_PIONEER
-    stg_print_msg("MobileSim: Creating emulated Pioneer client connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), opt.port);
+#ifdef AMRISIM_PIONEER
+    stg_print_msg("AMRISim: Creating emulated Pioneer client connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), opt.port);
     EmulatePioneer* emulator = new EmulatePioneer(stageint, model, opt.port++, false, true, &opt);
     if(map)
 	    emulator->loadMapObjects(map);
-    emulator->setSimulatorIdentification("MobileSim", MOBILESIM_VERSION);
+    emulator->setSimulatorIdentification("AMRISim", AMRISIM_VERSION);
     if(opt.listen_address != "")
       emulator->setListenAddress(opt.listen_address);
     if(!emulator->openSocket())
       delete emulator;
 #endif
 
-#ifdef MOBILESIM_ROS
+#ifdef AMRISIM_ROS
 
       // note, it may also be possible for ROS and Pioneer interfaces to have
       // separate StageInterface objects?  not sure 
-    stg_print_msg("MobileSim: Creating ROS client connection for robot named \"%s\" (\"%s\")", (*i).first.c_str(), (*i).second.c_str());
+    stg_print_msg("AMRISim: Creating ROS client connection for robot named \"%s\" (\"%s\")", (*i).first.c_str(), (*i).second.c_str());
     ROSNode* rosnode = new ROSNode(stageint, &opt);
     if(!rosnode->start())
       delete rosnode;
 #endif
 
-#if !defined(MOBILESIM_PIONEER) && !defined(MOBILESIM_ROS)
-#error Neither MOBILESIM_PIONEER nor MOBILESIM_ROS are defined. One or both must be defined to include any client interfaces
+#if !defined(AMRISIM_PIONEER) && !defined(AMRISIM_ROS)
+#error Neither AMRISIM_PIONEER nor AMRISIM_ROS are defined. One or both must be defined to include any client interfaces
 #endif
 
   }
 
 
   /* Change Stage's window title. TODO: include map file name? */
-  stg_world_set_window_title(world, "MobileSim");
+  stg_world_set_window_title(world, "AMRISim");
   
   if(!opt.NonInteractive)
     gtk_main_iteration_do(FALSE);
 
-#ifndef MOBILESIM_NOGUI
+#ifndef AMRISIM_NOGUI
   /* Set window mode as requested */
   switch(opt.windowmode)
   {
@@ -1416,7 +1420,7 @@ int main(int argc, char** argv)
   NetworkDiscoveryResponder discovery;
   if(opt.run_network_discovery)
   {
-    stg_print_msg("MobileSim: Will respond to discovery requests on UDP port %d", discovery.getPort());
+    stg_print_msg("AMRISim: Will respond to discovery requests on UDP port %d", discovery.getPort());
     discovery.runAsync();
   }
 
@@ -1497,7 +1501,7 @@ int main(int argc, char** argv)
     {
       /* Stage update */
       //ArTime t;
-      MobileSim::sleep(untilStageUpdate);
+      AMRISim::sleep(untilStageUpdate);
       //print_debug("Waiting for stage update: sleep(%ld) took %ld ms", untilStageUpdate, t.mSecSince());
       if(lastStageUpdate.mSecSince() > stageUpdateWarningTime)
         print_warning("Took >%ld ms since last stage simulation update (%ld, interval is %ld)", stageUpdateWarningTime, lastStageUpdate.mSecSince(), stageUpdateFreq);
@@ -1510,17 +1514,17 @@ int main(int argc, char** argv)
     {
       /* Client output and other periodic client interface work */
       //ArTime t;
-      MobileSim::sleep(untilClientOutput);
+      AMRISim::sleep(untilClientOutput);
       //print_debug("Waiting for client output: sleep(%ld) took %ld ms", untilClientOutput, t.mSecSince());
       if(lastClientOutput.mSecSince() > clientOutputWarningTime)
         print_warning("Warning: Took >%ld ms since last clients output update (%ld, interval is %ld)", clientOutputWarningTime, lastClientOutput.mSecSince(), clientOutputFreq);
       lastClientOutput.setToNow();
       clientOutputDue.setToNow();
       clientOutputDue.addMSec(clientOutputFreq);
-#ifdef MOBILESIM_PIONEER
+#ifdef AMRISIM_PIONEER
       EmulatePioneer::processAll();
 #endif
-#ifdef MOBILESIM_ROS
+#ifdef AMRISIM_ROS
       ros::spinOnce();
 #endif
     }
@@ -1660,14 +1664,14 @@ int main(int argc, char** argv)
     else
     {
       if(t - timeLeft > 5)
-        stg_print_warning("MobileSim: Took too long to process client input. (took %d ms, window was %d ms)", t, timeLeft);
+        stg_print_warning("AMRISim: Took too long to process client input. (took %d ms, window was %d ms)", t, timeLeft);
       timeLeft = 0;
     }
 
     // how long did the whole thing take?
     t = startTime.mSecSince();
     if(t > warningtime)
-      stg_print_warning("MobileSim: Took >%d ms (%d ms) to update simulation and handle all client commands and packet sending.", warningtime, t);
+      stg_print_warning("AMRISim: Took >%d ms (%d ms) to update simulation and handle all client commands and packet sending.", warningtime, t);
 
     /*
     // set lastOvershoot to how far over looptime we went since the last stage update. next loop, we will run shorter accordingly.
@@ -1715,7 +1719,7 @@ int main(int argc, char** argv)
   {
     if(chdir(opt.before_change_to_directory) != 0)	// this is needed so profiling info can be written to expected directory
     {
-      print_warning("MobileSim: Error returning to previous current directory \"%s\"", opt.before_change_to_directory); 
+      print_warning("AMRISim: Error returning to previous current directory \"%s\"", opt.before_change_to_directory); 
     }
   }
 
@@ -1807,9 +1811,9 @@ stg_world_t* create_stage_world(const char* mapfile,
 #ifdef WIN32
   // Don't include the PID on Windows. Temp files aren't properly deleted on
   // Windows (file locking issue?) so we just always replace the old one.
-  snprintf(worldfile, MAX_PATH_LEN-1, "%s%cMobileSim-stage_world.world", tempdir, PATHSEPCH);
+  snprintf(worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world.world", tempdir, PATHSEPCH);
 #else
-  snprintf(worldfile, MAX_PATH_LEN-1, "%s%cMobileSim-stage_world-%d.world", tempdir, PATHSEPCH, getpid());
+  snprintf(worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world-%d.world", tempdir, PATHSEPCH, getpid());
 #endif
 
    ArTime t;
@@ -1823,14 +1827,14 @@ stg_world_t* create_stage_world(const char* mapfile,
   {
     if(options.NonInteractive)
     {
-      stg_print_error("MobileSim: could not create temporary file \"%s\" (%s). Is the system temporary directory \"%s\" accessible?", worldfile, strerror(errno), tempdir);
+      stg_print_error("AMRISim: could not create temporary file \"%s\" (%s). Is the system temporary directory \"%s\" accessible?", worldfile, strerror(errno), tempdir);
       exit(ERR_TEMPFILE);
     }
     else
     {
       char buf[256];
       snprintf(buf, 255, "Could not write Stage world file \"%s\" (%s).\nIs the system temporary directory \"%s\" accessible?", worldfile, strerror(errno), tempdir);
-      stg_gui_fatal_error_dialog("MobileSim: Error creating temprorary file.", buf, ERR_TEMPFILE, FALSE); 
+      stg_gui_fatal_error_dialog("AMRISim: Error creating temprorary file.", buf, ERR_TEMPFILE, FALSE); 
       exit(ERR_TEMPFILE);
     }
   }
@@ -1841,12 +1845,12 @@ stg_world_t* create_stage_world(const char* mapfile,
   // use C locale when written).  stg_init is  supposed to do this but I 
   // guess something else changed it back.
   if(!setlocale(LC_ALL, "C"))
-    stg_print_warning("MobileSim: failed to set locale to \"C\", Stage world files may not parse correctly!");
+    stg_print_warning("AMRISim: failed to set locale to \"C\", Stage world files may not parse correctly!");
 
   if(loop_callback) (*loop_callback)();
 	
   // Write comment, include model definitions, and GUI spec.
-  fprintf(world_fp, "# World file for Stage\n# Automatically generated by MobileSim, the MobileRobots/ActivMedia mobile robot simulator.\n\n");
+  fprintf(world_fp, "# World file for Stage\n# Automatically generated by AMRISim, the MobileRobots/ActivMedia mobile robot simulator.\n\n");
   fprintf(world_fp, "include \"%s%cPioneerRobotModels.world.inc\"\n", libdir, PATHSEPCH);
   fprintf(world_fp, "window\n(\n"\
       "\tscale 0.03\n"\
@@ -1872,22 +1876,24 @@ stg_world_t* create_stage_world(const char* mapfile,
   char* homedir = getenv("HOME");
 #endif
   //printf("%d ms to getenv()\n", t.mSecSince());
-  t.setToNow();
+  //t.setToNow();
   DIR* dir = NULL;
   char includedir[MAX_PATH_LEN];
   if(homedir) 
   {
-	strncpy(includedir, homedir, MAX_PATH_LEN-1);
-    strncat(includedir, "/.MobileSim/include", MAX_PATH_LEN-1);
-    t.setToNow();
+	  strncpy(includedir, homedir, MAX_PATH_LEN-1);
+    strncat(includedir, "/.AMRISim/include", MAX_PATH_LEN-1);
+    //t.setToNow();
     dir = opendir(includedir);
     //printf("%ld ms to call opendir(%s) => 0x%x\n", t.mSecSince(), includedir, dir);
-    t.setToNow();
+    //t.setToNow();
+
+    // XXX TODO check for .MobileSim directory if .AMRISim is missing
   } 
   
   if(dir)
   {
-    stg_print_msg("MobileSim: Checking %s for files to include...", includedir);
+    stg_print_msg("AMRISim: Checking %s for files to include...", includedir);
     struct dirent* e;
     while((e = readdir(dir)))
     {
@@ -1899,11 +1905,11 @@ stg_world_t* create_stage_world(const char* mapfile,
         // Don't include a name that starts with a '.' or '#' or ',' or ends with a '~'.
         if(e->d_name[0] == '.' || e->d_name[0] == '#' || e->d_name[0] == ',' || (strlen(e->d_name) > 0 && e->d_name[strlen(e->d_name)-1] == '~'))
         {
-          stg_print_msg("MobileSim: skipping include file \"%s/%s\" because it looks like a system, temporary, RCS, or backup file.", includedir, e->d_name);
+          stg_print_msg("AMRISim: skipping include file \"%s/%s\" because it looks like a system, temporary, RCS, or backup file.", includedir, e->d_name);
         }
         else
         {
-          stg_print_msg("MobileSim: including \"%s/%s\" into world configuration file...", includedir, e->d_name);
+          stg_print_msg("AMRISim: including \"%s/%s\" into world configuration file...", includedir, e->d_name);
           fprintf(world_fp, "include \"%s/%s\"\n", includedir, e->d_name);
         }
 
@@ -1920,7 +1926,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   {
     char msimdir[MAX_PATH_LEN];
     strncpy(msimdir, homedir, MAX_PATH_LEN-1);
-    strncat(msimdir, "/.MobileSim", MAX_PATH_LEN-1);
+    strncat(msimdir, "/.AMRISim", MAX_PATH_LEN-1);
 	if(mkdir(msimdir) == 0) 
 	{
 		printf("Created %s directory.\n", msimdir);
@@ -1941,13 +1947,13 @@ stg_world_t* create_stage_world(const char* mapfile,
     if(!map->readFile(mapfile))
     {
       if(options.NonInteractive) {
-        stg_print_error("MobileSim: Could not load map \"%s\".", mapfile);
+        stg_print_error("AMRISim: Could not load map \"%s\".", mapfile);
         exit(ERR_MAPCONV);
       }
       else {
         char buf[256];
         snprintf(buf, 256, "Error loading map \"%s\".\n.", mapfile);
-        stg_gui_fatal_error_dialog("MobileSim: Error loading map", buf, ERR_MAPCONV, FALSE); 
+        stg_gui_fatal_error_dialog("AMRISim: Error loading map", buf, ERR_MAPCONV, FALSE); 
       }
       return NULL;
     }
@@ -1955,7 +1961,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   else
   {
     /* If mapfile is the empty string, make a 500x500m  empty space. */
-    stg_print_warning("MobileSim: No map, using empty simulated space");
+    stg_print_warning("AMRISim: No map, using empty simulated space");
     fprintf(world_fp, "# Requested that no map be used:\nsize [500.0 500.0]\n\n");
   }
 
@@ -1976,7 +1982,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   {
     case mobilesim_start_fixedpos:
       {
-        stg_print_msg("MobileSim: Starting robots at position given by --start option: %f, %f, %f.", start_override_x/1000.0, start_override_y/1000.0, start_override_th);
+        stg_print_msg("AMRISim: Starting robots at position given by --start option: %f, %f, %f.", start_override_x/1000.0, start_override_y/1000.0, start_override_th);
       map_home_x = start_override_x;
       map_home_y = start_override_y;
       map_home_th = start_override_th;
@@ -1988,14 +1994,14 @@ stg_world_t* create_stage_world(const char* mapfile,
       map_home_x = map_min_x - 2000.0;
       map_home_y = map_max_y;
       map_home_th = 0;
-      stg_print_msg("MobileSim: Starting robots 2m outside edge of map, at: %f, %f, %f.", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
+      stg_print_msg("AMRISim: Starting robots 2m outside edge of map, at: %f, %f, %f.", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
     }
     break;
 
     case mobilesim_start_random:
     {
       /* Nothing, will be randomly generated below */
-      stg_print_msg("MobileSim: Starting robots at random positions in map.");
+      stg_print_msg("AMRISim: Starting robots at random positions in map.");
       map_home_x = map_home_y = map_home_th = 0.0;
     }
     break;
@@ -2012,7 +2018,7 @@ stg_world_t* create_stage_world(const char* mapfile,
         map_home_y = home->getPose().getY();
         map_home_th = home->getPose().getTh();
       }
-      stg_print_msg("MobileSim: Starting robots at map's default starting place of: %f, %f, %f", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
+      stg_print_msg("AMRISim: Starting robots at map's default starting place of: %f, %f, %f", map_home_x/1000.0, map_home_y/1000.0, map_home_th);
     }
   }
 
@@ -2071,7 +2077,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   // Store filename in global variables so we can delete it on exit:
   strncpy(TempWorldFile, worldfile, 256);
 
-  stg_print_msg("MobileSim: Loading stage world file \"%s\"...", worldfile);
+  stg_print_msg("AMRISim: Loading stage world file \"%s\"...", worldfile);
   
   if(loop_callback) (*loop_callback)();
   
@@ -2080,19 +2086,19 @@ stg_world_t* create_stage_world(const char* mapfile,
   {
     if(options.NonInteractive)
     {
-      stg_print_error("MobileSim: Error creating and initializing the world environment. %s", stg_last_error_message);
+      stg_print_error("AMRISim: Error creating and initializing the world environment. %s", stg_last_error_message);
       cleanup_temp_files();
       exit(ERR_STAGEINIT);
     }
     else
     {
-      const char *errormsg = "MobileSim: Error creating and initializing world environment";
+      const char *errormsg = "AMRISim: Error creating and initializing world environment";
       const char *prefixtext = " (worldfile saved as";
       const char *postfixtext = ")";
       const size_t maxlen = strlen(errormsg) + strlen(prefixtext) + MAX_PATH_LEN + strlen(postfixtext);
       char message[maxlen];
       char renamed_worldfile[MAX_PATH_LEN];
-      snprintf(renamed_worldfile, MAX_PATH_LEN-1, "%s%cMobileSim-stage_world_ERROR.world", tempdir, PATHSEPCH);
+      snprintf(renamed_worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world_ERROR.world", tempdir, PATHSEPCH);
       if(rename(worldfile, renamed_worldfile) != -1)
       {
         snprintf(message, maxlen-1, "%s%s%s%s", errormsg, prefixtext, renamed_worldfile, postfixtext);
@@ -2113,15 +2119,15 @@ stg_world_t* create_stage_world(const char* mapfile,
   /* Create models for the map and map objects */
   if(mapfile && (strlen(mapfile) > 0) && world)
   {
-    stg_print_msg("MobileSim: Loading map data from \"%s\"...", mapfile);
+    stg_print_msg("AMRISim: Loading map data from \"%s\"...", mapfile);
     //StageMapLoader loader(&map, world, NULL);
     mapLoader.setWorld(world);
     if(!mapLoader.newMap(map) && !mapLoader.process(0))
     {
-      stg_print_error("MobileSim: Error loading map \"%s\"!", mapfile);
+      stg_print_error("AMRISim: Error loading map \"%s\"!", mapfile);
       exit(ERR_MAPCONV);
     }
-    stg_print_msg("MobileSim: Finished loading map data from \"%s\".", mapfile);
+    stg_print_msg("AMRISim: Finished loading map data from \"%s\".", mapfile);
   }
   
 
@@ -2144,9 +2150,9 @@ void cleanup_temp_files()
 
 
   if(unlink(TempWorldFile) != 0)
-    stg_print_warning("MobileSim: Failed to delete temporary file \"%s\".", TempWorldFile);
+    stg_print_warning("AMRISim: Failed to delete temporary file \"%s\".", TempWorldFile);
 #else
-  stg_print_warning("MobileSim: Temporary world file has been left behind: \"%s\"; .", TempWorldFile);
+  stg_print_warning("AMRISim: Temporary world file has been left behind: \"%s\"; .", TempWorldFile);
 #endif
 
 }
@@ -2155,41 +2161,43 @@ void cleanup_temp_files()
 
 const char* find_libdir()
 {
-  const char* libdir = getenv("MOBILESIM");
-  //unused? char buf[256];
+  const char* libdir = getenv("AMRISIM");
+  if(libdir == NULL)
+    libdir = getenv("MOBILESIM");
   if(libdir == NULL)
   {
 
 #ifdef WIN32
+// XXX TODO also check for MobileSim keys??
     char buf[1024];
     if (ArUtil::getStringFromRegistry(ArUtil::REGKEY_LOCAL_MACHINE,
-        "SOFTWARE\\MobileRobots\\MobileSim", "Install Directory", buf, 255))
+        "SOFTWARE\\MobileRobots\\AMRISim", "Install Directory", buf, 255))
     {
       libdir = strdup(buf);
-      stg_print_msg("MobileSim: Expecting supporting resources to be installed in \"%s\" (according to registry key).", libdir);
+      stg_print_msg("AMRISim: Expecting supporting resources to be installed in \"%s\" (according to registry key).", libdir);
     }
     else if (ArUtil::getStringFromRegistry(ArUtil::REGKEY_LOCAL_MACHINE,
-        "SOFTWARE\\ActivMedia Robotics\\MobileSim", "Install Directory", buf, 255))
+        "SOFTWARE\\ActivMedia Robotics\\AMRISim", "Install Directory", buf, 255))
     {
       libdir = strdup(buf);
-      stg_print_msg("MobileSim: Expecting supporting resources to be installed in \"%s\" (according to ActivMedia Robotics registry key).", libdir);
+      stg_print_msg("AMRISim: Expecting supporting resources to be installed in \"%s\" (according to ActivMedia Robotics registry key).", libdir);
     }
     else  
     {
-      libdir = MOBILESIM_DEFAULT_DIR; // "\\Program Files\\MobileRobots\\MobileSim";
-      stg_print_msg("MobileSim: Expecting supporting resources to be installed in the default location: \"%s\".", libdir);
+      libdir = AMRISIM_DEFAULT_DIR; // "\\Program Files\\MobileRobots\\AMRISim";
+      stg_print_msg("AMRISim: Expecting supporting resources to be installed in the default location: \"%s\".", libdir);
     }
 
 #else 
 
-    libdir = MOBILESIM_DEFAULT_DIR; // "/usr/local/MobileSim";
-    stg_print_msg("MobileSim: Expecting supporting resources to be installed in the default location: \"%s\".", libdir);
+    libdir = AMRISIM_DEFAULT_DIR; // "/usr/local/AMRISim";
+    stg_print_msg("AMRISim: Expecting supporting resources to be installed in the default location: \"%s\".", libdir);
 #endif
 
   } 
   else 
   {
-    stg_print_msg("MobileSim: Expecting supporting resources to be installed in \"%s\" (according to MOBILESIM environment variable).", libdir);
+    stg_print_msg("AMRISim: Expecting supporting resources to be installed in \"%s\" (according to AMRISIM environment variable).", libdir);
   }
   return libdir;
 }
@@ -2236,7 +2244,7 @@ GtkWidget *busy_loading_dialog()
 {
   GtkMessageDialog *dialog;
   dialog = GTK_MESSAGE_DIALOG(gtk_message_dialog_new(NULL, (GtkDialogFlags)0, GTK_MESSAGE_INFO, GTK_BUTTONS_NONE, "Creating simulation world..."));
-  gtk_window_set_title(GTK_WINDOW(dialog), "MobileSim");
+  gtk_window_set_title(GTK_WINDOW(dialog), "AMRISim");
 #if GTK_CHECK_VERSION(2, 22, 0)
   // message_area added in 2.22, just skip spinner if older.
   GtkWidget *msgarea = gtk_message_dialog_get_message_area(dialog);
@@ -2251,7 +2259,7 @@ GtkWidget *busy_loading_dialog()
 }
 
 
-int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, RobotFactoryRequests *robotFactoryRequests, MobileSim::Options *opt)
+int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, RobotFactoryRequests *robotFactoryRequests, AMRISim::Options *opt)
 {
   int ret;
   GtkDialog* dialog;
@@ -2269,7 +2277,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
 #ifdef USE_GTKFILECHOOSER
 
   dialog = GTK_DIALOG(
-    gtk_file_chooser_dialog_new("MobileSim: Load Map File...", NULL, 
+    gtk_file_chooser_dialog_new("AMRISim: Load Map File...", NULL, 
       GTK_FILE_CHOOSER_ACTION_OPEN, 
       "No Map", GTK_RESPONSE_CANCEL, 
       "Load Map", GTK_RESPONSE_ACCEPT, 
@@ -2288,11 +2296,11 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
   gtk_file_chooser_add_filter(filechooser, filter_all);
   gtk_file_chooser_set_current_folder(filechooser, user_docs_dir());
 #ifdef WIN32
-  const char *msim_dir = "file:///Program Files/MobileRobots/MobileSim";
+  const char *msim_dir = "file:///Program Files/MobileRobots/AMRISim";
   const char *aria_map_dir = "file:///Program Files/MobileRobots/Aria/maps";
   const char *arnl_example_dir = "file:///Program Files/MobileRobots/Arnl/examples";
 #else
-  const char *msim_dir = "file:///usr/local/MobileSim";
+  const char *msim_dir = "file:///usr/local/AMRISim";
   const char *aria_map_dir = "file:///usr/local/Aria/maps";
   const char *arnl_example_dir = "file:///usr/local/Arnl/examples";
 #endif
@@ -2304,7 +2312,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
   char prev_dir[MAX_PATH_LEN];
   getcwd(prev_dir, MAX_PATH_LEN);
   chdir(user_docs_dir());
-  filechooser = GTK_FILE_SELECTION(gtk_file_selection_new("MobileSim: Load Map File..."));
+  filechooser = GTK_FILE_SELECTION(gtk_file_selection_new("AMRISim: Load Map File..."));
   dialog = GTK_DIALOG(filechooser);
   gtk_file_selection_hide_fileop_buttons(filechooser);
   gtk_button_set_label(GTK_BUTTON(filechooser->ok_button), "Load Map");
@@ -2432,7 +2440,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
       numentry = GTK_ENTRY(gtk_spin_button_new_with_range(1, ROBOTS_MENU_LIMIT, 1));
       gtk_widget_show(GTK_WIDGET(numentry));
       gtk_box_pack_start(multirobot_row, GTK_WIDGET(numentry), FALSE, FALSE, 5);
-      GtkWidget *label = gtk_label_new(" robot(s) on seperate TCP ports.");
+      GtkWidget *label = gtk_label_new(" robot(s) with Pioneer and ROS interfaces.");
       gtk_widget_show(label);
       gtk_box_pack_start(multirobot_row, label, FALSE, FALSE, 0);
 
@@ -2440,7 +2448,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
       GtkBox *factory_row = GTK_BOX(gtk_hbox_new(FALSE, 0));
       gtk_widget_show(GTK_WIDGET(factory_row));
       gtk_box_pack_start(more_box, GTK_WIDGET(factory_row), FALSE, FALSE, 3);
-      factory_radio = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(multirobot_radio)), "Create a new robot for each connection."));
+      factory_radio = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(multirobot_radio)), "Create a new robot for each Pioneer client connection (ROS interface not available)."));
       gtk_widget_show(GTK_WIDGET(factory_radio));
       gtk_box_pack_start(factory_row, GTK_WIDGET(factory_radio), FALSE, FALSE, 5);
     }
@@ -2449,7 +2457,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
     GtkBox *port_row = GTK_BOX(gtk_hbox_new(FALSE, 0));
     gtk_widget_show(GTK_WIDGET(port_row));
     gtk_box_pack_start(more_box, GTK_WIDGET(port_row), FALSE, FALSE, 15);
-    GtkWidget *label = gtk_label_new("TCP Port: ");
+    GtkWidget *label = gtk_label_new("Pioneer TCP Port: ");
     gtk_widget_show(label);
     gtk_box_pack_start(port_row, label, FALSE, FALSE, 10);
     portentry = GTK_ENTRY(gtk_spin_button_new_with_range(1024, 65535, 1)); // 1024..65535 is the allowed range for non-privilaged TCP ports
@@ -2600,7 +2608,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
 
     else if(factory_radio && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(factory_radio)))
     {
-      stg_print_msg("MobileSim: Will create a robot factory for model \"%s\".", selected_robot.c_str());
+      stg_print_msg("AMRISim: Will create a robot factory for model \"%s\".", selected_robot.c_str());
       robotFactoryRequests->push_back(selected_robot);
     }
 
@@ -2667,7 +2675,7 @@ std::string getMapName()
   return mapLoader.getMapName();
 }
 
-void MobileSim::Options::log_argv()
+void AMRISim::Options::log_argv()
 {
   std::string s;
   for(int i = 0; i < argc; ++i)
@@ -2675,5 +2683,5 @@ void MobileSim::Options::log_argv()
     s += argv[i];
     s += " ";
   }
-  print_msg("MobileSim command options were: %s", s.c_str());
+  print_msg("AMRISim command options were: %s", s.c_str());
 }

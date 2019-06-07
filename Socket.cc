@@ -1,8 +1,13 @@
 
-/*
- *  (C) Copyright 2011-2015 Adept MobileRobots <http://www.mobilerobots.com>
- *  (C) Copyright 2016-2017 Omron Adept Technologies
+
+/*  
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
  *
+ *  Copyright 2018 Reed Hedges and others
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -19,7 +24,7 @@
  *
  */
 
-#include "MobileSim.hh"
+#include "AMRISim.hh"
 #include "Socket.hh"
 #include <sys/stat.h>
 #include <unistd.h>
@@ -33,7 +38,7 @@
 #endif
 
 
-using namespace MobileSim;
+using namespace AMRISim;
 
 Sockets::SocketsList Sockets::sockets;
 
@@ -156,7 +161,7 @@ int Sockets::processInput(unsigned int maxTime)
     {
       c->invoke(maxTime/readycbs.size());
     }
-    catch(MobileSim::DeletionRequest &r)
+    catch(AMRISim::DeletionRequest &r)
     {
       // a callback into some instance (class unknown here) wants that instance to be deleted after processing it
       //print_debug("sockets: got deletion request, handling...");

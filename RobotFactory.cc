@@ -1,23 +1,27 @@
+
 /*  
-    (C) Copyright 2005, ActivMedia Robotics LLC <http://www.activmedia.com>
-    (C) Copyright 2006-2010 MobileRobots, Inc. <http://www.mobilerobots.com>
-    (C) Copyright 2011-2015 Adept MobileRobots <http://www.mobilerobots.com>
-    (C) Copyright 2016-2017 Omron Adept Technologies
-
-    This is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This software is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this software; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
+ *
+ *  Copyright 2018 Reed Hedges and others
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 #include <set>
 #include <errno.h>
@@ -26,7 +30,7 @@
 #include "RobotInterface.hh"
 #include "EmulatePioneer.hh"
 
-#include "MobileSim.hh"
+#include "AMRISim.hh"
 #include "Socket.hh"
 
 #include "ArASyncTask.h"
@@ -36,8 +40,8 @@
 ArMutex RobotFactory::myClientSocketsMutex;
 
 
-//RobotFactory::RobotFactory(const std::string& modelName, bool verbose, const char *listenAddress, const MobileSim::Options *userOpts) :
-RobotFactory::RobotFactory(const std::string& modelName, const MobileSim::Options *userOpts, const char *listenAddress) :
+//RobotFactory::RobotFactory(const std::string& modelName, bool verbose, const char *listenAddress, const AMRISim::Options *userOpts) :
+RobotFactory::RobotFactory(const std::string& modelName, const AMRISim::Options *userOpts, const char *listenAddress) :
   myModelName(modelName),
   myPort(8101),
   //myVerbose(verbose),
@@ -82,13 +86,13 @@ ArSocket* RobotFactory::open(int port, const char *listenAddress)
   }
 
 
-/* - Obsolete code, from when the listening socket was just one client in the RobotFactory's client list, made to wait while other MobileSim routines were running
+/* - Obsolete code, from when the listening socket was just one client in the RobotFactory's client list, made to wait while other AMRISim routines were running
   if(myListenSocket.open(port, ArSocket::TCP, listenAddress?listenAddress:myListenAddress)) // == true || mySocket.getError() == ArSocket::NoErr)
   {
     myListenSocket.setNonBlock();
     myListenSocket.setReuseAddress();
     // TODO: removing this temporarily so that testing new ListeningSocket doesn't conflict with this socket
-    MobileSim::Sockets::addSocketCallback(&myListenSocket, &acceptClientCB, "RobotFactory listening socket (callback to accept clients and create EP objects)");
+    AMRISim::Sockets::addSocketCallback(&myListenSocket, &acceptClientCB, "RobotFactory listening socket (callback to accept clients and create EP objects)");
     print_debug("RobotFactory socket callback functor is 0x%x", &acceptClientCB);
     return &myListenSocket;
   }
@@ -144,7 +148,7 @@ void RobotFactory::acceptNewClient(unsigned int /*maxTime*/)
   // when told to do so (otherwise leaks memory)
   clientSocket->setNonBlock();
   EmulatePioneer *ep = new EmulatePioneer(ri, myModelName, clientSocket, /*deleteOnDisconnect=*/true, /*deleteClientSocketOnDisconnect=*/true, myUserOptions);
-  ep->setSimulatorIdentification("MobileSim", MOBILESIM_VERSION);
+  ep->setSimulatorIdentification("AMRISim", AMRISIM_VERSION);
   //ep->setCommandsToIgnore(myCommandsToIgnore);
   //ep->setVerbose(myVerbose);
   //ep->setSRISimCompat(mySRISimCompat, mySRISimLaserCompat);
@@ -203,7 +207,7 @@ void RobotFactory::createNewRobotsFromClientsList()
     // when told to do so (otherwise leaks memory)
     clientSocket->setNonBlock();
     EmulatePioneer *ep = new EmulatePioneer(ri, myModelName, clientSocket, /*deleteOnDisconnect=*/true, /*deleteClientSocketOnDisconnect=*/true, myUserOptions);
-    ep->setSimulatorIdentification("MobileSim", MOBILESIM_VERSION);
+    ep->setSimulatorIdentification("AMRISim", AMRISIM_VERSION);
     //ep->setCommandsToIgnore(myCommandsToIgnore);
     //ep->setVerbose(myVerbose);
     //ep->setSRISimCompat(mySRISimCompat, mySRISimLaserCompat);
