@@ -871,18 +871,20 @@ than dislpaying the initial Load Map File dialog box.
 
 The AMRISim process has the following exit codes:
 
-      ---------------   ------------------------------------------------
+      --------   ------------------------------------------------
       0           No error
       255 (-1)    Error in command line arguments
       254 (-2)    Error writing a temporary file on startup
       253 (-3)    Error loading a map file
       252 (-4)    Error initializing Stage
+      251 (-5)    Error forking to become a background daemon in daemon mode
       250 (-6)    Error loading a robot parameters file (.p file) to define a robot model
-      249 (-7)    Error initializing the Pioneer emulation
-thread
+      249 (-7)    Error initializing the Pioneer emulation thread
       248 (-8)    Error opening a TCP socket for a robot or factory
+      247 (-9)    Error changing directory if given --cwd option
       236 (-20)   AMRISim crashed, but crash handler caught signal and logged information to log file.
-      ---------------   --------------------------------------------------
+      235 (-21)   Error finding ROS Master (roscore)
+      ---------   --------------------------------------------------
 
 Error codes may also be requested in the `SIM_EXIT` command by a client (use
 positive error codes less than 127, to differentiate from possible AMRISim codes).
@@ -918,64 +920,64 @@ Currently the following parts of the Pioneer robot protocol are
 supported. This covers all robot motion commands used by ARIA (including both
 direct motion requests and actions), and several other features.
 
-  ------------------------------------------------------------------------------------------
-  Name           Command #   Argument    Description
-                             Type
-  -------------  ----------  ----------  ----------------------------------------------------
-  PULSE          0           none        No-op (but reset watchdog timeout)
+    ------------------------------------------------------------------------------------------
+    Name           Command #   Argument    Description
+                               Type
+    -------------  ----------  ----------  ----------------------------------------------------
+    PULSE          0           none        No-op (but reset watchdog timeout)
 
-  OPEN           1           int         Start up standard devices and send SIP packets
+    OPEN           1           int         Start up standard devices and send SIP packets
 
-  CLOSE          2           int         Stop standard devices
+    CLOSE          2           int         Stop standard devices
 
-  ENABLE         4           uint        Enable (1) or disable (0) motors
+    ENABLE         4           uint        Enable (1) or disable (0) motors
 
-  SONAR          28          uint        Disable (0) or re-enable (1) sonar (but using argument bits 1-4 to select particular arrays is not supported)
+    SONAR          28          uint        Disable (0) or re-enable (1) sonar (but using argument bits 1-4 to select particular arrays is not supported)
 
-  CONFIG         18          int         Request a configuration packet
+    CONFIG         18          int         Request a configuration packet
 
-  STOP           29          int         Stops the robot from moving
+    STOP           29          int         Stops the robot from moving
 
-  VEL            11          int         Set the translational velocity (mm/sec)
+    VEL            11          int         Set the translational velocity (mm/sec)
 
-  ROTATE         9           int         Set rotational velocity, duplicate of RVEL (deg/sec)
+    ROTATE         9           int         Set rotational velocity, duplicate of RVEL (deg/sec)
 
-  RVEL           21          int         Set rotational velocity, duplicate of ROTATE (deg/sec)
+    RVEL           21          int         Set rotational velocity, duplicate of ROTATE (deg/sec)
 
-  VEL2           32          2bytes      Independent wheel velocities. High 8 bits are left wheel velocity, low 8 bits are right wheel velocity.
+    VEL2           32          2bytes      Independent wheel velocities. High 8 bits are left wheel velocity, low 8 bits are right wheel velocity.
 
-  HEAD           12          uint        Turn to absolute heading 0-359 (degrees)
+    HEAD           12          uint        Turn to absolute heading 0-359 (degrees)
 
-  SETO           7           none        Resets robots odometry back to 0, 0, 0
+    SETO           7           none        Resets robots odometry back to 0, 0, 0
 
-  DHEAD          13          int         Turn relative to current heading (degrees)
+    DHEAD          13          int         Turn relative to current heading (degrees)
 
-  SETV           6           int         Sets maximum velocity and MOVE velocity (mm/sec)
+    SETV           6           int         Sets maximum velocity and MOVE velocity (mm/sec)
 
-  SETRV          10          int         Sets the maximum rotational and HEAD velocity (deg/sec)
+    SETRV          10          int         Sets the maximum rotational and HEAD velocity (deg/sec)
 
-  SETA           5           int         Sets forward translational acceleration or deceleration (mm/sec/sec)
+    SETA           5           int         Sets forward translational acceleration or deceleration (mm/sec/sec)
 
-  SETRA          23          int         Sets rotational accel(+) or decel(-) (deg/sec)
+    SETRA          23          int         Sets rotational accel(+) or decel(-) (deg/sec)
 
-  MOVE           8           int         Translational move (mm)
+    MOVE           8           int         Translational move (mm)
 
-  LATVEL         110         int         Set lateral velocity (on robots that support it, i.e. Seekur)
+    LATVEL         110         int         Set lateral velocity (on robots that support it, i.e. Seekur)
 
-  LATACCEL       113         int         Set lateral acceleration or deceleration (on robots that support it, i.e. Seekur)
+    LATACCEL       113         int         Set lateral acceleration or deceleration (on robots that support it, i.e. Seekur)
 
-  BATTEST        250         int         Artificially set battery voltage, in decivolts (e.g. 105 for 10.5 volts)
+    BATTEST        250         int         Artificially set battery voltage, in decivolts (e.g. 105 for 10.5 volts)
 
-  ESTOP/QSTOP    55          none        Stop with maximum deceleration.
+    ESTOP/QSTOP    55          none        Stop with maximum deceleration.
 
-  BUMPSTALL      44          int         Configure bumpstall behavior.
+    BUMPSTALL      44          int         Configure bumpstall behavior.
 
-  TTY2           42          string      Log with string contents
+    TTY2           42          string      Log with string contents
 
-  TTY4           60          string      Log with string contents
+    TTY4           60          string      Log with string contents
 
-  RESET/MAINT    253/255     none        Abort AMRISim for debugging. If running in noninteractive mode on Linux, restart program after logging some debugging informamtion using gdb.
-  -------------  ----------  ----------  ----------------------------------------------------
+    RESET/MAINT    253/255     none        Abort AMRISim for debugging. If running in noninteractive mode on Linux, restart program after logging some debugging informamtion using gdb.
+    -------------  ----------  ----------  ----------------------------------------------------
 
 
 ### Simulator-only Pioneer commands
@@ -991,146 +993,146 @@ packet. You can use these values in client software
 to detect whether it is connected to AMRISim or not.
 
 
-  ------------------------------------------------------------------------------
-  Name                    Command Argument       Description
-                                  Type
-  -------------           ------- -------------- -------------------------------
-  `SIM_SET_POSE`          224     int4,int4,int4 Move robot to global pose in simulator (does not change odometry).
-                                                 The parameters are 4-byte integers for X, Y and Theta. The packet's argument
-                                                 type byte is ignored. Here is an example of how to send this command in ARIA,
-                                                 where `robot` is an `ArRobot` object, and
-                                                 `x`, `y` and `th` are `int`
-                                                 variables containing desired position in milimeters and degrees:
-                                                   ArRobotPacket pkt;
-                                                   pkt.setID(ArCommands::SIM_SET_POSE);
-                                                   pkt.uByteToBuf(0); // argument type: ignored.
-                                                   pkt.byte4ToBuf(x);
-                                                   pkt.byte4ToBuf(y);
-                                                   pkt.byte4ToBuf(th);
-                                                   pkt.finalizePacket();
-                                                   robot.getDeviceConnection()->write(pkt.getBuf(), pkt.getLength());
+    ------------------------------------------------------------------------------
+    Name                    Command Argument       Description
+                                    Type
+    -------------           ------- -------------- -------------------------------
+    `SIM_SET_POSE`          224     int4,int4,int4 Move robot to global pose in simulator (does not change odometry).
+                                                   The parameters are 4-byte integers for X, Y and Theta. The packet's argument
+                                                   type byte is ignored. Here is an example of how to send this command in ARIA,
+                                                   where `robot` is an `ArRobot` object, and
+                                                   `x`, `y` and `th` are `int`
+                                                   variables containing desired position in milimeters and degrees:
+                                                     ArRobotPacket pkt;
+                                                     pkt.setID(ArCommands::SIM_SET_POSE);
+                                                     pkt.uByteToBuf(0); // argument type: ignored.
+                                                     pkt.byte4ToBuf(x);
+                                                     pkt.byte4ToBuf(y);
+                                                     pkt.byte4ToBuf(th);
+                                                     pkt.finalizePacket();
+                                                     robot.getDeviceConnection()->write(pkt.getBuf(), pkt.getLength());
 
-  `SIM_RESET`             225     none           Move robot to original starting position in simulator (e.g. Home point or Dock) and reset odometry to 0,0,0.
+    SIM_RESET             225     none           Move robot to original starting position in simulator (e.g. Home point or Dock) and reset odometry to 0,0,0.
 
-  `SIM_LRF_ENABLE`        230     int            1 to enable simulated laser rangefinder in-band (data packet ID=0x60).  2 to enable simulated LRF with extended information (data packet ID=0x61).  0 to disable LRF.  See below for data packet formats.
+    SIM_LRF_ENABLE        230     int            1 to enable simulated laser rangefinder in-band (data packet ID=0x60).  2 to enable simulated LRF with extended information (data packet ID=0x61).  0 to disable LRF.  See below for data packet formats.
 
-  `SIM_LRF_SET_FOV_START` 231     int            Set start angle of laser field of view
+    SIM_LRF_SET_FOV_START 231     int            Set start angle of laser field of view
 
-  `SIM_LRF_SET_FOV_END`   232     int            Set end angle of laser field of view Currently start and end must be symetrical around 0. ARIA always does this, but if you want configure it differently it won't work.
+    SIM_LRF_SET_FOV_END   232     int            Set end angle of laser field of view Currently start and end must be symetrical around 0. ARIA always does this, but if you want configure it differently it won't work.
 
-  `SIM_LRF_SET_RES`       233     int            Set degree increment between each reading; with FOV, this number determines the number of readings in each sweep
+    SIM_LRF_SET_RES       233     int            Set degree increment between each reading; with FOV, this number determines the number of readings in each sweep
 
-  `SIM_CTRL`              236     int,...        Perform a simulator meta-operation. The initial 2-byte integer indicates the operation. The rest of the packet is operation-specific. See the description below for descriptions of operations.
+    SIM_CTRL              236     int,...        Perform a simulator meta-operation. The initial 2-byte integer indicates the operation. The rest of the packet is operation-specific. See the description below for descriptions of operations.
 
-  `SIM_STAT`              237     none,1,2 or 0  Request SIMSTAT packets (ID=0x62) to be returned. See below.  Argument: none or 1 to return one packet, 2 to return a packet before each SIP, or 0 to stop sending.
+    SIM_STAT              237     none,1,2 or 0  Request SIMSTAT packets (ID=0x62) to be returned. See below.  Argument: none or 1 to return one packet, 2 to return a packet before each SIP, or 0 to stop sending.
 
-  `SIM_MESSAGE`           238     byte,string... Display the length-prefixed string in the messages window.
+    SIM_MESSAGE           238     byte,string... Display the length-prefixed string in the messages window.
 
-  `SIM_EXIT`              239     int            Exit the simulator with the given exit code.  Pass a positive integer < 127 as error code, or use 0 to indicate "normal" exit.
-  -------------           ------- -------------- --------------------------------
+    SIM_EXIT              239     int            Exit the simulator with the given exit code.  Pass a positive integer < 127 as error code, or use 0 to indicate "normal" exit.
+    -------------           ------- -------------- --------------------------------
 
 The `SIM_CTRL` command performs miscellaneous simulater meta-operations. The
 initial 2-byte integer indicates the operation. The rest of the packet is
 operation-specific.
 
-  -------------------------------------------------------------------------------
-  Op #  Name     Description
-  ----  -------  ----------------------------------------------------------------
-  1     Replace  Remove existing map data and load a new map from the
-        map      file given as a length-prefixed string folowing the
-                 operation code. Note: If the path is not absolute,
-                 it will be interpreted as relative to AMRISim's
-                 startup working directory, or the directory given
-                 with the --cwd command-line argument.
-                 For compatibility with Windows and other platforms with
-                 case-insensitive file naming, the case of the file name
-                 does not matter.
-                 A SIM_MAP_CHANGED packet will be sent back to any client
-                 when AMRISim is done loading a new map (see below).
+    -------------------------------------------------------------------------------
+    Op #  Name     Description
+    ----  -------  ----------------------------------------------------------------
+    1     Replace  Remove existing map data and load a new map from the
+          map      file given as a length-prefixed string folowing the
+                   operation code. Note: If the path is not absolute,
+                   it will be interpreted as relative to AMRISim's
+                   startup working directory, or the directory given
+                   with the --cwd command-line argument.
+                   For compatibility with Windows and other platforms with
+                   case-insensitive file naming, the case of the file name
+                   does not matter.
+                   A SIM_MAP_CHANGED packet will be sent back to any client
+                   when AMRISim is done loading a new map (see below).
 
-  2     Master   Similar to `1`, but once this command is received, future
-        replace  control commands with operation 1 are ignored, only operation 2 is
-        map      accepted.  Use this when many clients are requesting different maps,
-                 but you want one of them (or a seperate program) to instead have
-                 control over which map is being used.
-                 A SIM_MAP_CHANGED packet will be sent back to any client
-                 when AMRISim is done loading a new map (see below).
+    2     Master   Similar to `1`, but once this command is received, future
+          replace  control commands with operation 1 are ignored, only operation 2 is
+          map      accepted.  Use this when many clients are requesting different maps,
+                   but you want one of them (or a seperate program) to instead have
+                   control over which map is being used.
+                   A SIM_MAP_CHANGED packet will be sent back to any client
+                   when AMRISim is done loading a new map (see below).
 
-  3     Master   Disable master map mode if enabled by `2`
-        map
-        clear
+    3     Master   Disable master map mode if enabled by `2`
+          map
+          clear
 
-  4     Rotate   If logging to a file (--log-file command-line option given),
-        logs     then close current log file, move old log files to backup
-                 files (up to 5 are kept), and open a new log file.
-                 Only implemented for Linux currently.
+    4     Rotate   If logging to a file (--log-file command-line option given),
+          logs     then close current log file, move old log files to backup
+                   files (up to 5 are kept), and open a new log file.
+                   Only implemented for Linux currently.
 
-  5     Log      Log detailed internal simulation state for this robot.  (For debugging, mainly.)
-        detailed
-        state
+    5     Log      Log detailed internal simulation state for this robot.  (For debugging, mainly.)
+          detailed
+          state
 
-  6     Request  Request `SIMINFO` packet (see below).
-        SIMINFO
-        packet
+    6     Request  Request `SIMINFO` packet (see below).
+          SIMINFO
+          packet
 
-  7     Ghost    This robot will no longer be visible to other robots' sensors (laser or
-        mode     sonar), and other robots will not collide with it.
-  ----  -------  ---------------------------------------------------------------
+    7     Ghost    This robot will no longer be visible to other robots' sensors (laser or
+          mode     sonar), and other robots will not collide with it.
+    ----  -------  ---------------------------------------------------------------
 
 
 
 
 The normal simulator laser packet is as follows:
 
-  Packet ID                ubyte=0x60
-  Robot X                  int
-  Robot Y                  int
-  Robot Theta              int
-  Total No. Readings       int
-  Current                  int,  index of the first reading given in this packet
-  Packet Len.              int,  number of bytes of data that follow
-    For each reading:
-      Reading Range          int,   Range for reading
-    ...
+    Packet ID                ubyte=0x60
+    Robot X                  int
+    Robot Y                  int
+    Robot Theta              int
+    Total No. Readings       int
+    Current                  int,  index of the first reading given in this packet
+    Packet Len.              int,  number of bytes of data that follow
+      For each reading:
+        Reading Range          int,   Range for reading
+      ...
 
 
 The extended simulator laser packet is as follows:
 
-  Packet ID                ubyte=0x61
-  Total No. Readings       int
-  Current                  int,      Index of first reading given
-  in this packet
-  Packet Len.              int,      number of bytes of data that follow
-    <td colspan="2">
-    For each reading:
-      Range                  int,      Range for reading #i
-      Reflectance            ubyte,    Reflectance value, if supported
-      Flags                  2 bytes,  Reserved
-     ...
+    Packet ID                ubyte=0x61
+    Total No. Readings       int
+    Current                  int,      Index of first reading given
+    in this packet
+    Packet Len.              int,      number of bytes of data that follow
+      <td colspan="2">
+      For each reading:
+        Range                  int,      Range for reading #i
+        Reflectance            ubyte,    Reflectance value, if supported
+        Flags                  2 bytes,  Reserved
+       ...
 
   Laser Device Index        ubyte,    Reserved
   Flags                     ubyte,    Reserved
 
 The SIMSTAT packet is as follows.  New fields may be added in future versions.
 
-  Packet ID                 ubyte=0x62 (98)
-  unused/reserved NULL byte ubyte=0      reserved/unused
-  unused/reserved NULL byte ubyte=0      reserved/unused
-  Flags                     4ubyte       bit 0=have a map; bit 1=map has origin georeference (OriginLatLonAlt); bit 2=have odometry error data
-  SimInterval               2ubyte       Configured simulated time one loop interval takes
-   RealInterval              2ubyte       Configured real time one loop interval should take
-  LastInterval              2ubyte       Real time the last loop interval was measured at
-  True X                    4byte        Robot's "true" X position in the simulator
-  True Y                    4byte        Robot's "true" Y position in the simulator
-  True Z                    4byte        Robot's "true" Z position in the simulator
-  True Theta                4byte        Robot's "true" rotation on its vertical axis in the simulator
-  Geo Lat                   4byte        Robot's latitude (degrees * 10^6). Only valid if map has origin georeference.
-  Geo Lon                   4byte        Robot's longitude (degrees * 10^6). Only valid if map has origin georeference.
-  Geo Alt                   4byte        Robot's altitude (cm). Only valid if map has origin georeference.
-  GPS good                  byte         Normally 100. If robot is inside a `BadGPSSector` or `SimBadGPSSector` area, will be 0.  If there is no simulated GPS (e.g. map is not georeferenced), will be -1.
-  Odometry Error X          4byte        mm * 10^6. See also Flags field above
-  Odometry Error Y          4byte        mm * 10^6. See also Flags field above
-  Odometry Error Th         4byte        degrees * 10^6. See also Flags field above
+    Packet ID                 ubyte=0x62 (98)
+    unused/reserved NULL byte ubyte=0      reserved/unused
+    unused/reserved NULL byte ubyte=0      reserved/unused
+    Flags                     4ubyte       bit 0=have a map; bit 1=map has origin georeference (OriginLatLonAlt); bit 2=have odometry error data
+    SimInterval               2ubyte       Configured simulated time one loop interval takes
+    RealInterval              2ubyte       Configured real time one loop interval should take
+    LastInterval              2ubyte       Real time the last loop interval was measured at
+    True X                    4byte        Robot's "true" X position in the simulator
+    True Y                    4byte        Robot's "true" Y position in the simulator
+    True Z                    4byte        Robot's "true" Z position in the simulator
+    True Theta                4byte        Robot's "true" rotation on its vertical axis in the simulator
+    Geo Lat                   4byte        Robot's latitude (degrees * 10^6). Only valid if map has origin georeference.
+    Geo Lon                   4byte        Robot's longitude (degrees * 10^6). Only valid if map has origin georeference.
+    Geo Alt                   4byte        Robot's altitude (cm). Only valid if map has origin georeference.
+    GPS good                  byte         Normally 100. If robot is inside a `BadGPSSector` or `SimBadGPSSector` area, will be 0.  If there is no simulated GPS (e.g. map is not georeferenced), will be -1.
+    Odometry Error X          4byte        mm * 10^6. See also Flags field above
+    Odometry Error Y          4byte        mm * 10^6. See also Flags field above
+    Odometry Error Th         4byte        degrees * 10^6. See also Flags field above
 
 
 Here is an example of a packet handler function for ARIA that extracts some data from the
@@ -1177,27 +1179,27 @@ ArSimulatedGPS object to read the simulated GPS data.
 The `SIMINFO` packet is as follows.
 New fields may be added in future versions.
 
-  Packet ID                ubyte=0x63 (100)
-  Application name         NULL-terminated string     Name of simulator
-  Application version      NULL-terminated string     Version of simulator
-  Flags                    4ubyte                     Bit 0=Sim is interactive with user and has a GUI; Bit 1=Sim crashed last time but was automatically restarted.
-  Num. Devices             4ubyte                     Number of devices attached to the robot
-  For each device:
-    Device Name            string                      Unique name for this device
-    Device Type             string                     e.g. "laser"
-    Device Number           ubyte                      To distinguish individual devices of the same type
-    Device Status           ubyte,ubyte,ubyte,ubyte    Device-dependent status code(s)
-  ...
+    Packet ID                ubyte=0x63 (100)
+    Application name         NULL-terminated string     Name of simulator
+    Application version      NULL-terminated string     Version of simulator
+    Flags                    4ubyte                     Bit 0=Sim is interactive with user and has a GUI; Bit 1=Sim crashed last time but was automatically restarted.
+    Num. Devices             4ubyte                     Number of devices attached to the robot
+    For each device:
+      Device Name            string                      Unique name for this device
+      Device Type             string                     e.g. "laser"
+      Device Number           ubyte                      To distinguish individual devices of the same type
+      Device Status           ubyte,ubyte,ubyte,ubyte    Device-dependent status code(s)
+    ...
 
 
 The `SIM_MAP_CHANGED` packet is as follows.  This packet is sent to all
 connected clients if the map is changed or reloaded for any reason.
 New fields may be added in future versions.
 
-  Packet ID                ubyte=0x66 (102)
-  User                     ubyte. 1=Map was loaded by user command (e.g. via gui), 0=Map was loaded by client program SIM_CTRL command.
-  Loaded                   ubyte. 1=A new map was really loaded.  0=Map was not reloaded because already loaded and file is unchanged since last load.
-  Filename                 string. filename of map that was loaded.
+    Packet ID                ubyte=0x66 (102)
+    User                     ubyte. 1=Map was loaded by user command (e.g. via gui), 0=Map was loaded by client program SIM_CTRL command.
+    Loaded                   ubyte. 1=A new map was really loaded.  0=Map was not reloaded because already loaded and file is unchanged since last load.
+    Filename                 string. filename of map that was loaded.
 
 #### Unsupported Pioneer commands
 
@@ -1205,53 +1207,53 @@ The following commands are not supported, and will be ignored, with a warning
 message. Some are not applicable to the simulator (ENCODER) or pertain to
 devices that aren't implemented in the simulator yet (gripper, sounds).
 
-  ENCODER        19
-  POLLING        3
-  SAY            15
-  JOYINFO        17
-  DIGOUT         30
-  GRIPPER        33
-  ADSEL          35
-  GRIPPERVAL     36
-  GRIPPERPACREQUEST 37
-  IOREQUEST      40
-  PTUPOS         41
-  GETAUX         43
-  TCM2           45
-  JOYDRIVE       47
-  HOSTBAUD       50
-  AUX1BAUD       51
-  AUX2BAUD       52
-  GYRO           58
-  CALCOMP        65
-  TTY3           66
-  GETAUX2        67
-  SOUND          90
-  PLAYLIST       91
-  SOUNDTOG       92
-  OLD_LOADWORLD  63
-  OLD_LOADPARAM  61
-  OLD_STEP       64
+    ENCODER        19
+    POLLING        3
+    SAY            15
+    JOYINFO        17
+    DIGOUT         30
+    GRIPPER        33
+    ADSEL          35
+    GRIPPERVAL     36
+    GRIPPERPACREQUEST 37
+    IOREQUEST      40
+    PTUPOS         41
+    GETAUX         43
+    TCM2           45
+    JOYDRIVE       47
+    HOSTBAUD       50
+    AUX1BAUD       51
+    AUX2BAUD       52
+    GYRO           58
+    CALCOMP        65
+    TTY3           66
+    GETAUX2        67
+    SOUND          90
+    PLAYLIST       91
+    SOUNDTOG       92
+    OLD_LOADWORLD  63
+    OLD_LOADPARAM  61
+    OLD_STEP       64
 
 The following commands will probably never be supported since they do nothing on
 modern robots or use is discouraged:
 
-  DROTATE        14
-  DCHEAD         22
-  KICK           34
+    DROTATE        14
+    DCHEAD         22
+    KICK           34
 
 These commands are supported for compatability with a previous simulator
 
-  OLD_LRF_ENABLE     35   int    Start/stop sending laser data in-band
-  OLD_LRF_PARMSTART  36   int    Sets start angle 0-180 degrees; also disables laser; with #37, determines "flipped" order of readings.
-  OLD_LRF_PARMEND    37   int    Sets scan end angle; also disables laser; with #36, determines "flipped" order of readings.
-  OLD_LRF_PARMINC    38   int    Sets inter-sample angle (100ths of degree)
+    OLD_LRF_ENABLE     35   int    Start/stop sending laser data in-band
+    OLD_LRF_PARMSTART  36   int    Sets start angle 0-180 degrees; also disables laser; with #37, determines "flipped" order of readings.
+    OLD_LRF_PARMEND    37   int    Sets scan end angle; also disables laser; with #36, determines "flipped" order of readings.
+    OLD_LRF_PARMINC    38   int    Sets inter-sample angle (100ths of degree)
 
 The following commands are normally disabled, but can be re-enabled with the
 `--srisim-compat` command-line argument:
 
-  OLD_END_SIM        62          none        Exit simulator (AMRISim exits completely). Note, this command is also used for another use on real robots and newer version of ARIA send it after connecting (so the simulator exits immediately).  You can enable the other SRISim compatability commands with `--srisim-compat`, but disable this command using `--ignore-command 62`
-  OLD_SETORIGINX     66          int         Set the robot's current true X, (Note, conflicts with TTY3 command)
-  OLD_SETORIGINY     67          int         ...Y
-  OLD_SETORIGINTH     68         int         ...Theta
-  OLD_RESET_TO_ORIGIN     69     none        Reset true X Y, TH to 0,0,0
+    OLD_END_SIM        62          none        Exit simulator (AMRISim exits completely). Note, this command is also used for another use on real robots and newer version of ARIA send it after connecting (so the simulator exits immediately).  You can enable the other SRISim compatability commands with `--srisim-compat`, but disable this command using `--ignore-command 62`
+    OLD_SETORIGINX     66          int         Set the robot's current true X, (Note, conflicts with TTY3 command)
+    OLD_SETORIGINY     67          int         ...Y
+    OLD_SETORIGINTH     68         int         ...Theta
+    OLD_RESET_TO_ORIGIN     69     none        Reset true X Y, TH to 0,0,0
