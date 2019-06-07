@@ -2,10 +2,10 @@
 Version=1.0
 Type=Application
 Encoding=UTF-8
-Name=MobileSim
+Name=AMRISim
 Comment=Simulate MobileRobots/ActivMedia robots in their environment, for use with ARIA
-Icon=/usr/local/MobileSim/icon.png
-TryExec=/usr/local/MobileSim/MobileSim
+Icon=/usr/local/AMRISim/icon.png
+TryExec=/usr/local/AMRISim/AMRISim
 Path=/usr/local/bin
-Exec=/usr/local/bin/MobileSim
+Exec=/usr/local/bin/AMRISim
 Categories=Application;Science;

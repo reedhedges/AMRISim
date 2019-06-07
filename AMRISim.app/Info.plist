@@ -28,15 +28,15 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>MobileSim</string>
+	<string>AMRISim</string>
 	<key>CFBundleIconFile</key>
-	<string>MobileSim</string>
+	<string>AMRISim</string>
 	<key>CFBundleIdentifier</key>
-	<string>AMR.MobileSim</string>
+	<string>AMR.AMRISim</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>MobileSim</string>
+	<string>AMRISim</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

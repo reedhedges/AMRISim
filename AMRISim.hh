@@ -1,8 +1,12 @@
-/*
- *  Copyright (C) 2006-2010 MobileRobots Inc.
- *  Copyright (C) 2011-2015 Adept Technology
- *  Copyright (C) 2016-2017 Omron Adept Technologies
+
+/*  
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
  *
+ *  Copyright 2018 Reed Hedges and others
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -19,8 +23,8 @@
  *
  */
 
-#ifndef _MOBILESIM_HH_
-#define _MOBILESIM_HH_
+#ifndef _AMRISIM_HH_
+#define _AMRISIM_HH_
 
 #include "ariaUtil.h"
 #include <set>
@@ -39,8 +43,8 @@ class ArSocket;
 
 /* Program version */
 
-#ifndef MOBILESIM_VERSION
-#error MOBILESIM_VERSION not defined!
+#ifndef AMRISIM_VERSION
+#error AMRISIM_VERSION not defined!
 #endif
 
 /* Size of buffers used to store file path names */
@@ -77,7 +81,7 @@ class ArSocket;
 #define DEFAULT_MPPC_STR "100,000"
 #endif
 
-namespace MobileSim
+namespace AMRISim
 {
 
 class Options
@@ -153,8 +157,8 @@ public:
       mapLoadLinesPerChunk = DEFAULT_MAP_LINES_PER_CHUNK;
       mapLoadPointsPerChunk = DEFAULT_MAP_POINTS_PER_CHUNK;
       run_network_discovery = true;
-#ifdef MOBILESIM_DEFAULT_ODOM_ERROR_MODE
-      odom_error_mode = MOBILESIM_DEFAULT_ODOM_ERROR_MODE;
+#ifdef AMRISIM_DEFAULT_ODOM_ERROR_MODE
+      odom_error_mode = AMRISIM_DEFAULT_ODOM_ERROR_MODE;
 #else
       odom_error_mode = RANDOM_EACH_UPDATE;
 #endif
@@ -162,9 +166,9 @@ public:
 };
 
 
-}// namespace MobileSim
+}// namespace AMRISim
 
-extern MobileSim::Options options;
+extern AMRISim::Options options;
 
 /* Figure out what directory to use for our external resources */
 extern const char* find_libdir();
@@ -319,7 +323,7 @@ public:
 
 };
 
-namespace MobileSim
+namespace AMRISim
 {
   inline double min(double x, double y) { return ((x <= y) ? x : y); }
   inline double max(double x, double y) { return ((x >= y) ? x : y); }
@@ -380,5 +384,5 @@ public:
 
 
 
-}; // namespace MobileSim
+}; // namespace AMRISim
 #endif

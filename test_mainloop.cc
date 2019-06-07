@@ -1,5 +1,5 @@
 
-/* This is a small test of the strategy used in the main loop of MobileSim to
+/* This is a small test of the strategy used in the main loop of AMRISim to
  * update stage and send client output (send SIPs and laser packets) at the right times. 
  *
  * When run you should see stage updates and client output happening at the

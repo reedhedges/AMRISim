@@ -1,6 +1,6 @@
 
 
-MobileSim 0.9.8
+AMRISim 0.9.8
 January 29, 2018
 ------------------------------
 
@@ -33,7 +33,7 @@ Mac OSX and MinGW build instructions improved.
 Tool added to convert PNM and similar bitmap files to map.
 
 
-MobileSim 0.8.0
+AMRISim 0.8.0
 June 30, 2016
 ------------------------------
 
@@ -60,7 +60,7 @@ issues during map change events.
 
 
 
-MobileSim 0.7.5
+AMRISim 0.7.5
 April 13, 2016
 ------------------------------
 
@@ -68,7 +68,7 @@ April 13, 2016
    creating a map using MOGS tools), then the SIMSTAT packet includes calculated
    latitude, longitude, altitude and a "GPS quality" value.  Simulated GPS support 
    (ArSimulatedGPS) in Aria 2.9.1 and later use this to emulate GPS.  
-   MobileSim now recognizes "BadGPSSector" and "SimBadGPSSector" areas
+   AMRISim now recognizes "BadGPSSector" and "SimBadGPSSector" areas
    in a map, and sends a GPS quality of 100 when outside a Bad GPS sector, and 
    0 if inside a Bad GPS sector.  ArSimulatedGPS will report a DOP and 
    GPS fix type (SimulatedFix or BadFix) depending on this value.
@@ -78,24 +78,24 @@ April 13, 2016
    generated from that.
  * Misc minor fixes
 
-MobileSim 0.7.4
+AMRISim 0.7.4
 September 9, 2014
 ------------------------------
 
  * Added ghost mode. Use SIM_CTRL command with argument 7 to make the robot
    ephemeral and invisible: other robots will not be able to sense or collide
    with the robot, though it will still be visible in the GUI.
- * It is possible to build MobileSim from source code on Mac OSX. See
-   README.src.txt. (note that MobileSim is not actively tested on Mac OSX
+ * It is possible to build AMRISim from source code on Mac OSX. See
+   README.src.txt. (note that AMRISim is not actively tested on Mac OSX
    however.)
 
-MobileSim 0.7.3
+AMRISim 0.7.3
 August 17, 2013
 ------------------------------
 
  * fixed bug in logging. in particular, warnings about unsupported commands
-   could crash MobileSim or have cause other problems
- * Log version number and build date when MobileSim starts
+   could crash AMRISim or have cause other problems
+ * Log version number and build date when AMRISim starts
  * moved logging of robot names and types to after possible change to logging to
    a file if --log-file given.
  * fixed possible crash or data corruption on some platforms (Windows 7) due to 
@@ -105,7 +105,7 @@ August 17, 2013
  * Added initial version of a Pioneer LX model named "pioneer-lx" 
  * Fixed display of messages pane in GTK 2.24.10 (Ubuntu 12)
 
-MobileSim 0.7.0
+AMRISim 0.7.0
 March 1, 2013
 ------------------------------
 
@@ -123,7 +123,7 @@ March 1, 2013
    persist to later sessions.)
  * Fixed bug in creating a robot based on a newer .p file that doesn't have the
    "LaserPossessed" parameter (would not add a laser to the robot even if
-   LaserType for the first laser was given).  MobileSim now adds a laser if
+   LaserType for the first laser was given).  AMRISim now adds a laser if
    either LaserPossessed is given, or the first laser has a nonempty LaserType
    (But only SICK LMS-200 is simulated at this time; an LMS-200 is used
    currently for any LaserType). This only affected using -r with a .p file. Using
@@ -131,25 +131,25 @@ March 1, 2013
  * Fixed bug in which all sectors became box obstacles, not just sectors with SimObstacle=true
  * Added seekurjr, mt400 and research patrolbot robot types. 
 
-MobileSim 0.6.2
+AMRISim 0.6.2
 April 7, 2010
 ------------------------------
 
  * Fixed duplicate packets bug #1271
 
-MobileSim 0.6.1
+AMRISim 0.6.1
 March 17, 2010
 ------------------------------
 
  * Fixed bugs in handling unexpected packets or unexpected disconnects during client SYNC
  * Fixed bug where received packets were logged if using a robot factory even if 
    --log-packets-received wasn't given.
- * Fixed possible bug where MobileSim would still try to read from a disconnected client
+ * Fixed possible bug where AMRISim would still try to read from a disconnected client
    (would log fstat error and skip the socket)
  * Cleaned up some logging
 
 
-MobileSim 0.6.0
+AMRISim 0.6.0
 March 12, 2010
 ------------------------------
 
@@ -157,7 +157,7 @@ March 12, 2010
    and client I/O are performed; they were previously done asynchronously in
    many threads, they are now performed in a single thread.  This should avoid
    some subtle race conditions and other bugs that appeared in previous versions
-   of MobileSim in its interactions with stage and GTK (which are not thread
+   of AMRISim in its interactions with stage and GTK (which are not thread
    safe).   Timing of tasks (simulation updates and sending packets to clients) 
    has also been improved.  
  * Fixed error in interpreting VEL2 command: left and right velocities were
@@ -166,7 +166,7 @@ March 12, 2010
    are now disabled by default (re-enable with --srisim-compat command line
    option).  The old laser-related commands are still enabled by default
    (but can now be disabled with the --no-srisim-laser-compat option)
- * MobileSim now sends the client a SIM_MAP_CHANGED packet (id=102) in response
+ * AMRISim now sends the client a SIM_MAP_CHANGED packet (id=102) in response
    to a map change command (SIM_CTRL command 1) or if the user loads a new map
    using the GUI menu item. This packet is sent back after
    the map has been loaded, and contains a flag to indicate whether a new map
@@ -176,12 +176,12 @@ March 12, 2010
    loaded.
  * Separated --no-crash-handler into two new options: --no-crash-debug (disables
    running GDB to get a stack trace) and --no-crash-restart (disables
-   automatically restarting MobileSim after a crash if running in Noninteractive
+   automatically restarting AMRISim after a crash if running in Noninteractive
    mode)
  * pioneer_sip_cycle no longer appears in model definitions; at this time it
    cannot be changed (it will always be 100ms/10hz)
 
-MobileSim 0.5.0
+AMRISim 0.5.0
 January 28, 2009
 ------------------------------
 
@@ -190,7 +190,7 @@ January 28, 2009
  * --no-gui now implies --noninteractive
  * Added temperature test/debugging commands (with temperature info in SIP)
 
-MobileSim 0.4.5
+AMRISim 0.4.5
 October 3, 2008
 ------------------------------
 
@@ -229,10 +229,10 @@ Enhancements:
  * If --log-timing-stats is given, log simulation timing stats every 30 seconds
  * Various optimizations
  * If run in noninteractive mode, a crash triggers a crash handler which logs
-   stack traces if possible (using GDB), and restarts MobileSim.
+   stack traces if possible (using GDB), and restarts AMRISim.
  * Tries a few times to open the requested port, before trying subsequent ports.
  * Added SIM_CTRL command code 4 to rotate log files, and also rotate log files
-   before restarting MobileSim in crash handler.
+   before restarting AMRISim in crash handler.
  * Added SIM_CTRL commands 2 and 3 to load map in a locked "master map loader"
    mode (see documentation)
  * If no data is received from a client in 20 seconds, it is disconnected. (And
@@ -250,21 +250,21 @@ Enhancements:
    info as well.
 
 
-MobileSim 0.4.3
+AMRISim 0.4.3
 October 19, 2007
 ------------------------------
 
 Bug fixes:
  * Fixed bad model name with some .p files (e.g. in a directory)
 
-MobileSim 0.4.2
+AMRISim 0.4.2
 October 20, 2007
 ------------------------------
 
 Bug Fixes:
  * Fixed bad deceleration
 
-MobileSim 0.4.1
+AMRISim 0.4.1
 August 20, 2007
 ------------------------------
 
@@ -278,14 +278,14 @@ Bug Fixes:
     receiving new command (it would sometimes ignore the second command)
 
 
-MobileSim 0.4.0-1 Windows Package
+AMRISim 0.4.0-1 Windows Package
 unknown
 ------------------------------
 
 Fixed missing DLLs (iconv, gmodule)
 
 
-MobileSim 0.4.0
+AMRISim 0.4.0
 June  6, 2007
 ------------------------------
 
@@ -306,7 +306,7 @@ Fixes:
    console, rather than causing red warnings in the GUI: SETPBIOPORT (31), 
    JOYPAC (17), JOYDRIVE (47), IOREQ (40), MOVINGBLINK (49).
  * Disabled "Reset World" (really should have been "Reload") in the File
-   menu, since MobileSim cannot reasonably reload any Stage "world" file
+   menu, since AMRISim cannot reasonably reload any Stage "world" file
    yet.
  * Fixed "busy" mouse cursor on Linux (only used rarely at this point)
 
@@ -327,9 +327,9 @@ Enhancements:
    pose in the simulator, robot's sensors and other attached devices listed.
  * Added --cwd command-line option to choose directory to change to at program
    start (i.e. for map loading)
- * Any files found in $HOME/.MobileSim/include/ are included into the
+ * Any files found in $HOME/.AMRISim/include/ are included into the
    Stage world configuration -- place files with custom robot model definitions
-   here.  (On Windows, C:\Documents and Settings\<User Name>\MobileSim\include)
+   here.  (On Windows, C:\Documents and Settings\<User Name>\AMRISim\include)
    Note that you can include anything in these files, in addition to 
    model definitions -- including world and GUI settings, and even robot
    and model instantiations. See the Stage documentation.
@@ -341,7 +341,7 @@ Enhancements:
  * New command line options to adjust update interval times
  * New command line option to log to a file
  * Optimized the way multiple threads access stage, and how stage times
-   its updates, allowing more robots to run in one MobileSim.
+   its updates, allowing more robots to run in one AMRISim.
  * New command line argument to disable client commands
  * A simple concept of object height has been added, so plane sensors (laser) won't
    see short objects (amigobot).  Needs to be specially enabled in the robot
@@ -350,7 +350,7 @@ Enhancements:
 
 
 
-MobileSim 0.3
+AMRISim 0.3
 February 27, 2006
 ------------------------------
 
@@ -378,7 +378,7 @@ Enhancements:
    redesigning how maps are loaded into stage, with the pleasant side effect that 
    it's much faster.
  * Movable box-shaped obstacle objects can be manually added to the map with
-   a text editor, and moved with the mouse in MobileSim.
+   a text editor, and moved with the mouse in AMRISim.
  * "Reflector" lines are supported, and return a high reflectance value
    if the "extended" laser packet was requested (so a recent ARIA is needed
    to get reflectance data).  The old laser packet format does not include 
@@ -390,7 +390,7 @@ Enhancements:
    formatting.
 
 
-MobileSim 0.2
+AMRISim 0.2
 December 28, 2005
 ------------------------------
 
@@ -414,9 +414,9 @@ Important Changes and Fixes:
  * Fixed bug in deceleration
  * A very simple model of sonar and laser noise is now implemented. 
     See PioneerRobotModels.world.inc to configure.
- * Will always report any robot's NAME to be "MobileSim" on client connection.
+ * Will always report any robot's NAME to be "AMRISim" on client connection.
  * On REDHAT only: requires GTK 2.0 or greater packages, seperately installed. 
-    GTK 2.4 is no longer provided with MobileSim. See README.txt for more 
+    GTK 2.4 is no longer provided with AMRISim. See README.txt for more 
     information. GTK 2.0 is a standard part of most RedHat installations.
  * Command to set robot's true pose (SIM_SET_POSE, 224) now takes three
     4-byte integers rather than three 2-byte integers.
@@ -442,17 +442,17 @@ Other Enhancements:
     various operating statistics in the future.
 
 
-MobileSim 0.1-1
+AMRISim 0.1-1
 May 27, 2005
 -------------------------------
 
   * Remove ugly debug message and clean temp. files
   * /usr/local/bin/MobileEyes is now a symlink instead of a shell script
 
-MobileSim 0.1-0
+AMRISim 0.1-0
 May, 2005
 -------------------------------
 
-  * First release of MobileSim.  Some features are still experimental,
+  * First release of AMRISim.  Some features are still experimental,
     and some key features are missing, but it is useful for most purposes now.
 

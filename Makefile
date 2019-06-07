@@ -1,5 +1,5 @@
 
-# Makefile for MobileSim.
+# Makefile for AMRISim.
 # 
 # This Makefile should work on Linux, MinGW on Windows, Mac OSX, and perhaps other
 # Unix-like systems as well.
@@ -9,7 +9,7 @@
 #
 # Some variables you can override with environment variables:
 #   DESTDIR      Set an alternative filesystem root prefix (normally only used for making packages)
-#   INSTALL_DIR  Where to install MobileSim, default /usr/local/MobileSim
+#   INSTALL_DIR  Where to install AMRISim, default /usr/local/AMRISim
 #   installed_bindir Overrides desired 'bin' directory (normally $(DESTDIR)/$(INSTALL_DIR))
 #   CXX	         C++ compiler (default is make's default, usually 'c++')
 #   CC           C compiler (default is make's default, usually 'cc')
@@ -21,12 +21,12 @@
 #   ROSRELEASE   Name of ROS release to use. Default is melodic. 
 #
 # Some variables that set build options:
-#   MOBILESIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
-#   MOBILESIM_RELEASE   If defined, disable DEBUG (default).
-#   MOBILESIM_PROFILE   If defined, then profiling will be enabled with -pg for gprof.
+#   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
+#   AMRISIM_RELEASE   If defined, disable DEBUG (default).
+#   AMRISIM_PROFILE   If defined, then profiling will be enabled with -pg for gprof.
 #
 # Used for variations on the tar.gz bindist package:
-#   TAR_DIRECTORY       If defined, put files to be tarred in a new directory with this name, rather than MobileSim-$(VERSION). 
+#   TAR_DIRECTORY       If defined, put files to be tarred in a new directory with this name, rather than AMRISim-$(VERSION). 
 #   BINDIST_SUFFIX      If defined, append this string to the tar.gz package name.
 #
 # Other:
@@ -54,8 +54,8 @@ REAL_SHELL:=$(SHELL)
 SHELL=$(warning at rule   $@.   Modified prerequisites are: [$?]    All prerequisites are: [$^])$(REAL_SHELL)
 endif
 
-ifdef MOBILESIM_RELEASE
-MOBILESIM_DEBUG=""
+ifdef AMRISIM_RELEASE
+AMRISIM_DEBUG=""
 endif
 
 default: all
@@ -104,9 +104,9 @@ ICONSET:=$(shell find icons.iconset)
 # makefiles)
 
 
-COMMON_DISTRIBUTED_FILES=Makefile LICENSE.txt Changes.txt README.md README.txt README.html screenshot.png PioneerRobotModels.world.inc AMROffice.map columbia.map icon.png MobileSim.desktop version.txt INSTALL.txt
+COMMON_DISTRIBUTED_FILES=Makefile LICENSE.txt Changes.txt README.md README.txt README.html screenshot.png PioneerRobotModels.world.inc AMROffice.map columbia.map icon.png AMRISim.desktop version.txt INSTALL.txt
 
-BINARY_DISTRIBUTED_FILES=$(COMMON_DISTRIBUTED_FILES) MobileSim$(binary_suffix) gdbhelper 
+BINARY_DISTRIBUTED_FILES=$(COMMON_DISTRIBUTED_FILES) AMRISim$(binary_suffix) gdbhelper 
 
 SOURCE_DISTRIBUTED_FILES=$(COMMON_DISTRIBUTED_FILES) main.cc README.src.txt \
   *.cpp *.h *.hh *.cc stage/src/*.c stage/src/*.h stage/src/stagecpp.cc \
@@ -118,17 +118,17 @@ SOURCE_DISTRIBUTED_FILES=$(COMMON_DISTRIBUTED_FILES) main.cc README.src.txt \
   stage/NEWS stage/autoconf-mingw.sh stage/stage.pc.in stage/replace/*.c \
   stage/replace/*.h convertBitmapToArMap.cc util.h \
   stage/gtk-win/* stage/gtk-win/*/* stage/gtk-win/*/*/* stage/gtk-win/*/*/*/* \
-  $(ICONSET) MobileSim.app/Info.plist
+  $(ICONSET) AMRISim.app/Info.plist
 SOURCE_DISTRIBUTED_FILES_EXEC=stage/configure stage/config.guess stage/config.sub\
   stage/install-sh stage/missing  gdbhelper 
 
 SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 
-CFLAGS+=-DMOBILESIM
+CFLAGS+=-DAMRISIM
 
 
 
-ifdef MOBILESIM_DEBUG
+ifdef AMRISIM_DEBUG
 
 $(info Debug build)
 CFLAGS+=-g -O0 -Wall -W -Wconversion # -W is the same as -Wextra but supported by gcc 2
@@ -157,8 +157,8 @@ endif #ifdef lastDevReleaseVer
 VERSION:=$(VERSION)-dev$(DEV_RELEASE_VER)
 
 dist-all:
-	$(warning Re-running make dist-all with MOBILESIM_RELEASE=1)
-	$(MAKE) dist-all MOBILESIM_RELEASE=1
+	$(warning Re-running make dist-all with AMRISIM_RELEASE=1)
+	$(MAKE) dist-all AMRISIM_RELEASE=1
 
 else
 
@@ -169,18 +169,18 @@ LFLAGS+=$(RELEASE_EXTRA_LFLAGS)
 
 dist-all: all
 
-endif	 #ifdef MOBILESIM_RELEASE
+endif	 #ifdef AMRISIM_RELEASE
 
 
-ifdef MOBILESIM_PROFILE
+ifdef AMRISIM_PROFILE
 CXX+=-pg -g -O0
 CC+=-pg -g -O0
 STAGE_CONFIGURE_ARGS+=--enable-profile --enable-debug --disable-optimize
-endif	 #MOBILESIM_PROFILE
+endif	 #AMRISIM_PROFILE
 
 
 ifndef TAR_DIRECTORY
-TAR_DIRECTORY:=MobileSim-$(VERSION)
+TAR_DIRECTORY:=AMRISim-$(VERSION)
 endif
 
 ifndef ARIA
@@ -202,12 +202,12 @@ ifeq ($(host),MINGW)
 
   $(info Determined host platform to be MinGW on Windows.)
 
-  ifdef MOBILESIM_DEBUG
+  ifdef AMRISIM_DEBUG
     # Omitting -mwindows makes it show stdout to a DOS command window:
     CFLAGS+=-mms-bitfields -DMINGW -D__MINGW__ -DARIA_STATIC
   else
     CFLAGS+=-mwindows -mms-bitfields -DMINGW -D__MINGW__ -DARIA_STATIC
-  endif #MOBILESIM_DEBUG
+  endif #AMRISIM_DEBUG
   binary_suffix:=.exe
 
   platformsuffix:=_WIN
@@ -249,8 +249,8 @@ else #else assume Linux or Unix-like (e.g MacOSX):
     else
       $(warning Warning: GTK_DIR environment variable not set. Build may fail unless GTK has been installed on the system in default locations.)
     endif
-    EXTRA_TARGETS=MobileSimAppBundle
-    EXTRA_TARGETS=MobileSim.app 
+    EXTRA_TARGETS=AMRISimAppBundle
+    EXTRA_TARGETS=AMRISim.app 
     AUTOCONF=$(GTK_DIR)/bin/autoconf
     AUTORECONF=$(GTK_DIR)/bin/autoreconf
     ACLOCAL=$(GTK_DIR)/bin/aclocal
@@ -363,7 +363,7 @@ ROS_LINK:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib
 # For more info about using ROS from Make or CMake without using catkin etc see https://github.com/gerkey/ros1_external_use
 
 
-MSIM_CFLAGS := -DMOBILESIM_PIONEER -DMOBILESIM_ROS -DMOBILESIM_VERSION=\"$(VERSION)\" -DMOBILESIM_BUILDDATE="\"$(DATESTR)\"" \
+MSIM_CFLAGS := -DAMRISIM_PIONEER -DAMRISIM_ROS -DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" \
   -I. $(CFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
 	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS_CFLAGS)
 
@@ -372,7 +372,7 @@ MSIM_LFLAGS := $(LFLAGS)
 
 # For installation:
 ifndef INSTALL_DIR
-INSTALL_DIR:=/usr/local/MobileSim
+INSTALL_DIR:=/usr/local/AMRISim
 endif
 
 bindir:=$(DESTDIR)/$(INSTALL_DIR)
@@ -388,10 +388,10 @@ endif
 
 
 
-all: MobileSim$(binary_suffix) $(EXTRA_TARGETS) columbia.map
+all: AMRISim$(binary_suffix) $(EXTRA_TARGETS) columbia.map
 
 
-debug:  MobileSim_debug$(binary_suffix)
+debug:  AMRISim_debug$(binary_suffix)
 
 %.o: %.cc
 	$(CXX) -c $(MSIM_CFLAGS) -o $@ $<
@@ -427,36 +427,36 @@ clean-dep:
 # could depend on $(STAGELIBS) instead of just libstage.a to get both libs, but that can cause make to try
 # to build stage twice in parallel if using parallel jobserver, which causes
 # corrupted output files.
-MobileSim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage.a $(OBJS) $(LIBARIA)
+AMRISim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage.a $(OBJS) $(LIBARIA)
 	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
 
 mobilesimd: $(STAGE_DIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage_nogui.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) -DMOBILESIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
 
-MobileSim_debug$(binary_suffix): MobileSim
-	cp MobileSim$(binary_suffix) MobileSim_debug$(binary_suffix)
+AMRISim_debug$(binary_suffix): AMRISim
+	cp AMRISim$(binary_suffix) AMRISim_debug$(binary_suffix)
 
-MobileSimAppBundle: MobileSim.app MobileSim.app/Contents/MacOS/MobileSim MobileSim.app/Contents/PkgInfo MobileSim.app/Info.plist MobileSim.app/Resources/MobileSim.icns
+AMRISimAppBundle: AMRISim.app AMRISim.app/Contents/MacOS/AMRISim AMRISim.app/Contents/PkgInfo AMRISim.app/Info.plist AMRISim.app/Resources/AMRISim.icns
 
-MobileSim.app:
+AMRISim.app:
 	-mkdir $@
 
-MobileSim.app/Contents/MacOS/MobileSim: MobileSim
-	-mkdir -p MobileSim.app/Contents/MacOS
+AMRISim.app/Contents/MacOS/AMRISim: AMRISim
+	-mkdir -p AMRISim.app/Contents/MacOS
 	cp $< $@
 
-MobileSim.app/Contents/PkgInfo:
+AMRISim.app/Contents/PkgInfo:
 	echo -n 'APPL????' > $@
 
-MobileSim.app/Resources/MobileSim.icns: $(ICONSET)
-	-mkdir -p MobileSim.app/Resources
+AMRISim.app/Resources/AMRISim.icns: $(ICONSET)
+	-mkdir -p AMRISim.app/Resources
 	iconutil -c icns --output $@ icons.iconset
 
-# TODO should include PioneerRobotModels.world.inc, README etc. here and get MobileSim to 
-# use that instead of /usr/local/MobileSim/...
+# TODO should include PioneerRobotModels.world.inc, README etc. here and get AMRISim to 
+# use that instead of /usr/local/AMRISim/...
 
-# Add a resource fork to MobileSim plain binary. Only used on Mac OSX.
-rezMobileSim: MobileSim
+# Add a resource fork to AMRISim plain binary. Only used on Mac OSX.
+rezAMRISim: AMRISim
 	rez -o $^
 
 %.map: $(ARIA)/maps/%.map
@@ -507,7 +507,7 @@ AUTOHEADER:=autoheader
 endif
 
 $(STAGEDIR)/config.status $(STAGEDIR)/Makefile $(STAGEDIR)/src/config.h: $(STAGEDIR)/configure
-	test -d $(STAGEDIR) || { echo "STAGEDIR \"$(STAGEDIR)\" does not exist. Set STAGEDIR in the environment to correct path or omit to use stage subdirectory provided with MobileSim source code."; false; }
+	test -d $(STAGEDIR) || { echo "STAGEDIR \"$(STAGEDIR)\" does not exist. Set STAGEDIR in the environment to correct path or omit to use stage subdirectory provided with AMRISim source code."; false; }
 	+cd $(STAGEDIR); \
     if test "$(host)" = "MINGW"; then export PATH="$$PATH:gtk-win/bin";  \
     elif test "$(host)" = "Darwin"; then export PATH="$$PATH:$(GTK_DIR)/bin"; \
@@ -541,8 +541,8 @@ convertBitmapToArMap: convertBitmapToArMap.cc $(LIBARIA)
 help:
 	@echo 'Usage:'
 	@echo '       make help                     This message'
-	@echo '       make all or make MobileSim    Build MobileSim program'
-	@echo '       make debug                    Build MobileSim program in debug mode'
+	@echo '       make all or make AMRISim    Build AMRISim program'
+	@echo '       make debug                    Build AMRISim program in debug mode'
 	@echo '       make clean'
 	@echo '       make install'
 	@echo '       make distclean                Clean temporary files, but leave binaries to be distributed'
@@ -558,8 +558,8 @@ help:
 	@echo '       make dev-rpm'
 	@echo '       make deb'
 	@echo '       make dev-deb'
-	@echo 'Set environment variable MOBILESIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
-	@echo 'Set environment variable MOBILESIM_PROFILE to build with profiling information (for use with gprof)'
+	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
+	@echo 'Set environment variable AMRISIM_PROFILE to build with profiling information (for use with gprof)'
 
 info:
 	@echo SOURCES=$(SOURCES)
@@ -596,7 +596,7 @@ $(STAGELIBDIR)/libstage.a $(STAGEDIR)/replace/libreplace.a: $(STAGEDIR)/config.s
 
 clean:
 	+$(MAKE) -C $(STAGEDIR) -j1 clean
-	-rm MobileSim$(binary_suffix) *.o
+	-rm AMRISim$(binary_suffix) *.o
 
 cleanAll: clean
 
@@ -609,22 +609,22 @@ distclean:
 sudo-install:
 	sudo $(MAKE) install
 
-ifdef MOBILESIM_RELEASE
+ifdef AMRISIM_RELEASE
 dist-install: $(BINARY_DISTRIBUTED_FILES) 
 	$(MAKE) install
 else
 dist-install:
-	$(MAKE) dist-install MOBILESIM_RELEASE=1
+	$(MAKE) dist-install AMRISIM_RELEASE=1
 endif
 
 install:
 	install -d $(bindir) $(docdir) $(confdir) $(DESTDIR)/usr/share/applications $(sysbindir) 
-	install -s -m 755 MobileSim$(binary_suffix) $(bindir)/MobileSim$(binary_suffix)
+	install -s -m 755 AMRISim$(binary_suffix) $(bindir)/AMRISim$(binary_suffix)
 	install -m 644 icon.png $(confdir)/icon.png
 	install -m 644 columbia.map $(confdir)/columbia.map
 	install -m 644 AMROffice.map $(confdir)/AMROffice.map
 	install -m 644 PioneerRobotModels.world.inc $(confdir)/PioneerRobotModels.world.inc
-	install -m 644 MobileSim.desktop $(DESTDIR)/usr/share/applications/MobileSim.desktop
+	install -m 644 AMRISim.desktop $(DESTDIR)/usr/share/applications/AMRISim.desktop
 	install -m 644 README.html $(docdir)/README.html
 	install -m 644 README.txt $(docdir)/README.txt
 	install -m 644 README.md $(docdir)/README.md
@@ -634,26 +634,26 @@ install:
 	install -m 644 LICENSE.txt $(docdir)/LICENSE.txt
 	install -m 644 version.txt $(docdir)/version.txt
 	install -m 755 gdbhelper $(bindir)/gdbhelper
-	ln -s -f $(installed_bindir)/MobileSim$(binary_suffix) $(sysbindir)/MobileSim$(binary_suffix)
+	ln -s -f $(installed_bindir)/AMRISim$(binary_suffix) $(sysbindir)/AMRISim$(binary_suffix)
 
 uninstall:
-	-rm $(bindir)/MobileSim$(binary_suffix) $(confdir)/icon.png \
+	-rm $(bindir)/AMRISim$(binary_suffix) $(confdir)/icon.png \
 		$(docdir)/README.html $(docdir)/Changes.txt $(docdir)/LICENSE.txt \
     $(docdir)/README.md $(docdir)/README.txt \
 		$(docdir)/INSTALL.txt \
-		/usr/share/applications/MobileSim.desktop \
-    $(sysbindir)/MobileSim
+		/usr/share/applications/AMRISim.desktop \
+    $(sysbindir)/AMRISim
 
 rpm:
-	$(MAKE) real-rpm MOBILESIM_RELEASE=1
+	$(MAKE) real-rpm AMRISIM_RELEASE=1
 
-real-rpm: $(BINARY_DISTRIBUTED_FILES) sudo-dist-install MobileSim.spec 
-	sudo rpm -bb MobileSim.spec && cp /usr/src/redhat/RPMS/i386/MobileSim-$(VERSION_NODASH)-$(RPM_PKG_REV).i386.rpm . && echo "Copied RPM into current directory."
+real-rpm: $(BINARY_DISTRIBUTED_FILES) sudo-dist-install AMRISim.spec 
+	sudo rpm -bb AMRISim.spec && cp /usr/src/redhat/RPMS/i386/AMRISim-$(VERSION_NODASH)-$(RPM_PKG_REV).i386.rpm . && echo "Copied RPM into current directory."
 
 
 debian: deb
 deb: 
-	fakeroot debian/rules binary MOBILESIM_RELEASE=1
+	fakeroot debian/rules binary AMRISIM_RELEASE=1
 
 dev-deb: 
 	fakeroot debian/rules binary
@@ -664,7 +664,7 @@ dev-debian: dev-deb
 dist: release-dist
 
 release-dist:
-	$(MAKE) base-dist MOBILESIM_RELEASE=1
+	$(MAKE) base-dist AMRISIM_RELEASE=1
 
 dev-dist: base-dist
 	echo lastDevReleaseVer=$(DEV_RELEASE_VER) > lastDevReleaseVer
@@ -674,7 +674,7 @@ base-dist: base-srcdist base-bindist
 srcdist: release-srcdist
 
 release-srcdist:
-	$(MAKE) base-srcdist MOBILESIM_RELEASE=1
+	$(MAKE) base-srcdist AMRISIM_RELEASE=1
 
 dev-srcdist: base-srcdist
 	echo lastDevReleaseVer=$(DEV_RELEASE_VER) > lastDevReleaseVer
@@ -685,8 +685,8 @@ base-srcdist: $(SOURCE_DISTRIBUTED_FILES)  $(SOURCE_DISTRIBUTED_FILES_EXEC)
 	for d in $(SOURCE_DISTRIBUTED_FILES_MAYBE); do if test -f $$d; then install -m 644 -D -p $$d $(DESTDIR)$(INSTALL_DIR)/$$d; fi; done
 	for d in $(SOURCE_DISTRIBUTED_FILES_EXEC); do install -m 755 -D -p $$d $(DESTDIR)$(INSTALL_DIR)/$$d; done
 
-#	if test -n "$(ZIPFILE)"; then zip -9 -r MobileSim-src-$(VERSION).zip MobileSim-src-$(VERSION);\
-#  else tar cf MobileSim-src-$(VERSION).tar MobileSim-src-$(VERSION) && gzip -9 MobileSim-src-$(VERSION).tar && mv MobileSim-src-$(VERSION).tar.gz MobileSim-src-$(VERSION).tgz; fi
+#	if test -n "$(ZIPFILE)"; then zip -9 -r AMRISim-src-$(VERSION).zip AMRISim-src-$(VERSION);\
+#  else tar cf AMRISim-src-$(VERSION).tar AMRISim-src-$(VERSION) && gzip -9 AMRISim-src-$(VERSION).tar && mv AMRISim-src-$(VERSION).tar.gz AMRISim-src-$(VERSION).tgz; fi
 
 srcdist-install: release-srcdist
 
@@ -695,25 +695,25 @@ tgz: release-bindist
 bindist: release-bindist
 
 release-bindist:
-	$(MAKE) base-bindist MOBILESIM_RELEASE=1
+	$(MAKE) base-bindist AMRISIM_RELEASE=1
 
 dev-bindist: base-bindist
 	echo lastDevReleaseVer=$(VERSION) > lastDevReleaseVer
 
 
-PKGFILE_TAR=MobileSim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX).tar
-PKGFILE_TGZ=MobileSim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX).tgz
+PKGFILE_TAR=AMRISim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX).tar
+PKGFILE_TGZ=AMRISim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX).tgz
 PKGFILE=$(PKGFILE_TGZ)
-DISTINFO_FILE=MobileSim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX)__info.txt
+DISTINFO_FILE=AMRISim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX)__info.txt
 
 base-bindist: $(BINARY_DISTRIBUTED_FILES)
 	-mkdir -p tmp/$(TAR_DIRECTORY)
 	for f in $(BINARY_DISTRIBUTED_FILES); do cp $$f tmp/$(TAR_DIRECTORY)/$$f; done
 	if test -n "$(EXCLUDE_FILES)"; then for f in $(EXCLUDE_FILES); do rm tmp/$(TAR_DIRECTORY)/$$f; done; fi
-	strip tmp/$(TAR_DIRECTORY)/MobileSim
+	strip tmp/$(TAR_DIRECTORY)/AMRISim
 	cd tmp; tar cf ../$(PKGFILE_TAR) $(TAR_DIRECTORY)
 	gzip -9 $(PKGFILE_TAR) && mv $(PKGFILE_TAR).gz $(PKGFILE_TGZ) 
-	ln -sf $(PKGFILE_TGZ) MobileSim-latest.tgz
+	ln -sf $(PKGFILE_TGZ) AMRISim-latest.tgz
 	rm -r tmp
 	$(MAKE) $(DISTINFO_FILE)
 
@@ -722,19 +722,19 @@ bindist-info: $(DISTINFO_FILE)
 optimize: opt
 
 opt: FORCE
-	$(MAKE) MOBILESIM_RELEASE=1
+	$(MAKE) AMRISIM_RELEASE=1
 
 debug: FORCE
-	$(MAKE) MOBILESIM_DEBUG=1
+	$(MAKE) AMRISIM_DEBUG=1
 
 %-opt:
-	$(MAKE) $* MOBILESIM_RELEASE=1
+	$(MAKE) $* AMRISIM_RELEASE=1
 
 ctags: tags
 
 tags: $(SOURCES) $(HEADERS) $(STAGE_SRC)
 	ctags $(SOURCES) $(HEADERS) $(STAGE_SRC)
 
-.PHONY: all clean distclean dep cleanDep install uninstall dist-install sudo-install sudo-dist-install rpm deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf windist base-windist base-bindist base-srcdist dev-debian dev-deb dev-srcdist dev-bindist release-srcdist release-bindist ctags MobileSimAppBundle
+.PHONY: all clean distclean dep cleanDep install uninstall dist-install sudo-install sudo-dist-install rpm deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf windist base-windist base-bindist base-srcdist dev-debian dev-deb dev-srcdist dev-bindist release-srcdist release-bindist ctags AMRISimAppBundle
 
 FORCE:

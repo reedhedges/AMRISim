@@ -1,9 +1,12 @@
 
-/*
- *  (C) Copyright 2008, 2009, 2010 MobileRobots Inc.
- *  (C) Copyright 2011-2015 Adept MobileRobots <http://www.mobilerobots.com>
- *  (C) Copyright 2016-2017 Omron Adept Technologies
+/*  
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
  *
+ *  Copyright 2018 Reed Hedges and others
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -20,7 +23,7 @@
  *
  */
 
-#include "MobileSim.hh"
+#include "AMRISim.hh"
 #include "stage.h"
 #include <signal.h>
 #include <unistd.h>
@@ -51,7 +54,7 @@ void mobilesim_crash_handler(int signum)
         case SIGBUS: signame = "SIGBUS"; break;
 #endif
     }
-    stg_print_error("MobileSim: Received fatal signal %d (%s)!", signum, signame);
+    stg_print_error("AMRISim: Received fatal signal %d (%s)!", signum, signame);
 
 
     const char *progname = options.argv[0];
@@ -59,9 +62,9 @@ void mobilesim_crash_handler(int signum)
     {
       struct stat statbuf;
       if(stat(progname, &statbuf) != 0) {
-          progname = "/usr/local/MobileSim/MobileSim";
+          progname = "/usr/local/AMRISim/AMRISim";
           if(stat(progname, &statbuf) != 0) {
-              stg_print_error("MobileSim: Can't find MobileSim program (tried %s and %s), Can't save debugging information or restart program.", options.argv[0], progname);
+              stg_print_error("AMRISim: Can't find AMRISim program (tried %s and %s), Can't save debugging information or restart program.", options.argv[0], progname);
               return;
           }
       }
@@ -72,56 +75,56 @@ void mobilesim_crash_handler(int signum)
       const char *gdbhelper = "gdbhelper";
       struct stat statbuf;
       if(stat(gdbhelper, &statbuf) != 0) {
-          gdbhelper = "/usr/local/MobileSim/gdbhelper";
+          gdbhelper = "/usr/local/AMRISim/gdbhelper";
           if(stat(gdbhelper, &statbuf) != 0) {
               gdbhelper = NULL;
-              stg_print_error("MobileSim: Couldn't find gdbhelper in current directory or as /usr/local/MobileSim/gdbhelper, can't save debugging information.");
+              stg_print_error("AMRISim: Couldn't find gdbhelper in current directory or as /usr/local/AMRISim/gdbhelper, can't save debugging information.");
           }
       }
       if(gdbhelper != NULL && progname != NULL) { 
           char cmd[4096];
           snprintf(cmd, 4096, "gdb -batch -x %s %s %d %s%s", gdbhelper, progname, getpid(), (options.log_file==NULL)?"":">>", (options.log_file==NULL)?"":options.log_file);
-          stg_print_error("MobileSim: Running gdb to get debugging information: %s", cmd);
-          stg_print_error("MobileSim: --- Begin gdb ---");
+          stg_print_error("AMRISim: Running gdb to get debugging information: %s", cmd);
+          stg_print_error("AMRISim: --- Begin gdb ---");
           if(options.log_file) stg_close_log_file();
           if(system(cmd) != 0)
             stg_print_error("Warning: error running gdb!");
           if(options.log_file) stg_open_log_file(options.log_file, "a");
-          stg_print_error("MobileSim: --- End gdb ---");
+          stg_print_error("AMRISim: --- End gdb ---");
       }
     }
 
     if(options.NonInteractive && options.EnableCrashRestart && progname) {
 
-        // Restart mobilesim with same arguments, plus --restarting-after-crash
+        // Restart amrisim with same arguments, plus --restarting-after-crash
 
 #if 0
         // Need copies because objects' destructors may try to remove themselves
         // from the lists, invalidating the iterators.
-        stg_print_error("MobileSim: Cleaning allocated objects...");
-        //stg_print_error("MobileSim: deleting emulators...");
+        stg_print_error("AMRISim: Cleaning allocated objects...");
+        //stg_print_error("AMRISim: deleting emulators...");
         std::set<EmulatePioneer*> ems = emulators;
         for(std::set<EmulatePioneer*>::iterator i = ems.begin(); i != ems.end(); ++i)
         {
-          //stg_print_error("MobileSim: ...deleting emulator 0x%x", (*i));
+          //stg_print_error("AMRISim: ...deleting emulator 0x%x", (*i));
           delete(*i);
-          //stg_print_error("MobileSim: ...finished deleting emulator 0x%x", (*i));
+          //stg_print_error("AMRISim: ...finished deleting emulator 0x%x", (*i));
         }
-        //stg_print_error("MobileSim: done deleting emulators, deleting interfaces...");
+        //stg_print_error("AMRISim: done deleting emulators, deleting interfaces...");
         std::set<RobotInterface*> ifs = robotInterfaces;
         for(std::set<RobotInterface*>::iterator i = ifs.begin(); i != ifs.end(); ++i)
         {
-          //stg_print_error("MobileSim: ...deleting interface 0x%x", (*i));
+          //stg_print_error("AMRISim: ...deleting interface 0x%x", (*i));
           delete(*i);
         }
-          //stg_print_error("MobileSim: done deleting interfaces, deleting factories...");
+          //stg_print_error("AMRISim: done deleting interfaces, deleting factories...");
         std::set<RobotFactory*> facs = factories;
         for(std::set<RobotFactory*>::iterator i = facs.begin(); i != facs.end(); ++i)
         {
-          //stg_print_error("MobileSim: ...deleting factory 0x%x", (*i));
+          //stg_print_error("AMRISim: ...deleting factory 0x%x", (*i));
           delete(*i);
         }
-        stg_print_error("MobileSim: Done cleaning up.");
+        stg_print_error("AMRISim: Done cleaning up.");
 #endif
 
         // Allocate argv: program name + options.argc + --restarting-after-crash:
@@ -144,13 +147,13 @@ void mobilesim_crash_handler(int signum)
             strcat(argstr, argv[i]);
         }
         argv[options.argc+1] = NULL;
-        stg_print_error("MobileSim: Restarting MobileSim : %s", argstr);
+        stg_print_error("AMRISim: Restarting AMRISim : %s", argstr);
         free(argstr);
 
         // Close and move log files out of the way
         mobilesim_rotate_log_files("-crash");
 
-        // Exec new MobileSim
+        // Exec new AMRISim
         execvp(progname, argv);
     }
     else
@@ -163,11 +166,11 @@ int mobilesim_rotate_log_files(const char *suffix)
 {
     if(!options.log_file) return 0;
 
-    stg_print_msg("MobileSim: Rotating log files...");
+    stg_print_msg("AMRISim: Rotating log files...");
 
     if(options.log_file && !(stg_output_file == NULL || stg_output_file == stdout || stg_output_file == stderr))
     {
-      stg_print_msg("MobileSim: Closing this log file...");
+      stg_print_msg("AMRISim: Closing this log file...");
       fclose(stg_output_file);
       stg_output_file = NULL;
     }
@@ -237,12 +240,12 @@ int mobilesim_rotate_log_files(const char *suffix)
     if(newfp)
     {
       stg_set_log_file(newfp);
-      stg_print_msg("MobileSim: Start of new log file at %s after rotating log files.", options.log_file);
+      stg_print_msg("AMRISim: Start of new log file at %s after rotating log files.", options.log_file);
     }
     else
     {
       stg_set_log_file(NULL);
-      stg_print_error("MobileSim: Error opening new log file %s after rotating log files!", options.log_file);
+      stg_print_error("AMRISim: Error opening new log file %s after rotating log files!", options.log_file);
       return 0;
     }
     

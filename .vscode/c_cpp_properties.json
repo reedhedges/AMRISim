@@ -8,10 +8,10 @@
                 "/opt/ros/melodic/include/**"
             ],
             "defines": [
-              "MOBILESIM_PIONEER",
-              "MOBILESIM_ROS",
-              "MOBILESIM_VERSION=xxx",
-              "MOBILESIM_BUILDDATE=xxx"
+                "AMRISIM_PIONEER",
+                "AMRISIM_ROS",
+                "AMRISIM_VERSION=xxx",
+                "AMRISIM_BUILDDATE=xxx"
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",

@@ -1836,7 +1836,7 @@ For help with libstage, please use the mailing list playerstage_users@lists.sour
 
 
   /// global setting specifies how to apply odometry error.
-  /// RANDOM_INIT was the only behavior before MobileSim 0.9.8.
+  /// RANDOM_INIT was the only behavior before AMRISim 0.9.8.
   /// RANDOM_EACH_UPDATE is the new default if not set by user code.
 
   const char *stg_position_odom_error_mode_name(stg_position_odom_error_mode_t mode);

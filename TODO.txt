@@ -16,12 +16,14 @@
     specific parameters from Stage model definitions.  This could be generalized or
     inverted i.e. EmulatePioneer using an interface in RobotInterface to query
     parameters. )
-  * Could publish more available data
+  * Could publish more available data, including SIM_STAT and SIM_INFO data,
+    GPS (if map is georeferenced), etc.
   * Map loading
   * Configuration
   * Improve build. (Use CMake? Support system-default-install (/usr), 
     etc.
   * Document
+* More map file formats
 * Include some useful startup scripts for unattended operation eg systemd, 
   maybe docker config or info, AWS template (at least document requirements in
   README), etc.

@@ -1,20 +1,49 @@
-%MobileSim
+%AMRISim
 
 
 Introduction
 ------------
 
-![Screenshot of MobileSim with three robots](MobileSim_screenshot.png)
+![Screenshot of AMRISim with three robots](screenshot.png)
 
-MobileSim is software for simulating mobile robots and their environments,
-for debugging and experimentation with [ARIA][aria]
-or other software that supports Adept MobileRobots platforms.
+AMRISim is software for simulating multiple mobile robots with multiple
+software interfaces, in a highly simplified, abstract, two-dimensional way,
+for debugging and experimentation. 
 
-MobileSim is based on the Stage library, created by the [Player/Stage project][ps].
-Stage and MobileSim are free software, distributed under the terms of the GNU 
-General Public License: see [the full license](LICENSE.txt) for details.
+Current software interfaces available are Pioneer protocol 
+(for [ARIA][aria] or [AriaCoda][ariacoda]) and [ROS][ros] (under development).
 
-MobileSim converts a MobileRobots/ActivMedia map (a .map file, 
+AMRISim can be built on Linux, Windows using MinGW (untested currently) and Mac OSX.
+
+Many Pioneer-based robot model configurations and other
+Pioneer-related features are included.
+MobileRobots/ARIA map file format to define the environment
+(walls) is currently supported. (A tool is provided to convert
+a bitmap file to a map file.)
+
+Other robot types and more general features may be added in the future.  Users may configure
+their own robot models.  
+
+AMRISim normally runs as an interactive application with GUI.  A noninteractive
+mode may be enabled in which messages are logged rather than displayed to the
+user via the GUI.  Logging is configurable.    Various GUI options may be
+disabled for performance.   A build variant of AMRISim may be added in 
+the future in which no GUI (GTK/X-Windows) dependences are included in the
+build, as well, for complete background use on a server.
+
+Please discuss requirements for additional robot model configuration
+tools, and additional software interfaces, on the [GitHub project page][github].
+and see TODO.txt.
+
+AMRISim is based on the Stage library, created by the [Player/Stage project][ps],
+and is a continuation of the open source "MobileSim" product formerly provided
+by Omron Adept MobileRobots under the GNU General Public License.
+Stage and AMRISim are free software, distributed under the terms of the GNU 
+General Public License: 
+
+See [the full license](LICENSE.txt) for details.
+
+AMRISim converts a MobileRobots/ActivMedia map (a .map file, 
 created by Mapper3&trade;, Mapper3-Basic, or other means) to a Stage 
 environment, and places a simulated robot model in that 
 environment.  It then provides a simulated Pioneer control 
@@ -23,7 +52,7 @@ Pioneer's serial port connection).  ARIA is able to connect
 to TCP ports instead of serial ports (ArRobotConnector, for example,
 automatically tries TCP port 8101 before the serial port).
 
-MobileSim (powered by Stage) has the following features
+AMRISim (powered by Stage) has the following features
 and device models. Device model parameters may be customized in a
 configuration file, or new models may be defined based on existing
 models.
@@ -53,7 +82,7 @@ models.
 * Map files may be reloaded at run time
 * Robots may be interactively repositioned through the GUI or by
     a command from client software
-* Client software may send log messages to MobileSim. Log messages
+* Client software may send log messages to AMRISim. Log messages
     are timestamped and displayed both the GUI and console or log file, with
     optional HTML formatting.
 * Visualization options for sensors, robots and obstacles, such as
@@ -63,36 +92,35 @@ models.
 * Configurable space and time resolutions.
 * Full source code included under the GPL for understanding 
     the simulation implementation, customizing and improving it,
-    or even adapting MobileSim's ARIA communication protocol layer for
+    or even adapting AMRISim's ARIA communication protocol layer for
     other simulators.
 
 [aria]: http://robots.mobilerobots.com/wiki/Aria ARIA
+[ariacoda]: http://github.com/reedhedges/AriaCoda AriaCoda on GitHub
+[github]: http://github.com/reedhedges/AMRISim AMRISim on GitHub
 [ps]: http://playerstage.sourceforge.net Player/Stage/Gazebo project
+[ros]: http://www.ros.org ROS
 
-Installation
-------------
+Build
+-----
 
-To install MobileSim on Windows, run the executable self-installer.
+To build AMRISim, AriaCoda or ARIA and ROS melodic are required.
 
-To install MobileSim from either the RPM or Debian (deb) package,
-use your system's appropriate installation tool (`rpm` on RedHat,
-SuSe, etc. and 
-`dpkg` or Synaptic ("Add downloaded packages") on Debian, Ubuntu,
-etc.).  The RPM was built on RedHat 7.3, and the Debian
-package was built on Debian 3.1 (sarge) for i386 (32-bit). MobileSim requires the GTK 2.0+
-libraries on RedHat, and GTK 2.6+ on Debian.  It also requires libstdc++ 2.2 for 
-libc6. (These libraries are standard parts of most Linux installations, but if 
-they are missing you may have to install packages which provide them).
-If you are running amd64 or ia64 Debian, try installing the
-`ia32-libs-gtk` and
-`ia32-libs` packages using `apt-get`, and then installing the MobileSim package with the
-`--force-architecture` option to `dpkg`.
+On Linux, GTK+ 2.x development packages are needed, as well as
+g++, make, libtool, automake and autoconf.
 
-To build MobileSim from source code, obtain the "MobileSim-src" tar/gz archive
-from [http://robots.mobilerobots.com/wiki/MobileSim][webpage]
-and follow the instructions in the README.src.text file found inside.
+ROS melodic is expected to be installed in /opt/ros/melodic. 
 
-[webpage]: http://robots.mobilerobots.com/wiki/MobileSim MobileSim web page
+AriaCoda source code is expected to be in ../AriaCoda.  (Define
+the `ARIA` environment variable before building to change location.)
+
+Run "make" to build.
+
+To build on Windows, MinGW should be used. Windows build is currently untested.
+
+Detailed build instructions for each platform are available in
+[BUILD.md].
+
 
 
 How to get started
@@ -104,24 +132,26 @@ or Mapper3-Basic (See [robots.mobilerobots.com][site]) or by other means.
 See the [ARIA Reference Documentation](../Aria/docs/index.html)
 for the
 `ArMap` class for a full description of the format,
-or refer to `columbia.map` or `AMROffice.map`, distributed with MobileSim,
+or refer to `columbia.map` or `AMROffice.map`, distributed with AMRISim,
 for an example.
 
-MobileSim may be launched from the Start menu (Windows), or from the 
-Gnome or KDE menu (Linux), or from the command line (any platform).
+Before running AMRISim, if built with ROS support, you must
+set up your ROS runtime environment first, e.g.
 
-Run MobileSim from a command line prompt like this:
+    . /opt/ros/melodic/setup.bash
 
-    MobileSim
+Run AMRISim from a command line prompt like this:
+
+    ./AMRISim
 
 or, to skip the initial dialog by specifying a map file and robot model
 to create on the command line:
 
-    MobileSim -m *<map file>* -r *<robot model>*
+    ./AMRISim -m *<map file>* -r *<robot model>*
 
 For example:
 
-    MobileSim -m columbia.map -r p3dx
+    ./AMRISim -m columbia.map -r p3dx
 
 The parameters are optional. The default robot model created, if -r is not
 given, is "p3dx".  Some additional robot models include "p3at", 
@@ -130,28 +160,26 @@ given, is "p3dx".  Some additional robot models include "p3at",
 To create multiple simulated robots, use -r multiple times, naming 
 the robots after the model type, seperated by a colon, if you wish:
 
-     MobileSim -m columbia.map -r p3dx:robot1 -r p3dx:robot2 -r amigo:robot3
+     AMRISim -m columbia.map -r p3dx:robot1 -r p3dx:robot2 -r amigo:robot3
 
 If you are working with many robots, it can be inconvenient to create them
-all at MobileSim startup.  If you use -R instead of -r, then a new robot
-will be created on demand for each client that connects, and destroyed
-when the client exits. (So the robot's state is not preserved.)
+all at AMRISim startup.  If you use -R instead of -r, then a new robot
+will be created on demand for each ARIA/Pioneer client that connects, 
+and destroyed when the client exits. (So the robot's state is not preserved.)
+(Note that this is no yet possible with ROS clients, since ROS data is 
+broadcastt via ROS publishing system, rather than through a direct 
+1:1 client connection to only one client.  If you have suggestions for
+achieving similar flexibility in the future, please let us know on 
+the github discussion pages.   A service to control robot creation? 
+interactive control in the AMRISim GUI?)
 
 More command-line options are described below.
 
-If you run MobileSim with no command line options, or from the desktop menu, 
+If you run AMRISim with no command line options, or from the desktop menu, 
 you may select the map and one robot model from a dialog box.  Or, you may 
 choose to use no map (but note that in this case, the usable universe
 is limited to 200 x 200 meters -- gray area indicates the edge.)
 
-Example maps are included with MobileSim. On Linux, you can find these
-files by navigating from the root file system to
-`/usr/local/MobileSim`.
-On Windows, these maps are in `C:\Program
-Files\MobileRobots\MobileSim`.
-`columbia.map` included with MobileSim is equivalent to
-`columbia.map`
-included with ARNL.
 
 A window will appear, displaying your map environment and robot(s). The
 robot will start at a home position in your map, if present, or at the center
@@ -187,7 +215,7 @@ The statusbar pane below the log message pane displays, from left to right:
 the total time since the simulator started; the ratio of real time per
 update step and simulation time, indicating how close to real-time (1.0) the
 simulation is running; the total number of "subscriptions" in the simulation
-(one per each robot plus one per each device being accessed); and the MobileSim 
+(one per each robot plus one per each device being accessed); and the AMRISim 
 and stage version numbers.
 
 
@@ -202,10 +230,10 @@ have to specify the port number when running its ARIA program, usually using
 the -rrtp (-remoteRobotTcpPort) command-line option.
 
 A tool called `convertBitmapToArMap` is available in the ARIA
-utilities and in the MobileSim source code to convert a PNM format
+utilities and in the AMRISim source code to convert a PNM format
 bitmap image to an ArMap .map file.  On Linux, first install libnetpbm::
 
-  sudo apt-get install libnetpbm
+  sudo apt install libnetpbm
 
 Then you can build convertBitmapToArMap using make:
 
@@ -225,7 +253,7 @@ from a .wld.
 Notes, Limitations, and Future Plans
 ------------------------------------
 
-The goal of Stage and MobileSim are to provide an efficient and sufficient
+The goal of Stage and AMRISim are to provide an efficient and sufficient
 simulation of multiple robots. While we have modified Stage to add some
 features and additional behavior (such as basic sensor noise), the simulation remains
 simplified.
@@ -234,10 +262,8 @@ the internal simulation mechanism and robot and sensor models.
 
 > "All models are wrong. Some are useful." --George E. P. Box
 
-However, since the full source code for MobileSim and Stage are
-available (in the "MobileSim-src" package available from the [MobileSim
-webpage][webpage]),
-it is always possible to add new models or modify existing
+However, since the full source code for AMRISim and Stage are included
+it is always possible to add new features, models or modify existing
 models to simulate any particular properties you need.  Stage is
 not hard to understand and modify.  If you need any help, ask
 on the aria-users mailing list, or the Player/Stage mailing list.
@@ -245,7 +271,7 @@ If you do make any modifications that you think others would
 find useful, you may post them to aria-users, or send them to
 support@mobilerobots.com.
 
-#### A note about data communications channels
+#### A note about ARIA data communications channels
 
 On a real robot, ARIA may be communicating with different devices over separate
 communications channels. For example, ARIA communicates with the robot
@@ -255,12 +281,12 @@ different threads (one contained in ArRobot, the other in ArLMS200 which is a
 subclass of ArThreadedRangeDevice).  Other additional devices may use additional
 parallel communications channels such as serial, USB and ethernet connections.  
 
-However, ARIA communicates with MobileSim over only one TCP socket connection.
+However, ARIA communicates with AMRISim over only one TCP socket connection.
 Therefore all communications with both the simulated robot and simulated devices
 must occur on this one channel, the same channel as the robot connection. ARIA's 
-Connector classes detect MobileSim and
+Connector classes detect AMRISim and
 use the appropriate code to handle data transfer with devices via the original
-"robot" TCP connection to MobileSim.
+"robot" TCP connection to AMRISim.
 Be aware of this when structuring programs; for example, laser
 data will not be received unless the ArRobot connection is active and running
 (using either `ArRobot::runAsync()` or `ArRobot::run()`).
@@ -274,7 +300,7 @@ with the ARCOS/AROS/P2OS command emulation.
 * Several devices are not available yet, including grippers, arms, 
 general pan-tilt units, IR sensors, bumpers, analog or digital 
 I/O ports, or video cameras.
-* MobileSim is somewhat graphics intensive and may compete with e.g. MobileEyes
+* AMRISim is somewhat graphics intensive and may compete with e.g. MobileEyes
 for graphics resources, especially on older computers, VMs, or other systems with
 limited graphics resources. Graphics display is not fully optimized yet.
 * While it is possible to make the simulation run faster (or much slower)
@@ -288,11 +314,14 @@ buffering of data and possibly loss of data.
   
 
 
-Future plans for include better sonar model, simulating additional
+Future plans for include better ROS support, better infrastructure
+for additional client interface types, more map file format tsupport,  
+simulating additional
 devices, and various user interface features for creating new simulated 
-robots, loading maps, and tweaking their properties.  If you have any 
-requests or would like to help add features, please join the discussion 
-on the aria-users mailing list.  
+robots, loading maps, and tweaking their properties.  See TODO.txt.
+If you have any 
+requests or would like to help add features, please join the discussion
+at http://github.com/reedhedges/AMRISim.
 
 
 Internal Simulation Mechanism and Models
@@ -302,8 +331,8 @@ The simulation loop attempts to run at a fixed real-world time interval,
 corresponding to a fixed simulated-world time interval.  In most cases, each
 simulated time interval would ideally equal the real (system) time taken to
 perform that interval.  This ratio is monitored and a short running average is 
-displayed in the bottom of the MobileSim GUI window, and is also available from
-the `SIM_STAT` packet.  It should normally be at or close to 1.0 most of the time. 
+displayed in the bottom of the AMRISim GUI window, and is also available from
+the `SIM_STAT` Pioneer protocol packet.  It should normally be at or close to 1.0 most of the time. 
 (The desired ratio can be
 adjusted, but will cause problems with most software).
 
@@ -316,8 +345,8 @@ to determine sensor readings, etc. (See below for some deatils.)
 configurable.  The default rate is 100ms. 
 
 Client communications are also done at a given interval (100ms by
-default). For each robot, data is sent if a client is connected to that robot,
-according to the Pioneer protocol.  This includes its odometric position
+default). For each robot, data is sent to a Pioneer protocol clienttt if a client is connected to that robot,
+and published to ROS topics.  This includes odometric position
 estimate, miscellaneous state, and, if enabled, simulated sonar and laser data.  
 Commands are read from the client software (if any were sent), and stored for
 the appropriate Stage device model to handle in the next iteration of the 
@@ -325,7 +354,7 @@ simulation loop.
 
 Each robot, and each sensor or other device on each robot, is simulated by a
 `model` object.  The code for these models can be found in the `stage/src`
-subdirectory of the MobileSim source code.  
+subdirectory of the AMRISim source code.  
 
 #### Simulation environment
 
@@ -353,12 +382,13 @@ A mobile robot that can move within the world. The robot may be
 differential-drive (two degrees of freedom, capable of translational and rotational motion), or
 omnidirectional (three degrees of freedom, capable of translational, lateral or
 rotational motion).   Motion can be commanded via desired velocities in each
-axis (velocity control, from `VEL`, `TRANSVEL`, and `RVEL` comands), or discrete changes in position may be commanded 
-relative-position control from `MOVE` and `DHEAD` commands, or absolute heading
+axis (velocity control, via ROS `cmd_vel` topic and `VEL`, `TRANSVEL`, and `RVEL` Pioneer comands),
+or discrete changes in position may be commanded 
+relative-position control using Pioneer `MOVE` and `DHEAD` commands, or absolute heading
 from `HEAD` command).  In addition, clients can request artifically
 dropping the robot at any new position in the world.   
 
-The code implementing the position model can be found in the MobileSim source
+The code implementing the position model can be found in the AMRISim source
 code in `stage/src/model_position.c`.
 
 At each simulation loop, the position model is updated according to the most
@@ -375,43 +405,42 @@ projected from the current position using these velocities. This is followed
 by collision checking, and then an update of the simulated odometric pose
 estimate.
 
-If a relative distance translation (`MOVE`) command is active, then a velocity
+If a relative distance translation (e.g. Pioneer `MOVE` command) command is active, then a velocity
 proportional to the remaining distance and the configured maximum velocity is
 used.  If the robot has already moved the commanded move distance however, then desired
 velocity is set to 0.   The desired velocity will later be limited according
 to maximum speed configured.
 
-If a translation velocity command (`VEL`) is active instead, then this
+If a translation velocity command (pioneer `VEL` or x component of ROS `cmd_vel`) is active instead, then this
 value is used as the desired velocity.
 
 If the robot is omnidirectional (not differential drive), then the same is done
-for Y (`LATVEL` commands velocity in Y.  There is no command in the Pioneer
-protocol for relative distance on Y.) 
+for Y (`LATVEL` Pioneer command, y component of ROS `cmd_vel`. )
 
-If an absolute heading command (`HEAD`) is active, then a rotational
+If an absolute heading command (eg Pioneer `HEAD`) is active, then a rotational
 velocity proportional to the difference from the current heading is used.
 If the robot has already rotated to the commanded heading however, then 
 no rotational velocity is desired.  The desired velocity will later be limited according
 to maximum speed configured.
 
-Relative heading commands (`DHEAD`) 
+Relative heading commands (eg Pioneer `DHEAD`) 
 are converted to absolute heading commands when recieved
 based on the robot's current heading at the time the command is received.
 
-If a rotational velocity command (`RVEL`) is active instead, then this value
+If a rotational velocity command (Pioneer `RVEL` or in ROS `cmd_vel`) is active instead, then this value
 is used as the desired rotational velocity.
 
 Next, all desired speeds as specified or calculated above are limited
-by maximum upper limit parameters.  These are set separately by software
-clients using `SETV` and `SETRV` commands (or initial defaults specified in the model
+by maximum upper limit parameters.  These are set separately by Pioneer software
+clients using `SETV` and `SETRV` Pioneer commands (or initial defaults specified in the model
 definitions in `PioneerRobotModels.world.inc`.)
 
 Next, acceleration and deceleration parameters are used to ramp the robot's 
 current velocities up or down towards the desired velocities.  Acceleration
-and decelaration parametrs are set separately by clients using
+and decelaration parametrs are set separately by clients using Pioneer
 `SETA` and `SETRA` commands (or initial defaults from the model definitions are
 used).  (A client may also specify a temporary override deceleration value via the
-`ESTOP`/`QSTOP` commands. Deceleration is then reset back to the previous value
+Pioneer `ESTOP`/`QSTOP` commands. Deceleration is then reset back to the previous value
 once the robot has stopped.)   If accelerating, the new velocity is incremented
 by acceleration * dt, where dt is the time elapsed since the last 
 update of the position model in the previous simulation loop iteration: we
@@ -457,9 +486,9 @@ rotational velocity.  Th is the robot's current heading (in global pose coordina
 Note that on differential drive robots, vy is always 0 since it cannot directly
 move along its Y axis, but may be nonzero on robots capable of lateral motion.
 
-In MobileSim 0.6.x, error values of 0.0075 for error.x and error.y and 0.0075 for error.th are used by
+In AMRISim 0.6.x, error values of 0.0075 for error.x and error.y and 0.0075 for error.th are used by
 default for all robots, except for "p3dx\_noerr" where no error is used.
-Starting in MobileSim 0.9.x, there are several choices for calculating error, 
+Starting in AMRISim 0.9.x, there are several choices for calculating error, 
 which can be selected via the --odom-error-mode command-line argument.
 `random_each_update` is the default (as was errorneously documented previously.)
 
@@ -478,11 +507,11 @@ or for symetric positive/negative error values (random modes) (this is for compa
 (Units are meters and radians.)  The actual error values being used can be 
 obtained by client software via the SIMSTAT packet (see below).
 
-MobileSim can also calculate a simulated GPS position. 
+AMRISim can also calculate a simulated GPS position. 
 This is calculated using the georeference position of the map file, and the
 simulated robot's position in the map (true position, not pose estimate.)
 A map must have a georeference point (`OriginLatLongAlt`) for this to work.
-The latitude and longitude are provided in the `SIMSTAT` packet.
+The latitude and longitude are provided in the Pioneer `SIMSTAT` packet.
 Some robot models have a GPS receiver position defined, when the corresponding
 real robot has a standard mounting location for the GPS receiver or antenna.
 If not, the center of the robot is assumed.  Note that ARIA also has a GPS
@@ -499,7 +528,7 @@ the simulated laser in the world is relative to the position of the robot
 position model and the simulated laser data is updated after the robot has
 moved.
 
-The code implementing the laser model can be found in the MobileSim source
+The code implementing the laser model can be found in the AMRISim source
 code in `stage/src/model_laser.c`.
 
 A scanning rangefinder measures distance ranges at fixed
@@ -545,7 +574,7 @@ range distance sensors, such as sonar and IR range sensors.  It differs
 from the "laser" model in that the positions and orientations of each individual
 sensor transciever can be configured separately.
 
-The code implementing the ranger model can be found in the MobileSim source
+The code implementing the ranger model can be found in the AMRISim source
 code in `stage/src/model_ranger.c`.
 
 In the simplest, default mode, for each configured sensor transciever, a raycasting algorithm is used to search the
@@ -572,10 +601,10 @@ Advanced Usage
 
 #### Command-line Arguments
 
-A full listing of MobileSim's command line parameters follows:
+A full listing of AMRISim's command line parameters follows:
 
 Usage: 
-    MobileSim [-m *map*] [-r *robot model* ...] [...options...]
+    AMRISim [-m *map*] [-r *robot model* ...] [...options...]
 
 --------------------      ----------------------------------------------------------
 `--map` *map*             Load map file (e.g. created with Mapper3)
@@ -587,7 +616,7 @@ Usage:
 
 `--robot`                 Create a simulated robot of the given model.
  *model[:name]*           If an ARIA robot parameter file is given for *model*,
-                          then MobileSim attempts to load that file from the
+                          then AMRISim attempts to load that file from the
                           current working directory, and create an equivalent model definition.
                           May be repeated with different names and models to create
                           multiple simulated robots. Name portion is optional.
@@ -598,7 +627,7 @@ Usage:
 *model[:name]     
 
 `--robot-factory`         Instead of creating one robot of the given model, accept any
-*model*                   number of client programs on its port, creating a new instance of
+*model*                   number of Pioneer client programs on port 8101, creating a new instance of
                           the model for each client, and destroying it when the client
                           disconnects.
 
@@ -617,7 +646,7 @@ Usage:
 `--minimize-gui`          Display window minimized (iconified)
 
 `--noninteractive`        Don't display any interactive dialog boxes that might
-                          block program execution. Also restart MobileSim if it
+                          block program execution. Also restart AMRISim if it
                           crashes (Linux only).
 
 `--lite-graphics`         Disable some graphics for slightly better performance
@@ -655,11 +684,11 @@ Usage:
 
 `--resolution` *r*        Use resolution *r* (milimeters) for collisions and sensors. Default is 20mm (2cm)
 
-`--ignore-command`        Ignore the command whose number is given. Refer to robot manual and MobileSim
+`--ignore-command`        Ignore the command whose number is given. Refer to robot manual and AMRISim
 *num*                     documentation for command numbers. 
                           For example, to prevent client programs from moving the robot's true position
                           with the ``SIM_SET_POSE`` command, number 224, use `--ignore-command 224`.
-                          May be repeated. Warning: MobileSim and/or your
+                          May be repeated. Warning: AMRISim and/or your
                           program may not function correctly if some critical commands are ignored.
 
 `--less-verbose`          Be a bit less verbose about logging messages, especially things that might be
@@ -670,16 +699,16 @@ Usage:
  
 `--bind-to-address`       Only listen on the network interface with IP address *address* for new
 *address*                 client connections (default is to listen on all addresses). This lets you run
-                          more than one MobileSim process on the same TCP ports on a machine that has more 
+                          more than one AMRISim process on the same TCP ports on a machine that has more 
                           than one network interface.
 
 `--disable-crash-handler` Disable the GDB crash handler (and just abort program on fatal signals). No
                           effect on Windows, where there is no crash handler.
 --------------------      ----------------------------------------------------------
 
-Note: Windows' command shell unfortunately does not display the standard console output of GUI programs like MobileSim. 
-To see MobileSim's output, you can either use the `--log-file`
-option to log to a file, or run MobileSim from another command shell, such as the <a
+Note: Windows' command shell unfortunately does not display the standard console output of GUI programs like AMRISim. 
+To see AMRISim's output, you can either use the `--log-file`
+option to log to a file, or run AMRISim from another command shell, such as the <a
 href="http://www.mingw.org">MSYS</a> shell
 (<a href="http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=82721&release_id=158803">download
 MSYS here</a>).
@@ -687,19 +716,19 @@ MSYS here</a>).
 #### Model Definitions
 
 The standard Pioneer robot model definitions are in the file
-`PioneerRobotModels.world.inc`, which is installed with MobileSim
-(by default, in `/usr/local/MobileSim` on Linux and `C:\Program
-Files\MobileRobots\MobileSim` on Windows).  This file is used to create the desired
+`PioneerRobotModels.world.inc`, which is installed with AMRISim
+(by default, in `/usr/local/AMRISim` on Linux and `C:\Program
+Files\MobileRobots\AMRISim` on Windows).  This file is used to create the desired
 robot model when loading a MobileRobots/ActivMedia .map file, and you may include
-it in your custom Stage worlds as well.  It must be present to run MobileSim. To define modified or custom 
+it in your custom Stage worlds as well.  It must be present to run AMRISim. To define modified or custom 
 robot model definitions, either modify this file, or create one of these
 directories:
 
-* `~/.MobileSim/include/` if on Linux (where ~ is your home directory), or
-* `C:\Documents and Settings\*<Your User Name>*\MobileSim\include` on Windows XP (Where *<Your User Name>* is your user account name.), or
-* `C:\Users\*<Your User Name>*\MobileSim\include` on Windows 7+ (Where *<Your User Name>* is your user account name.), or
+* `~/.AMRISim/include/` if on Linux (where ~ is your home directory), or
+* `C:\Documents and Settings\*<Your User Name>*\AMRISim\include` on Windows XP (Where *<Your User Name>* is your user account name.), or
+* `C:\Users\*<Your User Name>*\AMRISim\include` on Windows 7+ (Where *<Your User Name>* is your user account name.), or
 
-Any files MobileSim
+Any files AMRISim
 finds in this include directory (except files that begin with a dot ".") 
 are included into the world configuration after PioneerRobotModels.world.inc. 
 (You can also put Stage world and GUI settings, and even model instantiations 
@@ -710,7 +739,7 @@ Stage documentation
 for complete documentation of the syntax of these files.)
 New model definitions from these files can be used with the -r option on the command line using the model
 definition name, or by typing the name into the Robot Model field
-of MobileSim's initial dialog box.
+of AMRISim's initial dialog box.
 
 When you define a new model, you can change the
 `pioneer_robot_subtype`
@@ -719,14 +748,14 @@ this is the robot subtype string that ARIA uses
 to load client-side parameters for the robot. If you do change this value,
 you must also create a parameter file (.p file) for that new type in ARIA's 'params' directory.
 
-MobileSim expects common resources like the
+AMRISim expects common resources like the
 `PioneerRobotModels.world.inc` file to
-be in the standard installation location (`/usr/local/MobileSim` on Linux;
-`C:\Program Files\MobileRobots\MobileSim` on Windows) unless an
+be in the standard installation location (`/usr/local/AMRISim` on Linux;
+`C:\Program Files\MobileRobots\AMRISim` on Windows) unless an
 environment
-variable named `MOBILESIM` is set, or on Windows, in the 
-`\SOFTWARE\MobileRobots\MobileSim\Install Directory` registry key.
-Change these if you want MobileSim
+variable named `AMRISIM` is set, or on Windows, in the 
+`\SOFTWARE\MobileRobots\AMRISim\Install Directory` registry key.
+Change these if you want AMRISim
 to use resources in a different directory than the standard installation
 location.
 
@@ -739,9 +768,9 @@ This is analogous to the limits set in a real robot's firmware.
 
 Instead of using a map file and the model definitions in
 `PioneerRobotModels.world.inc` and the files in
-`~/.MobileSim/include`, you may also simply provide a Stage-format 
+`~/.AMRISim/include`, you may also simply provide a Stage-format 
 world file with the -W or -stageworld command 
-line options.   If provided, MobileSim uses only this world file for world
+line options.   If provided, AMRISim uses only this world file for world
 configuration, it does not use the common
 `PioneerRobotModels.world.inc`,
 <em>or</em>
@@ -750,7 +779,7 @@ the files in your "include" directory.
 #### Special Simulator Obstacles Objects
 
 
-MobileSim includes some "box" model definitions in its model definitions file
+AMRISim includes some "box" model definitions in its model definitions file
 `PioneerRobotModels.world.inc`. These are 0.5 x 0.5 meter objects that
 you can place anywhere in the map, and move with the mouse during the
 simulation. These boxes are created in the same way as robots, using the
@@ -759,7 +788,7 @@ choose their locations. You can <a href="#modeldefs">create your own model
 definitions</a> based on the
 `box` model type as well (e.g. with different dimensions, color,
 etc.)
-MobileSim's predefined `box` model types are described below:
+AMRISim's predefined `box` model types are described below:
 
 <dl>
   <dt>`box`
@@ -775,10 +804,10 @@ by laser with a high reflectance value (2).</dd>
 
 For example, you can create a simulation with two movable boxes and a Pioneer 3-DX robot with the
 following command:
-    MobileSim -r p3dx -r box -r box
+    AMRISim -r p3dx -r box -r box
 
 You can also define custom map object types in a map file, which will allow you
-to add them to that map file using Mapper3. MobileSim
+to add them to that map file using Mapper3. AMRISim
 recognizes some additional attributes of the custom types in order to create 
 extra objects in the simulation. 
 
@@ -786,7 +815,7 @@ extra objects in the simulation.
 <dl>
   <dt>`Sim.Obstacle=`*yes|no*</dt>   
                     <dd>If this attribute is given to a `SectorType`,
-                    then MobileSim creates an extra movable box. (Not supported
+                    then AMRISim creates an extra movable box. (Not supported
                     yet for `BoundaryType`)
                     If the value is `yes`, then the object will
                     be an obstacle that the robot will collide with. If
@@ -855,13 +884,13 @@ added to the map file as "Cairn" map objects (similar to goals etc.).
 
 #### Special Sectors in Map File
 
-MobileSim will recognize certain special sectors if they appear in
+AMRISim will recognize certain special sectors if they appear in
 the map file.  Mapper3 does not recognize all of these by default, but
 if you add the appropriate `MapInfo` lines to the map with a text editor (see
 below), they will appear in the "Advanced Areas" menu of Mapper3.
 
 * `BadGPSSector` and `SimBadGPSSector`:  If a map has a GPS georeference point
-  (`OriginLatLongAlt`), then MobileSim will provide simulated latitude and
+  (`OriginLatLongAlt`), then AMRISim will provide simulated latitude and
   longitude in the `SIMSTAT` packet (see description of `SIMSTAT` below.)  
   If the robot is inside a `BadGPSSector` or `SimBadGPSSector`, then the value 
   provided in `SIMSTAT` for the "good GPS" field will be 0.  Otherwise it will be 100.
@@ -875,23 +904,23 @@ To enable the creation of BadGPSSector and SimBadGPSSector in Mapper3,
 use a text editor to add the following lines to the map file:
 
     MapInfo: SectorType "Name=BadGPSSector" "Label=BadGPS" "Desc=Area where GPS is known to be unreliable" "Color0=0x888888" "Color1=0xbea4ce"
-    MapInfo: SectorType "Name=SimBadGPSSector" "Label=SimBadGPS" "Desc=Area where GPS will be made unreliable in MobileSim" "Color0=0x779977" "Color1=0xbea4ce"
+    MapInfo: SectorType "Name=SimBadGPSSector" "Label=SimBadGPS" "Desc=Area where GPS will be made unreliable in AMRISim" "Color0=0x779977" "Color1=0xbea4ce"
 
 
 
 #### Default Map File
 
-If you find that you are often loading the same map file into MobileSim
+If you find that you are often loading the same map file into AMRISim
 over and over again, you can save a step by copying that map file into
-`~/.MobileSim` (Linux) or `\Documents and Settings\*<User
-Name>*\MobileSim`
-(Windows) and naming it `init.map`.  If this map file exists, MobileSim
+`~/.AMRISim` (Linux) or `\Documents and Settings\*<User
+Name>*\AMRISim`
+(Windows) and naming it `init.map`.  If this map file exists, AMRISim
 will load this map at startup if no command-line option is given, rather
 than dislpaying the initial Load Map File dialog box.
 
 #### Exit Codes
 
-The MobileSim process has the following exit codes:
+The AMRISim process has the following exit codes:
 
 ---------------   ------------------------------------------------
       0           No error      
@@ -903,18 +932,40 @@ The MobileSim process has the following exit codes:
       249 (-7)    Error initializing the Pioneer emulation
 thread
       248 (-8)    Error opening a TCP socket for a robot or factory      
-      236 (-20)   MobileSim crashed, but crash handler caught signal and logged information to log file.     
+      236 (-20)   AMRISim crashed, but crash handler caught signal and logged information to log file.     
 ---------------   --------------------------------------------------     
 
 Error codes may also be requested in the `SIM_EXIT` command by a client (use 
-positive error codes less than 127, to differentiate from possible MobileSim codes).
+positive error codes less than 127, to differentiate from possible AMRISim codes).
 
 
-
-Robot Protocol Support
+ROS Interface Support
 ----------------------
 
-Currently the following parts of the ARCOS/AROS/P2OS/AmigOS/PSOS protocols are 
+Currently data is published to the following topics:
+
+* `pose`
+* `sonar`
+* `sonar_pointcloud2`
+* `motors_state`
+
+Commands are received by the following topics:
+
+* `cmd_vel`
+
+The following services are available:
+
+* `enable_motors`
+* `disable_motors`
+
+The following dynamic_reconfigure settings are available:
+
+* none
+
+Pioneer Protocol Support
+----------------------
+
+Currently the following parts of the Pioneer robot protocol are 
 supported. This covers all robot motion commands used by ARIA (including both
 direct motion requests and actions), and several other features.
 
@@ -974,21 +1025,21 @@ TTY2           42          string      Log with string contents
 
 TTY4           60          string      Log with string contents  
 
-RESET/MAINT    253/255     none        Abort MobileSim for debugging. If running in noninteractive mode on Linux, restart program after logging some debugging informamtion using gdb.  
+RESET/MAINT    253/255     none        Abort AMRISim for debugging. If running in noninteractive mode on Linux, restart program after logging some debugging informamtion using gdb.  
 -------------  ----------  ----------  ----------------------------------------------------  
 
 
-#### Simulator-only commands
+#### Simulator-only Pioneer commands
 
 For compatability with SRISim and old ARIA versions, equivalent commands 
 with deprecated ID numbers are also accepted, with a warning.
 
-MobileSim will always use the robot name "MobileSim".  It will also report
+AMRISim will always use the robot name "AMRISim".  It will also report
 an OS version number starting with "S." and the string "SIM"
 for serial number in the CONFIGpac packet, and respond to the `SIM_STAT` 
 command with a `SIMSTATpac` packet and the `SIM_CTRL,6` command with a `SIM_INFO` 
 packet. You can use these values in client software
-to detect whether it is connected to MobileSim or not.
+to detect whether it is connected to AMRISim or not.
 
   
 ------------------------------------------------------------------------------ 
@@ -1039,14 +1090,14 @@ Op #  Name     Description
 1     Replace  Remove existing map data and load a new map from the
       map      file given as a length-prefixed string folowing the 
                operation code. Note: If the path is not absolute,
-               it will be interpreted as relative to MobileSim's 
+               it will be interpreted as relative to AMRISim's 
                startup working directory, or the directory given
                with the --cwd command-line argument.
                For compatibility with Windows and other platforms with
                case-insensitive file naming, the case of the file name
                does not matter.
                A SIM_MAP_CHANGED packet will be sent back to any client
-               when MobileSim is done loading a new map (see below).
+               when AMRISim is done loading a new map (see below).
                         
 2     Master   Similar to `1`, but once this command is received, future
       replace  control commands with operation 1 are ignored, only operation 2 is
@@ -1054,7 +1105,7 @@ Op #  Name     Description
                but you want one of them (or a seperate program) to instead have
                control over which map is being used.
                A SIM_MAP_CHANGED packet will be sent back to any client
-               when MobileSim is done loading a new map (see below).
+               when AMRISim is done loading a new map (see below).
                           
 3     Master   Disable master map mode if enabled by `2`
       map                
@@ -1169,7 +1220,7 @@ SIMSTAT packet. Wrap this function in an `ArFunctor` object and use
        }
        return true;
     }
-When connected to MobileSim and using ArGPSConnector, ARIA will create an
+When connected to AMRISim and using ArGPSConnector, ARIA will create an
 ArSimulatedGPS object to read the simulated GPS data.
 
 
@@ -1199,7 +1250,7 @@ New fields may be added in future versions.
 	Loaded                   ubyte. 1=A new map was really loaded.  0=Map was not reloaded because already loaded and file is unchanged since last load.
 	Filename                 string. filename of map that was loaded.
  
-#### Unsupported commands
+#### Unsupported Pioneer commands
 
 The following commands are not supported, and will be ignored, with a warning
 message. Some are not applicable to the simulator (ENCODER) or pertain to
@@ -1252,18 +1303,11 @@ These commands are supported for compatability with a previous simulator
 The following commands are normally disabled, but can be re-enabled with the
 `--srisim-compat` command-line argument: 
 
-	OLD_END_SIM        62          none        Exit simulator (MobileSim exits completely). Note, this command is also used for another use on real robots and newer version of ARIA send it after connecting (so the simulator exits immediately).  You can enable the other SRISim compatability commands with `--srisim-compat`, but disable this command using `--ignore-command 62`
+	OLD_END_SIM        62          none        Exit simulator (AMRISim exits completely). Note, this command is also used for another use on real robots and newer version of ARIA send it after connecting (so the simulator exits immediately).  You can enable the other SRISim compatability commands with `--srisim-compat`, but disable this command using `--ignore-command 62`
 	OLD_SETORIGINX     66          int         Set the robot's current true X, (Note, conflicts with TTY3 command)
 	OLD_SETORIGINY     67          int         ...Y
 	OLD_SETORIGINTH     68         int         ...Theta
 	OLD_RESET_TO_ORIGIN     69     none        Reset true X Y, TH to 0,0,0
 
 <hr/>
-
-Copyright (C) 2006-2010 MobileRobots Inc.<br>
-Copyright (C) 2011-2015 Adept Technology<br>
-Copyright (C) 2016-2017 Adept MobileRobots/Omron Adept Technology
-All Rights Reserved.
-
-Patrolbot&reg; and Seekur&reg; are registered trademarks of Adept Technology 
 

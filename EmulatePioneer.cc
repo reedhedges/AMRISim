@@ -1,10 +1,12 @@
-/* 
+
+/*  
+ *  AMRISim is based on MobileSim (Copyright 2005 ActivMedia Robotics, 2006-2010 
+ *  MobileRobots Inc, 2011-2015 Adept Technology, 2016-2017 Omron Adept Technologies)
+ *  and Stage version 2 (Copyright Richard Vaughan, Brian Gerkey, Andrew Howard, and 
+ *  others), published under the terms of the GNU General Public License version 2.
  *
- *  Copyright (C) 2005, ActivMedia Robotics
- *  Copyright (C) 2006-2010 MobileRobots, Inc.
- *  Copyright (C) 2011-2015 Adept Technology
- *  Copyright (C) 2016-2017 Omron Adept Technologies
- *
+ *  Copyright 2018 Reed Hedges and others
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -21,7 +23,7 @@
  *
  */
 
-#include "MobileSim.hh"
+#include "AMRISim.hh"
 #include "EmulatePioneer.hh"
 #include "MapLoader.hh"
 #include "ArMap.h"
@@ -53,7 +55,7 @@
 #include "ArRobotPacketSender.h"
 #include "ClientPacketReceiver.h"
 
-#include "MobileSim.hh"
+#include "AMRISim.hh"
 #include "Socket.hh"
 
 /* Turn these on to get debugging messages: */
@@ -171,7 +173,7 @@ bool EmulatePioneer::mapMasterEnabled = false;
 // Retrieve options from the configuration file, and get ready to open
 // TCP socket to listen on. Call openSocket() to start listening for a client; when client is accepted, the listening socket is temporarily closed until client closes connection, then it is reopened.
 EmulatePioneer::EmulatePioneer(RobotInterface* rif, std::string robotName, 
-    int port,  bool deleteOnDisconnect, bool trySubsequentPorts, const MobileSim::Options *userOptions) :
+    int port,  bool deleteOnDisconnect, bool trySubsequentPorts, const AMRISim::Options *userOptions) :
       LogInterface(robotName),
       status(0),
       robotInterface(rif),
@@ -206,7 +208,7 @@ EmulatePioneer::EmulatePioneer(RobotInterface* rif, std::string robotName,
 // Constructor: just set our client socket, assumed to already be connected
 // to a client
 EmulatePioneer::EmulatePioneer(RobotInterface *rif, std::string robotName, ArSocket *clientSocket, 
-    bool deleteOnDisconnectOnDisconnect, bool deleteClientSocketOnDisconnect, const MobileSim::Options *userOptions) :
+    bool deleteOnDisconnectOnDisconnect, bool deleteClientSocketOnDisconnect, const AMRISim::Options *userOptions) :
       LogInterface(robotName),
       status(0),
       robotInterface(rif),
@@ -243,7 +245,7 @@ EmulatePioneer::EmulatePioneer(RobotInterface *rif, std::string robotName, ArSoc
   //ArLog::log(ArLog::Normal, "EmulatePioneer::EmulatePioneer(): recording robotInterface (%u) and &newMapLoadedCB (%u) in constructor", (unsigned int)robotInterface, (unsigned int)&newMapLoadedCB);
 
 
-  MobileSim::Sockets::addSocketCallback(clientSocket, &readInputCB, "EmulatePioneer client i/o (callback to handle client input), socket provided in EP ctor");
+  AMRISim::Sockets::addSocketCallback(clientSocket, &readInputCB, "EmulatePioneer client i/o (callback to handle client input), socket provided in EP ctor");
   //print_debug("EmulatePioneer: added input socket callback %p", &readInputCB);
   newSession();
 
@@ -253,7 +255,7 @@ EmulatePioneer::EmulatePioneer(RobotInterface *rif, std::string robotName, ArSoc
 }
 
 
-void EmulatePioneer::init(const std::string& robotName, const MobileSim::Options *userOptions)
+void EmulatePioneer::init(const std::string& robotName, const AMRISim::Options *userOptions)
 {
   //++currentEmulatorCount;
   memset(params.RobotName, 0, ROBOT_IDENTIFIER_LEN);
@@ -309,7 +311,7 @@ EmulatePioneer::~EmulatePioneer()
   }
 
   if(myClientSocket)
-    MobileSim::Sockets::removeSocketCallback(myClientSocket);
+    AMRISim::Sockets::removeSocketCallback(myClientSocket);
 
   if(myDeleteClientSocketOnDisconnect && myClientSocket)
   {
@@ -317,7 +319,7 @@ EmulatePioneer::~EmulatePioneer()
     myClientSocket = NULL;
   }
 
-  MobileSim::Sockets::removeSocketCallback(&myListenSocket);
+  AMRISim::Sockets::removeSocketCallback(&myListenSocket);
 
   //ourActiveInstances.remove(this); removed in processAll()
   //--currentEmulatorCount;
@@ -350,14 +352,14 @@ bool EmulatePioneer::openSocket()
   if(myListenSocket.isOpen())
   {
     // remove from global Sockets list. When re-opened (new actual socket) below, callback is added again.
-    MobileSim::Sockets::removeSocketCallback(&myListenSocket);
+    AMRISim::Sockets::removeSocketCallback(&myListenSocket);
     myListenSocket.close();
   }
 
 
   portOpened = false;
   // First try a few times to open the requested port (it may still be allocated by OS
-  // to a previous (recently closed) MobileSim process.
+  // to a previous (recently closed) AMRISim process.
   // After opening socket, it's added to global Sockets list at the end of this
   // fuction.
   myRequestedTCPPort = myTCPPort;
@@ -405,7 +407,7 @@ bool EmulatePioneer::openSocket()
   myListenSocket.setReuseAddress();
   myListenSocket.setNonBlock();
 
-  MobileSim::Sockets::addSocketCallback(&myListenSocket, &acceptClientCB, "EmulatePioneer listening socket (callback to accept clients)");
+  AMRISim::Sockets::addSocketCallback(&myListenSocket, &acceptClientCB, "EmulatePioneer listening socket (callback to accept clients)");
 
   return true;
 }
@@ -437,7 +439,7 @@ void EmulatePioneer::acceptNewClient(unsigned int /*maxTime*/)
 
     // Close listening socket to prevent other clients from screwing it up by
     // trying to connect.
-    MobileSim::Sockets::removeSocketCallback(&myListenSocket);
+    AMRISim::Sockets::removeSocketCallback(&myListenSocket);
     myListenSocket.close();
 
     myClientSocket->setNonBlock();
@@ -447,7 +449,7 @@ void EmulatePioneer::acceptNewClient(unsigned int /*maxTime*/)
    // fflush(stdout);
 #endif
 
-    MobileSim::Sockets::addSocketCallback(myClientSocket, &readInputCB, "EmulatePioneer client I/O (callback to read input), socket created by EP listening");
+    AMRISim::Sockets::addSocketCallback(myClientSocket, &readInputCB, "EmulatePioneer client I/O (callback to read input), socket created by EP listening");
     newSession();
 
     return;
@@ -604,7 +606,7 @@ bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt)
     if (myVerbose) log("Sending SYNC2 with robot config info.");
     ArRobotPacket pkt;
     pkt.setID(2);
-    pkt.strToBuf("MobileSim");
+    pkt.strToBuf("AMRISim");
     pkt.strToBuf(params.RobotClass);
     pkt.strToBuf(params.RobotSubclass);
     pkt.finalizePacket();
@@ -704,11 +706,11 @@ int EmulatePioneer::processAll(int maxTime)
     {
       ep->processSession();
       status = ep->status;
-      //print_debug("EP::processAll: after processSession(%p). Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, MobileSim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
+      //print_debug("EP::processAll: after processSession(%p). Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, AMRISim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
 
       if(status & DISCONNECTED)
       {
-        //print_debug("EP::processAll: after processSession: %p disconnected. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, MobileSim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
+        //print_debug("EP::processAll: after processSession: %p disconnected. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, AMRISim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
         //print_debug("EP::processAll: after processSession: removing %p from active list...", ep);
         i = ourActiveInstances.erase(i); // remove from ourActiveInstances and advance to next
         if(status & DELETEME)
@@ -726,14 +728,14 @@ int EmulatePioneer::processAll(int maxTime)
     catch(EmulatePioneer::DeletionRequest&)  // from ep->processSession()
     {
       status = ep->status;
-      //print_debug("EP::processAll: catch: %p wants to be deleted. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, MobileSim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
+      //print_debug("EP::processAll: catch: %p wants to be deleted. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, AMRISim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
       //print_debug("EP::processAll: catch: removing %p from active list and deleting...", ep);
       i = ourActiveInstances.erase(i); // remove from ourActiveInstances and advance to next
       delete ep;
     }
     catch(EmulatePioneer::Disconnected&)
     {
-      //print_debug("EP::processAll: catch: %p disconnected. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, MobileSim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
+      //print_debug("EP::processAll: catch: %p disconnected. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, AMRISim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
       //print_debug("EP::processAll: catch: removing %p from active list...", ep);
       i = ourActiveInstances.erase(i);
     }
@@ -883,7 +885,7 @@ bool EmulatePioneer::processSession()
 
     }
 
-    if(MobileSim::log_stats_freq > 0) {
+    if(AMRISim::log_stats_freq > 0) {
       session->checkLogStats(this);
     }
 
@@ -1184,7 +1186,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        replyPkt.byte2ToBuf(FAKE_ROTACCTOP);
        replyPkt.byte2ToBuf(FAKE_TRANSACCTOP);
        replyPkt.byte2ToBuf(400); // max pwm const.
-       replyPkt.strToBuf("MobileSim"); // Robot name, always MobileSim
+       replyPkt.strToBuf("AMRISim"); // Robot name, always AMRISim
        replyPkt.byteToBuf((char)(params.SIPFreq));
        replyPkt.byteToBuf(0);  // host baud, irrelevant for TCP
        replyPkt.byteToBuf(0);  // baud rate for AUX1
@@ -1602,7 +1604,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
         log("In watchdog disable state? %s, Estopping? %s",
             session->inWatchdogState?"yes":"no", session->eStopInProgress?"yes":"no");
         if(mapMasterEnabled)
-          log("Map master mode is enabled in MobileSim.");
+          log("Map master mode is enabled in AMRISim.");
         log("Currently have %d RobotInterface objects and %d EmulatePioneer objects.", robotInterfaces.size(), ourActiveInstances.size());
         std::string commandsIgnoredStr;
         char s[4];
@@ -1800,7 +1802,7 @@ void EmulatePioneer::endSession()
   {
     log("Closing connection.");
     //print_debug("Closing connection for ArSocket %p, fd=%d", myClientSocket, myClientSocket->getFD());
-    MobileSim::Sockets::removeSocketCallback(myClientSocket);
+    AMRISim::Sockets::removeSocketCallback(myClientSocket);
     myClientSocket->close();
     if(myDeleteClientSocketOnDisconnect)
     {
@@ -2113,7 +2115,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
   }
   pkt.byte2ToBuf((ArTypes::Byte2) totalReadings);  // total range reading count the device has
   pkt.byte2ToBuf((ArTypes::Byte2) currentReading); // which reading is the first one in this packet
-  const size_t numReadingsThisPacket = MobileSim::min(MaxReadingsPerPacket, totalReadings - currentReading);  // num. readings that follow
+  const size_t numReadingsThisPacket = AMRISim::min(MaxReadingsPerPacket, totalReadings - currentReading);  // num. readings that follow
   pkt.uByteToBuf((ArTypes::UByte) numReadingsThisPacket);
 
   class PackLaserReadingFunc_OldFormat : public virtual RobotInterface::LaserReadingFunc {
@@ -2231,7 +2233,7 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
   replyPkt.empty();
   replyPkt.setID(0x62);
 
-  // compatability with older MobileSim versions:
+  // compatability with older AMRISim versions:
   replyPkt.strToBuf("");
   replyPkt.strToBuf("");
 
@@ -2371,7 +2373,7 @@ void EmulatePioneer::loadMapObjects(ArMap *map)
 
 void Session::checkLogStats(LogInterface* l)
 {
-  if(loggedStats.mSecSince() >= MobileSim::log_stats_freq) {
+  if(loggedStats.mSecSince() >= AMRISim::log_stats_freq) {
     logStats(l);
   }
 }

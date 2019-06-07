@@ -2,7 +2,7 @@
 #
 #
 #
-# This file is loaded automatically by MobileSim to determine
+# This file is loaded automatically by AMRISim to determine
 # properties of models it creates; or it may be manually included
 # into Stage world files.
 #
@@ -15,7 +15,7 @@
 # you can extend either the "pioneer" base model, or any existing model.
 #
 # Note, this file references laser "height". This feature has been removed
-# from this version of MobileSim. It will be back.  If you want to re-enable it,
+# from AMRISim. It might be back in the future.  If you want to re-enable it,
 # edit the laser model source code in Stage.
 #
 # The shape of a robot model is given via positions of vertices [x y] of one or more
@@ -87,7 +87,7 @@ define pioneer position (
   # If "none" is used, no error is accumulated.
   # The default may depend on compile time choices or build variant:
   # random_init mode for compatibilty in the simbox or commercial variant, but
-  # is random_each_update in interactive developers MobileSim application.
+  # is random_each_update in interactive developers AMRISim application.
   #
   # If odom_error_range_x, odom_error_range_y or odom_error_range_a are given,
   # (new in 0.9) these will be used to give separate minimum and maximum
@@ -277,7 +277,7 @@ define frontP3Sonar pioneerSonar (
 )
 
 # Bumper array for DX (one half)
-# For future use. Bumpers aren't implemented yet in MobileSim.
+# For future use. Bumpers aren't implemented yet in AMRISim.
 #define P3DXBumperRing bumpswitches (
 #  color "black"
 #  bumpcount 5
