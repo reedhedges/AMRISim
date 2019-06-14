@@ -1,5 +1,4 @@
 
-* Rename
 * Debian standard Packaging
 * Remove unused stuff 
 * Fix last temp file issue
@@ -23,6 +22,7 @@
   * Improve build. (Use CMake? Support system-default-install (/usr), 
     etc.
   * Document
+* ROS2 interface.
 * More map file formats
 * Include some useful startup scripts for unattended operation eg systemd, 
   maybe docker config or info, AWS template (at least document requirements in
