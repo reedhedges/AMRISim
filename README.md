@@ -51,21 +51,34 @@ created by Mapper3;, Mapper3-Basic, or other means) to a Stage
 environment, and places a simulated robot model in that
 environment.
 
-It then provides a simulated Pioneer control
+AMRISim then creates a Pioneer control interface and a ROS 
+interface for each simulated robot (unless disabled).
+
+The Pioneer interface is an emulated Pioneer robot but with a
 connection accessible via a TCP port (similar to the real
 Pioneer's serial port connection).  ARIA/AriaCoda is able to connect
 to TCP ports instead of serial ports (ArRobotConnector, for example,
 automatically tries TCP port 8101 before the serial port).
 
-Ports open for Pioneer connections are advertised via MDNS-SD
-(broadcast/multicast DNS service discovery protocol).  (Aria and AriaCoda
-include a feature in their Python interfaces to search for this
-via MDNS-SD).
+See below for description of which parts of the Pioneer protocol
+are implemented, and simulator-specific extensions.
 
-In addition, a ROS interface node is started for each robot.  (If no
-ROS master (roscore) is running, an option is presented to the user to start
-one.)
+The host is running AMRISim is advertised via a simple 
+broadcast discovery protocol, compatible with the Lantronix WiBox
+device used on some Pioneer robots.  (MDNS-SD or another service 
+discover protocol can perhaps be added if desired, contact the maintainer(s)).  
+(Aria and AriaCoda include a feature in their Python interfaces to 
+discover available AMRISim hosts or WiBox devices via a short network
+broadcast.) For details on this protocol see below. 
 
+The ROS interfaces are in-process nodes created for each simulated
+robot.  If no ROS master is detected, an option is 
+presented to start roscore. The nodes currently have 
+arbitrary names beginning with the prefix "AMRISim-"
+(but better naming may be added in the fututre, similar to how
+information about robots is logged and reported via Pioneer connection.)
+See below for ROS topics.
+`
 AMRISim (powered by Stage) has the following features
 and device models. Device model parameters may be customized in a
 configuration file, or new models may be defined based on existing
@@ -1257,3 +1270,43 @@ The following commands are normally disabled, but can be re-enabled with the
     OLD_SETORIGINY     67          int         ...Y
     OLD_SETORIGINTH     68         int         ...Theta
     OLD_RESET_TO_ORIGIN     69     none        Reset true X Y, TH to 0,0,0
+
+
+Simulated Robot Service Discovery
+---------------------------------
+
+AMRISim will respond to requests sent using a simple
+broadcast protocol based on the Lantronix Discovery Protocol, 
+compatible with the Lantronix WiBox device used on some Pioneer robots.  
+(MDNS-SD or another service discover protocol can perhaps be added if 
+desired, contact the maintainer(s)).   This can be used 
+to detect one simulated robot.  (Additional robots can be discovered by
+attempting to connect to subsequent Pioneer interface TCP ports.) 
+
+Aria and AriaCoda include a feature in their Python interfaces to 
+discover available hosts running AMRISim, or WiBox devices, via a short network
+broadcast.
+
+This protocol is briefly described below.  For more information see
+<http://wiki.lantronix.com/developer/Lantronix_Discovery_Protocol>,
+Lantronix forums and other documentation, and the implementations in ARIA or
+[AriaCoda](http://github.com/reedhedges/AriaCoda), and in AMRISim
+in `NetworkDiscovery.hh`.  This protocol is limitied to simply 
+confirming the prensence of one compatible sending host, as far as I
+know no additional information may be included (such as how many
+or which Pioneer interface ports are open.) 
+
+* AMRISim listens for any data sent to UDP port 30718, checking every 2 seconds.
+* Clients may broadcast a UDP packet, described below, with destination port 30718, and wait 
+  at least 2 seconds for any responses. (More than 2 seconds is recommended.)
+* The packet sent by the client should follow the format described 
+  in the description of the Lantronix Discover Protocol linked to above,
+  in particular with the fourth byte (`data[3]`) set to `0xF6`.
+* AMRISim will respond to this request with a packet in which the
+  fourth byte (`data[4]`) is `0xF7`, the ninth byte (`data[8]`) is `0xFA` and
+  the tenth byte (`data[9]`) is `0xFB`).  (I.e. AMRISim's product identifier is
+  `0xFA 0xFB`. 
+* When the client receives the response packet from AMRISim, then it can use the
+  sending address to attempt connections to AMRISim.
+
+
