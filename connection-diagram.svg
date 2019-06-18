@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="11in"
+   height="17in"
+   viewBox="0 0 279.4 431.8"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="connection-diagram.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="177.8683"
+     inkscape:cy="1371.8564"
+     inkscape:document-units="pc"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="in"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1853"
+     inkscape:window-height="1025"
+     inkscape:window-x="67"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       position="61.893597,360.83498"
+       orientation="0,1"
+       id="guide4665"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="-12.189732,360.83498"
+       orientation="0,1"
+       id="guide4853"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="86.651042,358.7939"
+       orientation="0,1"
+       id="guide4855"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,134.8)">
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.32436517;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect10"
+       width="65.677826"
+       height="71.347481"
+       x="10.911823"
+       y="-122.98103" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.56629765;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4520"
+       width="55.797504"
+       height="38.599598"
+       x="15.946483"
+       y="-114.54459" />
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4522-3"
+       sodipodi:sides="8"
+       sodipodi:cx="53.294641"
+       sodipodi:cy="-103.46577"
+       sodipodi:r1="5.4117956"
+       sodipodi:r2="2.6255064"
+       sodipodi:arg1="0.43240779"
+       sodipodi:arg2="0.82510689"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 58.20833,-101.19791 -3.042804,2.810264 -4.138744,-0.16443 -2.810264,-3.042804 0.164431,-4.13874 3.042804,-2.81027 4.138744,0.16443 2.810264,3.04281 z"
+       inkscape:transform-center-x="0.16897865"
+       inkscape:transform-center-y="0.092532818" />
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4522-6"
+       sodipodi:sides="8"
+       sodipodi:cx="27.214284"
+       sodipodi:cy="-99.686014"
+       sodipodi:r1="5.4117956"
+       sodipodi:r2="2.6255064"
+       sodipodi:arg1="0.43240779"
+       sodipodi:arg2="0.82510689"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 32.127975,-97.418155 -3.042803,2.810264 -4.138744,-0.164431 -2.810264,-3.042804 0.16443,-4.138744 3.042804,-2.81026 4.138744,0.16443 2.810264,3.0428 z"
+       inkscape:transform-center-x="0.16897865"
+       inkscape:transform-center-y="0.092532818" />
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4522-35"
+       sodipodi:sides="8"
+       sodipodi:cx="41.199406"
+       sodipodi:cy="-86.456849"
+       sodipodi:r1="5.4117956"
+       sodipodi:r2="2.6255064"
+       sodipodi:arg1="0.43240779"
+       sodipodi:arg2="0.82510689"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 46.113096,-84.188991 -3.042804,2.810264 -4.138744,-0.164431 -2.810264,-3.042803 0.164431,-4.138744 3.042804,-2.810264 4.138744,0.16443 2.810264,3.042804 z"
+       inkscape:transform-center-x="0.16897865"
+       inkscape:transform-center-y="0.092532818" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4582"
+       width="6.9925594"
+       height="6.4255953"
+       x="14.238957"
+       y="-63.83498">
+      <title
+         id="title4761">title</title>
+    </rect>
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4584"
+       width="7.1815462"
+       height="6.4255972"
+       x="22.835133"
+       y="-63.83498" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4582-9-2"
+       width="6.9925594"
+       height="6.4255953"
+       x="34.879776"
+       y="-63.83498" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4584-1-7"
+       width="7.1815472"
+       height="6.4255981"
+       x="43.206711"
+       y="-63.83498" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4582-9-2-0"
+       width="6.9925594"
+       height="6.4255953"
+       x="54.901039"
+       y="-63.834976" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4584-1-7-9"
+       width="7.1815476"
+       height="6.4255981"
+       x="63.430397"
+       y="-63.83498" />
+    <ellipse
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4667"
+       cx="36.285713"
+       cy="-28.4375"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <ellipse
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4667-3"
+       cx="25.135418"
+       cy="-21.822916"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <ellipse
+       style="opacity:1;fill:#ffffff;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+       id="path4667-6"
+       cx="92.226189"
+       cy="-31.083334"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <ellipse
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4667-0"
+       cx="102.24255"
+       cy="-25.602678"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <ellipse
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4667-62"
+       cx="58.397316"
+       cy="-29.760416"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <ellipse
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4667-61"
+       cx="64.633926"
+       cy="-22.956846"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <ellipse
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4667-8"
+       cx="72.193451"
+       cy="-30.894346"
+       rx="5.1026788"
+       ry="3.0238097" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.41896152;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4728"
+       width="13.512652"
+       height="4.1577382"
+       x="5.2916613"
+       y="-41.47768" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4728-9"
+       width="13.512651"
+       height="12.095237"
+       x="5.2916613"
+       y="-37.319942"
+       ry="0.56696427" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.30441388px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 26.930802,-100.15848 -9.354909,36.323499"
+       id="path4745"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 26.930802,-100.15848 -0.944939,36.323499"
+       id="path4747"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.32814589px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.031242,-86.391518 -3.016167,22.553232"
+       id="path4749"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.34503135px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.031242,-86.391518 6.121288,22.556537"
+       id="path4751"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.32824928px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 52.53869,-103.93825 5.478585,40.104035"
+       id="path4753"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 52.53869,-103.93825 14.174108,40.103269"
+       id="path4755"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="24.568451"
+       y="-107.43452"
+       id="text4759"><tspan
+         sodipodi:role="line"
+         id="tspan4757"
+         x="24.568451"
+         y="-107.43452"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332">Simulated Robots</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="14.797767"
+       y="-60.943455"
+       id="text4765"><tspan
+         sodipodi:role="line"
+         x="14.797767"
+         y="-60.943455"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4775">Pioneer </tspan><tspan
+         sodipodi:role="line"
+         x="14.797767"
+         y="-59.179565"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4779">Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="55.848778"
+       y="-60.569706"
+       id="text4765-7"><tspan
+         sodipodi:role="line"
+         x="55.848778"
+         y="-60.569706"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4775-7">Pioneer </tspan><tspan
+         sodipodi:role="line"
+         x="55.848778"
+         y="-58.805817"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4779-0">Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="35.627048"
+       y="-60.758698"
+       id="text4765-4"><tspan
+         sodipodi:role="line"
+         x="35.627048"
+         y="-60.758698"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4775-5">Pioneer </tspan><tspan
+         sodipodi:role="line"
+         x="35.627048"
+         y="-58.994808"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4779-3">Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="23.8125"
+       y="-60.659981"
+       id="text4814"><tspan
+         sodipodi:role="line"
+         x="23.8125"
+         y="-60.659981"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4816">ROS</tspan><tspan
+         sodipodi:role="line"
+         x="23.8125"
+         y="-58.896091"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4820">Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="43.848034"
+       y="-60.758698"
+       id="text4814-9"><tspan
+         sodipodi:role="line"
+         x="43.848034"
+         y="-60.758698"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4816-7">ROS</tspan><tspan
+         sodipodi:role="line"
+         x="43.848034"
+         y="-58.994808"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4820-6">Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="64.164253"
+       y="-60.758698"
+       id="text4814-5"><tspan
+         sodipodi:role="line"
+         x="64.164253"
+         y="-60.758698"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4816-0">ROS</tspan><tspan
+         sodipodi:role="line"
+         x="64.164253"
+         y="-58.994808"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.41111112px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4820-69">Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="15.591516"
+       y="-114.99405"
+       id="text4859"><tspan
+         sodipodi:role="line"
+         id="tspan4857"
+         x="15.591516"
+         y="-114.99405"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666656px;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332">Stage Simulation Engine</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="32.222469"
+       y="-22.011908"
+       id="text4863"><tspan
+         sodipodi:role="line"
+         id="tspan4861"
+         x="32.222469"
+         y="-22.011908"
+         style="stroke-width:0.26458332">ROS</tspan><tspan
+         sodipodi:role="line"
+         x="32.222469"
+         y="-18.484129"
+         style="stroke-width:0.26458332"
+         id="tspan4865">Clients</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="8.4099712"
+       y="-38.359375"
+       id="text4869"><tspan
+         sodipodi:role="line"
+         id="tspan4867"
+         x="8.4099712"
+         y="-38.359375"
+         style="stroke-width:0.26458332">ARIA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="8.3154764"
+       y="-30.894346"
+       id="text4873"><tspan
+         sodipodi:role="line"
+         id="tspan4871"
+         x="8.3154764"
+         y="-30.894346"
+         style="stroke-width:0.26458332">Client</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="89.269669"
+       y="-24.004745"
+       id="text4863-4"><tspan
+         sodipodi:role="line"
+         id="tspan4861-7"
+         x="89.269669"
+         y="-24.004745"
+         style="stroke-width:0.26458332">ROS</tspan><tspan
+         sodipodi:role="line"
+         x="89.269669"
+         y="-20.476967"
+         style="stroke-width:0.26458332"
+         id="tspan4865-5">Clients</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:'Gorton Digital';-inkscape-font-specification:'Gorton Digital, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="71.032318"
+       y="-23.910252"
+       id="text4863-6"><tspan
+         sodipodi:role="line"
+         id="tspan4861-5"
+         x="71.032318"
+         y="-23.910252"
+         style="stroke-width:0.26458332">ROS</tspan><tspan
+         sodipodi:role="line"
+         x="71.032318"
+         y="-20.382473"
+         style="stroke-width:0.26458332"
+         id="tspan4865-7">Clients</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 17.670387,-57.447174 11.622768,-41.95015"
+       id="path4925"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 24.662946,-25.413692 1.606399,-32.316965"
+       id="path4927"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 36.285715,-32.028275 26.269345,-57.730657"
+       id="path4929"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 57.263392,-33.162203 46.491072,-57.447174"
+       id="path4931"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 71.815475,-34.107144 46.491072,-57.447174"
+       id="path4933"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 64.066964,-26.26414 46.491072,-57.447174"
+       id="path4935"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 91.281249,-34.579615 66.523808,-57.541668"
+       id="path4937"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 100.44717,-29.09896 66.523808,-57.54167"
+       id="path4939"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0" />
+    <ellipse
+       ry="3.0238097"
+       rx="5.1026788"
+       cy="-29.760416"
+       cx="58.397316"
+       id="ellipse4941"
+       style="opacity:1;fill:#ffffff;stroke:#000000;stroke-width:0.42333335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1" />
+  </g>
+</svg>

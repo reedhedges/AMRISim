@@ -25,6 +25,13 @@ a bitmap file to a map file.)
 Other robot types and more general features may be added in the future.  Users may configure
 their own robot models.
 
+If you would like to discuss contributing additions and changes,
+please use the [GitHub page](http://github.com/reedhedges/AMRISim)
+or [contact me](mailto:reedhedges@gmail.com).
+
+If you would like to hire me to add interfaces, features, or address
+issues or bugs, please [contact me](mailto:reedhedges@gmail.com).
+
 AMRISim normally runs as an interactive application with GUI.  A noninteractive
 mode may be enabled in which messages are logged rather than displayed to the
 user via the GUI.  Logging is configurable.    Various GUI options may be
@@ -54,6 +61,23 @@ environment.
 AMRISim then creates a Pioneer control interface and a ROS 
 interface for each simulated robot (unless disabled).
 
+*Note*: it is possible for multiple ROS clients to connect
+to the ROS interface, and for one client program to connect
+to the Pioneer interface (using the ARIA library).  However,
+it is not generally possible for any ROS clients to control
+a robot through the ROS interface while a Pioneer client
+is connected as well, since conflicting motion commands
+will be received through both interfaces.  Multiple ROS clients
+sending continuous or frequent motion commands will also
+conflict.  It is recommended that you use either the
+Pioneer interface or the ROS interface at any one time.
+It is also recommended that you design your ROS application
+such that only one ROS client is sending motion commands
+(`cmd_vel`) or they are carefully coordinated.   (ROS clients
+can generally recieve published data while a Pioneer client
+is connected, however, for logging, data collection, visualization,
+offline work, etc.) 
+
 The Pioneer interface is an emulated Pioneer robot but with a
 connection accessible via a TCP port (similar to the real
 Pioneer's serial port connection).  ARIA/AriaCoda is able to connect
@@ -63,7 +87,7 @@ automatically tries TCP port 8101 before the serial port).
 See below for description of which parts of the Pioneer protocol
 are implemented, and simulator-specific extensions.
 
-The host is running AMRISim is advertised via a simple 
+The host running AMRISim is advertised via a simple 
 broadcast discovery protocol, compatible with the Lantronix WiBox
 device used on some Pioneer robots.  (MDNS-SD or another service 
 discover protocol can perhaps be added if desired, contact the maintainer(s)).  
@@ -78,6 +102,8 @@ arbitrary names beginning with the prefix "AMRISim-"
 (but better naming may be added in the fututre, similar to how
 information about robots is logged and reported via Pioneer connection.)
 See below for ROS topics.
+
+![Connection Diagram](connection-diagram.svg)
 `
 AMRISim (powered by Stage) has the following features
 and device models. Device model parameters may be customized in a
