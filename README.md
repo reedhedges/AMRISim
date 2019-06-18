@@ -103,7 +103,7 @@ arbitrary names beginning with the prefix "AMRISim-"
 information about robots is logged and reported via Pioneer connection.)
 See below for ROS topics.
 
-![Connection Diagram](connection-diagram.svg)
+![Connection Diagram](connection-diagram.png)
 `
 AMRISim (powered by Stage) has the following features
 and device models. Device model parameters may be customized in a
