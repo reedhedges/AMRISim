@@ -161,12 +161,12 @@ models.
     other simulators.
 * And more...
 
-Build
------
+Building
+--------
 
-To build AMRISim, AriaCoda or ARIA and ROS melodic are required.
+To build AMRISim, AriaCoda or ARIA, and ROS melodic are required.
 
-On Linux, GTK+ 2.x development packages are needed, as well as
+On Linux, GTK+ 2.x development packages are also needed, as well as
 g++, make, libtool, automake and autoconf.
 
 ROS melodic is expected to be installed in /opt/ros/melodic.
@@ -176,10 +176,11 @@ the `ARIA` environment variable before building to change location.)
 
 Run "make" to build.
 
-To build on Windows, MinGW should be used. Windows build is currently untested.
+On Windows, MinGW should be used. (Windows build is currently untested.)
+GTK+ is not needed, it will be included.
 
 Detailed build instructions for each platform are available in
-[BUILD.md].
+[BUILD.md](BUILD.md).
 
 How to get started
 ------------------
