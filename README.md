@@ -53,6 +53,10 @@ General Public License:
 
 See [the full license](LICENSE.txt) for details.
 
+
+How it Works
+------------
+
 AMRISim (optionally) converts a MobileRobots/ActivMedia map (a .map file,
 created by Mapper3;, Mapper3-Basic, or other means) to a Stage
 environment, and places a simulated robot model in that
@@ -105,6 +109,10 @@ See below for ROS topics.
 
 ![Connection Diagram](connection-diagram.png)
 `
+
+Features
+--------
+
 AMRISim (powered by Stage) has the following features
 and device models. Device model parameters may be customized in a
 configuration file, or new models may be defined based on existing
@@ -115,17 +123,19 @@ models.
     PeopleBot&trade;, PatrolBot&reg;, Seekur&reg;, Pioneer 2, Pioneer 1).
 * You can define custom models of differential drive or
     omnidirectional robots, laser and sonar, defined either as
-    a Stage model definition, or by loading an Aria parameter (.p)
-    file.
-* Sonar range sensor model
-* Laser range sensor (SICK LMS-200) model
+    a Stage model definition (stored in a configuration file), 
+    or by loading an Aria parameter (.p) file.
+* Sonar range sensor model, with customizable properties
+* Laser range sensor model, with customizable properties
 * Robot odometry pose estimation (with cumulative error)
+* Simple GPS model (latitude and longitude calculated based
+  on map georeference)
 * Multiple robots (good performance is possible on a fast computer with
-  more than 25 robots)
+  more than 50 robots)
 * Evironment and obstacles are loaded from a
   MobileRobots/ActivMedia/ARIA map file; use the same map with ARNL/SONARNL or
   your own software.
-* Interactively move robots and obstacles (with customized map file, see below)
+* Interactively move robots and obstacles
 * Objects (robots or obstactles) may be configured to be detectable
     only by some sensors
 * Objects (robots or obstacles) may be set as "highly reflective"
@@ -135,6 +145,8 @@ models.
 * Map files may be reloaded at run time
 * Robots may be interactively repositioned through the GUI or by
     a command from client software
+* Simulation information (such as time, robot true absolute positions, etc.
+  is available to clients and displayed in UI.
 * Client software may send log messages to AMRISim. Log messages
     are timestamped and displayed both the GUI and console or log file, with
     optional HTML formatting.
@@ -147,6 +159,7 @@ models.
     the simulation implementation, customizing and improving it,
     or even adapting AMRISim's ARIA communication protocol layer for
     other simulators.
+* And more...
 
 Build
 -----
