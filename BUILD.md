@@ -94,48 +94,39 @@ Follow the instructions below to build AMRISim.
 Windows (MinGW)
 ---------------
 
-On Windows, you must use MinGW, MSYS and the MSYS DTK (http://www.mingw.org) 
+On Windows, you must use MinGW  (http://www.mingw.org) 
 to build AMRISim. Download the MinGW-Get setup tool and run it to begin 
 installing MinGW. It will download and run the MinGW Installation Manager.
 Select mingw-developer-toolkit, mingw32-base, mingw32-gcc-g++, msys-base,
-and  in the Libraries section, mingw32-pthreads-w32 (dev) and 
-mingw32-libpthreadgc (dev).  ("Mark for Installation"). With these selections, 
+and  in the Libraries section, mingw32-pthreads-w32-dev and 
+mingw32-libpthreadgc-dev.  ("Mark for Installation"). With these selections, 
 autotools, required compilation tools (pkg-config, binutils etc.) and various 
 shell utilities should be also selected automatically. You can select any 
-additional shell tools you may wish to have as well.  Choose Apply Changes 
-from the Packages menu to install or upgrade any extra packages selected.  After 
-installing, run the MinGW Shell from the Start menu (or run msys.bat 
-from C:\MinGW\msys\1.0).  Enter the AMRISim directory (unpacked source 
-package), and follow the steps below to build AMRISim.
+additional shell tools you may wish to have as well.  Then choose "Apply Changes" 
+from the "Installation" menu to install or upgrade any extra packages selected.  After 
+installing, run the MinGW Shell from the Start menu (or navigate to the 
+`C:\MinGW\msys\1.0` directory and run `msys.bat`).  Enter the AMRISim source directory 
+(You can use the `cd /c/` command to switch to the Windows `C:\` drive root), and follow the steps below to build AMRISim.
 
-Note: ARIA is normally built using Visual C++ on Windows, but it must be rebuilt
+Note: ARIA/AriaCoda is normally built using Visual C++ on Windows, but it must be rebuilt
 using MinGW for use with AMRISim.  In addition to being built with a different
 compiler, ARIA uses pthreads and a few other POSIX features when built with
 MinGW rather than Windows implementations; it will still use ws2_32 
 from Windows for network sockets, and winmm for sound playback, joystick
 and other features however.  When you run "make" to build AMRISim,
-it will enter the Aria directory (see below) and rebuild ARIA using MinGW,
-resulting in libAria.a in ARIA's lib directory. If the ARIA environment variable
+it will enter the AriaCoda directory (see below) and rebuild ARIA using MinGW,
+resulting in `libAria.a` in ARIA's `lib` directory. If the `ARIA` environment variable
 is set, then that directory is used to build and find the ARIA library. It defaults
-to /usr/local/Aria which is probably only valid on Linux, so set the ARIA environment
-variable to a location containing the ARIA source code when building in MinGW.
+to `../AriaCoda`, so set the `ARIA` environment
+variable to a location containing the ARIA source code if you are using a different ARIA source directory.
 
 Stage and AMRISim use GTK 2 for the GUI.  GTK libraries for MinGW are
 included in stage/gtk-win and are used automatically when built in MinGW.
 
-The AMRISim Makefile uses the pkg-config tool to query required compiler and
+The AMRISim Makefile uses the `pkg-config` tool to query required compiler and
 linker flags for GTK, so the pkg-config tool must be installed and in 
 your path.  (Or you can manually specify the location of the pkg-config
 tool by setting a PKG_CONFIG variable.)
-
-If you copy or unpack the ARIA source code to ../Aria (next to AMRISim source), then 
-after installing and setting up GTK, you can build AMRISim  like this:
-
-  export ARIA=../Aria
-  make
-
-If the ARIA source code is in a different directory name or location, change the
-name above, using MinGW paths.
 
 AMRISim looks for required resources such as the default model 
 definitions in a default installation directory. To instead use
@@ -167,7 +158,7 @@ are placed in the same directory, which is why this is not neccesary
 except after building from source code.)
 
 More details on how the Windows/MinGW build of the Stage library with
-GTK works is described in stage/README-Windows.txt, including how to 
+GTK works is described in `stage/README-Windows.txt`, including how to 
 generate build files using autotools (additional options are required,
 the AMRISim Makefile uses these if on MinGW). 
 

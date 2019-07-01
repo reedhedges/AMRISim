@@ -12,7 +12,8 @@ for debugging and experimentation.
 
 Current software interfaces available are Pioneer protocol
 (for [ARIA](http://robots.mobilerobots.com/wiki/ARIA) or
-[AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS](http://ros.org) (under development).
+[AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS](http://ros.org) (under development, 
+not included on Windows).
 
 AMRISim can be built on Linux, Windows using MinGW (untested currently) and Mac OSX.
 
@@ -176,7 +177,7 @@ the `ARIA` environment variable before building to change location.)
 
 Run "make" to build.
 
-On Windows, MinGW should be used. (Windows build is currently untested.)
+On Windows, MinGW and MSYS should be used. 
 GTK+ is not needed, it will be included.
 
 Detailed build instructions for each platform are available in

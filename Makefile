@@ -18,12 +18,14 @@
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
 #   ARIA         Location of ARIA library, default is ../AriaCoda TODO change to installation dir
-#   ROSRELEASE   Name of ROS release to use. Default is melodic. 
+#   ROSRELEASE   Name of ROS release to use if ROS enabled. Default is melodic. 
 #
 # Some variables that set build options:
 #   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
 #   AMRISIM_RELEASE   If defined, disable DEBUG (default).
 #   AMRISIM_PROFILE   If defined, then profiling will be enabled with -pg for gprof.
+#   AMRSIM_INCLUDE_ROS If defined, then include ROS interface. Default is yes on Linux, no on Windows
+#   AMRSIM_INCLUDE_PIONEER if defined, then include Pioneer interface.  Default is yes.
 #
 # Used for variations on the tar.gz bindist package:
 #   TAR_DIRECTORY       If defined, put files to be tarred in a new directory with this name, rather than AMRISim-$(VERSION). 
@@ -79,6 +81,10 @@ DATESTR:=$(shell date +'%B %e, %Y')
 DEBIAN_PKG_REV_APPEND:=
 # e.g. DEBIAN_PKG_REV_APPEND:="-3"
 RPM_PKG_REV:=0
+
+ifndef ROSRELEASE
+ROSRELEASE:=melodic
+endif
 
 ifeq ($(host),Linux)
 arch:=$(shell dpkg-architecture -qDEB_BUILD_ARCH || echo "")
@@ -212,7 +218,7 @@ ifeq ($(host),MINGW)
 
   platformsuffix:=_WIN
   #SYSTEM_LINK:=-lpthreadGC2 -lwinmm -lws2_32 -lstdc++ 
-  SYSTEM_LINK:=-lwinmm -lws2_32 -lpthread #-lstdc++ 
+  SYSTEM_LINK:=-lpthreadGC-3 -lwinmm -lws2_32 -lpthread #-lstdc++ 
 
   LIBNETPBM:=libnetpbm/lib/libnetpbm.a
 
@@ -225,10 +231,15 @@ $(LIBNETPBM):
   PKG_CONFIG_PATH:=$(PKG_CONFIG_PATH):stage/gtk-win/lib/pkgconfig
   PKG_CONFIG:=stage/gtk-win/bin/pkg-config.exe
 
-  $(info On MinGW, expect GTK libraries and other resources in stage/gtk-win/:)
-  $(info PKG_CONFIG=$(PKG_CONFIG))
-  $(info PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
-  $(info PKG_CONFIG=$(PKG_CONFIG))
+  $(info On MinGW, will expect GTK libraries and other resources in stage/gtk-win/:)
+  $(info      PKG_CONFIG=$(PKG_CONFIG))
+  $(info      PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
+  $(info      PKG_CONFIG=$(PKG_CONFIG))
+
+  $(info Pioneer interface WILL be included)
+  AMRISIM_INCLUDE_PIONEER=yes
+
+  $(info ROS interface WILL NOT be included)
 
 else #else assume Linux or Unix-like (e.g MacOSX):
 
@@ -264,6 +275,11 @@ else #else assume Linux or Unix-like (e.g MacOSX):
 
   PKG_CONFIG=pkg-config
 
+  $(info Pioneer interface WILL be included)
+  AMRISIM_INCLUDE_PIONEER=yes
+  $(info ROS interface WILL be included. ROS must be installed in /opt/$(ROSRELEASE))
+  AMRISIM_INCLUDE_ROS=yes
+
 endif #host is MINGW32 or not
 
 LIBARIA:=$(ARIA)/lib/libAria.a
@@ -271,33 +287,39 @@ ARIA_CFLAGS:=-I$(ARIA)/include
 
 
 SOURCES:=\
-	main.cc \
-	EmulatePioneer.cc \
-	RobotFactory.cc \
-	StageInterface.cc \
-	StageRobotFactory.cc \
-	CrashHandler.cc \
-	Config.cc \
+  main.cc \
+  RobotFactory.cc \
+  StageInterface.cc \
+  StageRobotFactory.cc \
+  CrashHandler.cc \
+  Config.cc \
   MapLoader.cc \
   ClientPacketReceiver.cpp \
   Socket.cc \
-  ListeningSocket.cc \
-  ROSNode.cc
+  ListeningSocket.cc 
 
 HEADERS:=\
-	EmulatePioneer.hh \
-	RobotFactory.hh \
-	StageInterface.hh \
-	StageRobotFactory.hh \
-	Config.hh \
+  RobotFactory.hh \
+  StageInterface.hh \
+  StageRobotFactory.hh \
+  Config.hh \
   MapLoader.hh \
   ClientPacketReceiver.h \
   Socket.hh \
   ListeningSocket.hh \
   RobotFactory.hh \
   util.h \
-  NetworkDiscovery.hh \
-  ROSNode.hh
+  NetworkDiscovery.hh
+
+ifdef AMRISIM_INCLUDE_PIONEER
+SOURCES:=$(SOURCES) EmulatePioneer.cc
+HEADERS:=$(HEADERS) EmulattePioneer.hh
+endif
+
+ifdef AMRISIM_INCLUDE_ROS
+SOURCES:=$(SOURCES) ROSNode.cc
+HEADERS:=$(HEADERS) ROSNode.hh
+endif
 
 _stage_all_src=$(shell ls stage/src/*.c stage/src/*.h stage/src/*.cc stage/src/*.hh)
 _stage_unused_src=$(shell ls stage/src/zoo_* stage/src/p_* stage/src/ptest.c stage/src/stest.c)
@@ -350,20 +372,27 @@ GTK_LINK:=$(GTK_LIBS)
 #		-lXi -lX11 -ldl
 
 
-ifndef ROSRELEASE
-ROSRELEASE:=melodic
-endif
+ROS_CFLAGS:=
+ROS_LINK:=
+
+ifdef AMRISIM_INCLUDE_ROS
+
 
 
 $(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/ros/$(ROSRELEASE).)
 ros_modules_used:=roscpp std_msgs sensor_msgs geometry_msgs tf 
-ROS_CFLAGS:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
+ROS_CFLAGS:=-DAMRISIM_ROS $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
 ROS_LINK:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
 
 # For more info about using ROS from Make or CMake without using catkin etc see https://github.com/gerkey/ros1_external_use
 
+endif
 
-MSIM_CFLAGS := -DAMRISIM_PIONEER -DAMRISIM_ROS -DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" \
+ifdef AMRISIM_INCLUDE_PIONEER
+MSIM_CFLAGS:=-DAMRISIM_PIONEER
+endif
+
+MSIM_CFLAGS:=-DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" $(MSIM_CFLAGS)  \
   -I. $(CFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
 	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS_CFLAGS)
 
