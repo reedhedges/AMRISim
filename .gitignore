@@ -4,13 +4,16 @@ AMRISim
 *.a
 *.so
 .*.sw?
+*~
 Makefile.dep
 *.ipch
 *.bin
 *.pch
+*.exe
 stage/config.log
 stage/config.status
 stage/**/stamp-h1
 stage/stage.pc
 stage/**/Makefile
 stage/doxygen.conf
+stage/autom4te.cache
