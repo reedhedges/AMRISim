@@ -36,3 +36,4 @@
   status/control/config web interface)?
 * Internal client interface to embedded scripting language?
 * LogInterface needs to include multiple identifiers in messages (robot name, interface name, etc.)
+* Modular, configurable position and sensor error implementations. Selectable in configuration, easily implemented in plugin or embedded script (eg callback functions, and easy interface for stage config parameters specific to that module, and interface to robot parameters)
