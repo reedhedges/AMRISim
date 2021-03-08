@@ -1020,6 +1020,11 @@ void stg_gui_fatal_error_dialog(const char* primary_text, const char* secondary_
   stg_rtk_fatal_error_dialog(primary_text, secondary_text, NULL, exit_code, continue_button);
 }
 
+void stg_gui_error_dialog(const char* primary_text, const char* secondary_text, int exit_code)
+{
+  stg_gui_fatal_error_dialog(primary_text, secondary_text, exit_code, TRUE);
+}
+
 void gui_window_request_minimize(gui_window_t* win)
 {
   gtk_window_iconify( GTK_WINDOW(win->canvas->frame) );

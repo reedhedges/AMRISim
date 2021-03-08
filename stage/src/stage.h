@@ -2082,6 +2082,9 @@ void stg_world_display_radians(stg_world_t *w);
 /** Display an error dialog box with options to continue or exit the program. */
 void stg_gui_fatal_error_dialog(const char* primary_text, const char* secondary_text, int exit_code, gboolean continue_button);
 
+/** Same as stg_gui_fatal_error_dialog with TRUE for continue button */
+void stg_gui_error_dialog(const char* primary_text, const char* secondary_text, int exit_code);
+
 
 /// If TRUE (the default value), then display an interactive dialog box for
 /// critical error messages. If FALSE, then log the error and exit the

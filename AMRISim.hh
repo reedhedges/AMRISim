@@ -65,6 +65,7 @@ class ArSocket;
 // -10 through -19 are used by the EmulatePioneer class.
 #define ERR_CRASH -20 // becomes 236
 #define ERR_NO_ROSMASTER -21 // 235
+#define ERR_MODELFILE -22 // 234
 
 
 /* Default real update interval */
