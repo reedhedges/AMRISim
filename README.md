@@ -28,7 +28,8 @@ their own robot models.
 
 If you would like to discuss contributing additions and changes,
 please use the [GitHub page](http://github.com/reedhedges/AMRISim)
-or [contact me](mailto:reedhedges@gmail.com).
+or [contact me](mailto:reedhedges@gmail.com).  See [TODO.txt] for some
+changes that should probably me made.
 
 If you would like to hire me to add interfaces, features, or address
 issues or bugs, please [contact me](mailto:reedhedges@gmail.com).
