@@ -938,6 +938,7 @@ The AMRISim process has the following exit codes:
       247 (-9)    Error changing directory if given --cwd option
       236 (-20)   AMRISim crashed, but crash handler caught signal and logged information to log file.
       235 (-21)   Error finding ROS Master (roscore)
+      234 (-22)   User chose to abort after AMRISim warned about missing model definition file.
       ---------   --------------------------------------------------
 
 Error codes may also be requested in the `SIM_EXIT` command by a client (use
