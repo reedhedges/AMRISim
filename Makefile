@@ -24,8 +24,8 @@
 #   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
 #   AMRISIM_RELEASE   If defined, disable DEBUG (default).
 #   AMRISIM_PROFILE   If defined, then profiling will be enabled with -pg for gprof.
-#   AMRSIM_INCLUDE_ROS If defined, then include ROS interface. Default is yes on Linux, no on Windows
-#   AMRSIM_INCLUDE_PIONEER if defined, then include Pioneer interface.  Default is yes.
+#   AMRISIM_INCLUDE_ROS If set to yes, then include ROS interface. Default is yes on Linux, no on Windows
+#   AMRISIM_INCLUDE_PIONEER if set to yes, then include Pioneer interface.  Default is yes.
 #
 # Used for variations on the tar.gz bindist package:
 #   TAR_DIRECTORY       If defined, put files to be tarred in a new directory with this name, rather than AMRISim-$(VERSION). 
@@ -236,10 +236,19 @@ $(LIBNETPBM):
   $(info      PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
   $(info      PKG_CONFIG=$(PKG_CONFIG))
 
-  $(info Pioneer interface WILL be included)
+ifdef AMRISIM_INCLUDE_PIONEER
+  $(info AMRISIM_INCLUDE_PIONEER was set in environment to $(AMRISIM_INCLUDE_PIONEER). Unset to use default for this platform instead.)
+else
+  $(info Pioneer interface WILL be included by default on Windows. Set AMRISIM_INCLUDE_PIONEER=no to omit.)
   AMRISIM_INCLUDE_PIONEER=yes
+endif
 
-  $(info ROS interface WILL NOT be included)
+ifdef AMRISIM_INCLUDE_ROS
+  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead.)
+else
+  $(info ROS interface WILL NOT be included by default on Windows. Set AMRISIM_INCLUDE_ROS=yes to include.)
+  AMRISIM_INCLUDE_ROS=no
+endif
 
 else #else assume Linux or Unix-like (e.g MacOSX):
 
@@ -275,15 +284,24 @@ else #else assume Linux or Unix-like (e.g MacOSX):
 
   PKG_CONFIG=pkg-config
 
-  $(info Pioneer interface WILL be included)
+ifdef AMRISIM_INCLUDE_PIONEER
+  $(info AMRISIM_INCLUDE_PIONEER was set in environment to $(AMRISIM_INCLUDE_PIONEER). Unset to use default for this platform instead.)
+else
+  $(info Pioneer interface WILL be included by default on Linux. Set AMRISIM_INCLUDE_PIONEER=no to omit.)
   AMRISIM_INCLUDE_PIONEER=yes
-  $(info ROS interface WILL be included. ROS must be installed in /opt/$(ROSRELEASE))
+endif
+
+ifdef AMRISIM_INCLUDE_ROS
+  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead.)
+else
+  $(info ROS interface WILL be included by default on Linux. ROS must be installed in /opt/$(ROSRELEASE). Set AMRISIM_INCLUDE_ROS=no to omit.)
   AMRISIM_INCLUDE_ROS=yes
+endif
 
 endif #host is MINGW32 or not
 
 LIBARIA:=$(ARIA)/lib/libAria.a
-ARIA_CFLAGS:=-I$(ARIA)/include 
+ARIA_CFLAGS:=-I$(ARIA)/include  -I$(ARIA)/include/Aria
 
 
 SOURCES:=\
@@ -311,12 +329,12 @@ HEADERS:=\
   util.h \
   NetworkDiscovery.hh
 
-ifdef AMRISIM_INCLUDE_PIONEER
+ifeq ($(AMRISIM_INCLUDE_PIONEER),yes)
 SOURCES:=$(SOURCES) EmulatePioneer.cc
 HEADERS:=$(HEADERS) EmulattePioneer.hh
 endif
 
-ifdef AMRISIM_INCLUDE_ROS
+ifeq ($(AMRISIM_INCLUDE_ROS),yes)
 SOURCES:=$(SOURCES) ROSNode.cc
 HEADERS:=$(HEADERS) ROSNode.hh
 endif
@@ -375,11 +393,11 @@ GTK_LINK:=$(GTK_LIBS)
 ROS_CFLAGS:=
 ROS_LINK:=
 
-ifdef AMRISIM_INCLUDE_ROS
+ifeq ($(AMRISIM_INCLUDE_ROS),yes)
 
 
 
-$(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/ros/$(ROSRELEASE).)
+$(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROSRELEASE).)
 ros_modules_used:=roscpp std_msgs sensor_msgs geometry_msgs tf 
 ROS_CFLAGS:=-DAMRISIM_ROS $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
 ROS_LINK:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
@@ -388,7 +406,7 @@ ROS_LINK:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib
 
 endif
 
-ifdef AMRISIM_INCLUDE_PIONEER
+ifeq ($(AMRISIM_INCLUDE_PIONEER),yes)
 MSIM_CFLAGS:=-DAMRISIM_PIONEER
 endif
 
@@ -570,7 +588,7 @@ convertBitmapToArMap: convertBitmapToArMap.cc $(LIBARIA)
 help:
 	@echo 'Usage:'
 	@echo '       make help                     This message'
-	@echo '       make all or make AMRISim    Build AMRISim program'
+	@echo '       make all or make AMRISim      Build AMRISim program'
 	@echo '       make debug                    Build AMRISim program in debug mode'
 	@echo '       make clean'
 	@echo '       make install'
@@ -589,6 +607,8 @@ help:
 	@echo '       make dev-deb'
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE to build with profiling information (for use with gprof)'
+	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults)'
+	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS to yes to force inclusion of ROS interface or no to force omission (regardless of platform defaults)'
 
 info:
 	@echo SOURCES=$(SOURCES)
@@ -618,6 +638,9 @@ info:
 	@echo
 	@echo PKG_CONFIG_PATH=$(PKG_CONFIG_PATH)
 	@echo PATH=$(PATH)
+	@echo 
+	@echo AMRISIM_INCLUDE_PIONEER=$(AMRISIM_INCLUDE_PIONEER)
+	@echo AMRISIM_INCLUDE_ROS=$(AMRISIM_INCLUDE_ROS)
 
 $(STAGELIBDIR)/libstage.a $(STAGEDIR)/replace/libreplace.a: $(STAGEDIR)/config.status $(STAGEDIR)/src/*.c $(STAGEDIR)/src/*.h Makefile $(STAGEDIR)/Makefile
 	test -d $(STAGEDIR) || { echo "STAGEDIR \"$(STAGEDIR)\" does not exist. Set STAGEDIR in the environment, or check if there is something wrong with your original source archive or VCS checkout..."; false; }
