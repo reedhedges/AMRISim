@@ -227,7 +227,7 @@ public:
 
   LogInterface(std::string _name) : name(_name) {}
 
-  virtual ~LogInterface() {}
+  //virtual ~LogInterface() {}
 
   /** display fatal error message. this default implementation
       prints it to cerr with some pretty colors followed by a newline.

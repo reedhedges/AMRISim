@@ -47,7 +47,7 @@ public:
   //*listenAddress = NULL, const AMRISim::Options *userOpts = NULL);
   RobotFactory(const std::string& modelName, const AMRISim::Options *userOpts = NULL,
                const char *listenAddress = NULL);
-  virtual ~RobotFactory();
+  //virtual ~RobotFactory();
   ArSocket *open(int port, const char *listenAddress = NULL); ///< Open port and return socket, or NULL on error.
   inline std::string getModelName() const { return myModelName; }
 //  void setCommandsToIgnore(std::set<int> ig) {

@@ -79,10 +79,12 @@ class RobotInterface : public LogInterface {
     {
     }
 
+/*
     virtual ~RobotInterface() {
       //removeStoredRobotInterface(this);
     }
- 
+ */
+
     std::string getRobotName() const { return robotName; }
 
     /** Use the given params struct to store certain parameters retrieved

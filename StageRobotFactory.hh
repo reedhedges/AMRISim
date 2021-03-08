@@ -40,7 +40,7 @@ start_x, double start_y, double start_th, const AMRISim::Options *userOpts);
     mobilesim_get_pose_cb_t get_start_cb, 
     mobilesim_get_bounds_cb_t get_bounds_cb, bool start_outside_bounds,
     const AMRISim::Options *userOpts);
-  virtual ~StageRobotFactory() {} 
+  //virtual ~StageRobotFactory() {} 
 protected:
   virtual RobotInterface *createRobot(const std::string& modelName, const std::string& requestedRobotName = "");
   virtual RobotInterface *createStubRobot(const std::string& modelName, const std::string& requestedRobotName = "");

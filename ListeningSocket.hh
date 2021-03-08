@@ -38,8 +38,8 @@ class RobotFactory;  // Forward declare the class, so that it can be linked
 class ListeningSocket : public ArASyncTask
 {
 public:
-  ListeningSocket();
-  ~ListeningSocket();
+  //ListeningSocket();
+  //~ListeningSocket();
 
   virtual ArSocket *init(int port, RobotFactory *parentFactory, const char *listenAddress = NULL);
   virtual void * runThread(void *arg);

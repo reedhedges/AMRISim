@@ -106,10 +106,11 @@ ArSocket* RobotFactory::open(int port, const char *listenAddress)
 */
 }
 
+/*
 RobotFactory::~RobotFactory()
 {
 }
-
+*/
 
 void RobotFactory::acceptNewClient(unsigned int /*maxTime*/)
 {

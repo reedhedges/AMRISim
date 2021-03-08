@@ -28,6 +28,7 @@
 
 #include "RobotFactory.hh"
 
+/*
 ListeningSocket::ListeningSocket()
 {
   //ArLog::log(ArLog::Normal, "ListeningSocket ctor");
@@ -37,6 +38,7 @@ ListeningSocket::~ListeningSocket()
 {
   //ArLog::log(ArLog::Normal, "ListeningSocket dtor");
 }
+*/
 
 ArSocket *ListeningSocket::init(int port, RobotFactory *parentFactory, const char *listenAddress/* = NULL*/)
 {
