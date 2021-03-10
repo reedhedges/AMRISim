@@ -17,3 +17,5 @@ stage/stage.pc
 stage/**/Makefile
 stage/doxygen.conf
 stage/autom4te.cache
+.vscode/dryrun.log
+checks.json
