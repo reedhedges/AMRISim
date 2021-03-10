@@ -127,24 +127,33 @@ void mobilesim_crash_handler(int signum)
         stg_print_error("AMRISim: Done cleaning up.");
 #endif
 
+        // XXX TODO maybe we should store program arguments as object containing
+        // std::array<std::string> or std::vector<std::string> plus conversion
+        // functions to char*[] (either with pointers into std::string
+        // c_str/data therefore tied to the lifetime of that or as copies).
+
         // Allocate argv: program name + options.argc + --restarting-after-crash:
-        char **argv = (char**) malloc(1 + options.argc + 1 * sizeof(char*));
+        // It will not be freed, we go right into exec().
+        char **argv = (char**) malloc(1 + (size_t)options.argc + 1 * sizeof(char*));
         argv[0] = (char*) progname;
+
+        // Also build up a single string with arguments to print out.
         size_t argstr_len = strlen(progname) + 1; // +1 for NULL
         char *argstr = (char*) malloc(argstr_len);   // concat all argvs for logging
-        strcpy(argstr, progname);
-        argv[1] = "--restarting-after-crash";
+
+        strncpy(argstr, progname, argstr_len);
+        argv[1] = strdup("--restarting-after-crash");
         argstr_len += strlen(" --restarting-after-crash");
         argstr = (char*) realloc(argstr, argstr_len);
-        strcat(argstr, " --restarting-after-crash");
+        strncat(argstr, " --restarting-after-crash", argstr_len);
 
         for(int i = 2; i <= options.argc; ++i)
         {
             argv[i] = options.argv[i-1];
             argstr_len += strlen(argv[i]) + 1; // + 1 for " "
             argstr = (char*) realloc(argstr, argstr_len);
-            strcat(argstr, " ");
-            strcat(argstr, argv[i]);
+            strncat(argstr, " ", 1);
+            strncat(argstr, argv[i], argstr_len-1);
         }
         argv[options.argc+1] = NULL;
         stg_print_error("AMRISim: Restarting AMRISim : %s", argstr);
@@ -155,6 +164,10 @@ void mobilesim_crash_handler(int signum)
 
         // Exec new AMRISim
         execvp(progname, argv);
+        perror("AMRISim: Error in exec()");
+        free(argv[1]); // not neccesary but prevent compiler/analyzer warnings
+        free(argv); // not neccesary but prevent compiler/analyzer warnings
+        abort(); // should never reach here unless execvp had an error and returned
     }
     else
     {
