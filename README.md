@@ -110,9 +110,9 @@ information about robots is logged and reported via Pioneer connection.)
 See below for ROS topics.
 
 ![Connection Diagram](connection-diagram.png)
-`
 
-Features
+
+Features Summary
 --------
 
 AMRISim (powered by Stage) has the following features
@@ -166,7 +166,8 @@ models.
 Building
 --------
 
-To build AMRISim, AriaCoda or ARIA, and ROS melodic are required.
+To build AMRISim, AriaCoda or ARIA, and ROS melodic are required (see
+[BUILD.md](BUILD.md) for how to omit ROS support).
 
 On Linux, GTK+ 2.x development packages are also needed, as well as
 g++, make, libtool, automake and autoconf.
@@ -1314,9 +1315,26 @@ The following commands are normally disabled, but can be re-enabled with the
     OLD_SETORIGINTH     68         int         ...Theta
     OLD_RESET_TO_ORIGIN     69     none        Reset true X Y, TH to 0,0,0
 
+Miscellaneous Features
+--------------
 
-Simulated Robot Service Discovery
----------------------------------
+### Crash Handler
+
+If a crash occurs, AMRISim attempts to log debugging information before exiting.
+If the "gdbhelper" script is available, this
+will be used to run the gdb debugger to log stack trace and thread information
+as well.
+Any log files (if log files were enabled with ) will also be saved with a "-crash"
+suffix before restarting.
+This behavior my be disabled with the `--disable-crash-handler` command-line
+argument.  In noninteractive mode (`--noninteractive`), AMRISim will also
+attempt to restart (with the same command-line options). Note: restarting
+AMRISim will only work if AMRISim is installed in the default installation
+location.  If AMRISim was restarted after a crash, a flag will be set in the 
+`SIMINFO` packet indicating this.  The crash handler is triggered by a 
+SIGABRT, SIGSEGV, SIGILL, SIGFPE or SIGBUS signal.  
+
+### Simulated Robot Service Discovery
 
 AMRISim will respond to requests sent using a simple
 broadcast protocol based on the Lantronix Discovery Protocol, 

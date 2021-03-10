@@ -1,11 +1,7 @@
 
-=========================================
-AMRISim Source Code Information:
- * Building AMRISim 
- * How AMRISim works
-=========================================
 
-Reed Hedges <reed@mobilerobots.com>
+AMRISim Build Instructions and Internal Developer Information
+==========================
 
 This document provides an overview of AMRISim for people interested in
 compiling AMRISim from source, modifying AMRISim, or just understanding 
@@ -30,7 +26,6 @@ see the file LICENSE.txt for details.
 
 
 
-----------------------------
 Modifying AMRISim or Stage
 ----------------------------
 
@@ -42,31 +37,22 @@ GPL as well, if you also distribute the modified program.  See
 LICENSE.txt for the details.
 
 If you do make any modifications and would like to share them, please
-do so via the appropriate channel:
- * For modifications to Stage (libstage), you can share the change with all
-   Stage developers and users (not just AMRISim developers and users) via 
-   the patch tracker and mailing list at <http://playerstage.sf.net>. 
- * For modifications to just AMRISim (emulatePioneer; AMRISim main.cc or tools)
-   post them to the public aria-users mailing list or email them to MobileRobots
-   technical support. See <http://robots.mobilerobots.com>
-
-If you have any questions about how AMRISim works or about modifying it,
-please discuss on the aria-users mailing list.
+do so via a pull request or issue report on the github page
+<http://github.com/reedhedges/AMRISim>, or contact me.
 
 
-
-----------------------------------
 How to Compile Stage and AMRISim
 ----------------------------------
 
+Both Pioneer and ROS support are included by default.  To omit ROS or Pioneer
+support, see instructions below.
 
-Linux
------
+### Linux
 
 To build AMRISim on Linux, you will need ROS melodic, 
 Aria or AriaCoda, GTK 2.x, including 
 development packages, and the full GNU development tools: 
-G++ (3.2 or later), make, libtool, automake, and autoconf.  
+G++, make, libtool, automake, and autoconf.  
 If you have multiple versions of automake or autoconf, or have
 them installed somewhere unusual, you can choose which commands
 to use by setting the AUTOMAKE, AUTOCONF, AUTORECONF and ACLOCAL
@@ -80,19 +66,19 @@ directory to build both libstage.a and AMRISim.  Then run
 
 On Debian and Ubuntu Linux, you can use apt or apt-get to install the required
 packages as follows:
-  apt install libgtk2.0-dev automake autoconf libtool make g++
+    apt install libgtk2.0-dev automake autoconf libtool make g++
 
 Follow the instructions from ROS to install ROS melodic.  ROS melodic
 is expected to be installed in /opt/ros/melodic.
 
 The ROS environment must be setup before building:
   
-  . /opt/ros/melodic/setup.bash
+    . /opt/ros/melodic/setup.bash
 
 Follow the instructions below to build AMRISim.
 
-Windows (MinGW)
----------------
+
+### Windows (MinGW)
 
 On Windows, you must use MinGW  (http://www.mingw.org) 
 to build AMRISim. Download the MinGW-Get setup tool and run it to begin 
@@ -134,12 +120,12 @@ the source directory, set the AMRISIM environment variable prior
 to running AMRISim. You can set to the directory from which
 you launch AMRISim like this:
 
-  export AMRISIM=.
+    export AMRISIM=.
 
 Or use the "pwd" command to set it to the current directory at time
 you set the variable:
 
-  export AMRISIM=`pwd`
+    export AMRISIM=`pwd`
 
 The GTK DLLs must be in the system path, or in the same directory as 
 AMRISim, in order to run AMRISim on Linux.  (If not, you will see
@@ -147,11 +133,11 @@ an error such as "The program can't start because libgdk-win32-2.0-0.dll
 is missing from your computer...".   So to run AMRISim from
 the MSYS shell after building, add stage/gtk-win/bin to your PATH:
 
-  export PATH=$PATH:stage/gtk-win/bin
+    export PATH=$PATH:stage/gtk-win/bin
 
 Then you can run AMRISim:
 
-  ./AMRISim.exe
+    ./AMRISim.exe
 
 (When installed on the system from an installer package, they
 are placed in the same directory, which is why this is not neccesary
@@ -163,8 +149,7 @@ generate build files using autotools (additional options are required,
 the AMRISim Makefile uses these if on MinGW). 
 
 
-Mac OSX
--------
+### Mac OSX
 
 It is possible to build AMRISim for OSX 10.04 (Tiger) or later using the 
 OSX port of GTK.
@@ -188,9 +173,9 @@ Follow the instructions below to build AMRISim, but add the tools installed
 for GTK to a GTK_DIR variable and your PATH first. For example, if you downloaded 
 and built GTK in a "gtk" directory in your home directory:
 
-   export GTK_DIR=~/gtk/inst
-   export PKG_CONFIG_PATH=$GTK_DIR/lib/pkgconfig
-   export PATH=$PATH:$GTK_DIR/bin
+     export GTK_DIR=~/gtk/inst
+     export PKG_CONFIG_PATH=$GTK_DIR/lib/pkgconfig
+     export PATH=$PATH:$GTK_DIR/bin
 
 If you placed GTK in another directory instead, replace "~/gtk" with that 
 location.
@@ -201,21 +186,21 @@ the source directory, set the AMRISIM environment variable prior
 to running AMRISim. You can set to the directory from which
 you launch AMRISim like this:
 
-  export AMRISIM=.
+    export AMRISIM=.
 
 Or use the "pwd" command to set it to the current directory at time
 you set the variable:
 
-  export AMRISIM=`pwd`
+    export AMRISIM=`pwd`
 
 Then you can run the bare AMRISim executable:
 
-  ./AMRISim
+    ./AMRISim
 
 An application bundle is also built, AMRISim.app, which you can
 launch by double clicking in the Finder or with the open command:
 
-  open AMRISim.app
+    open AMRISim.app
 
 
 Building AMRISim
@@ -224,70 +209,74 @@ Building AMRISim
 Unless an ARIA environment variable was set, AMRISim looks for 
 ARIACoda in an "../AriaCoda" directory (in the parent directory, i.e.
 both the AriaCoda source code and AMRISim source code should be
-in the same parent directory).  If you want to use the version of
+in the same parent directory).  
+
+If you want to use the version of
 ARIA already installed on your system, set the ARIA environment variable to 
 its installation location:
 
 For Linux:
-  export ARIA=/usr/local/Aria
+    export ARIA=/usr/local/Aria
 
 For Windows with MinGW:
-  export ARIA="/c/Program Files/MobileRobots/Aria"
+    export ARIA="/c/Program Files/MobileRobots/Aria"
 
 Or, if you have unpacked and built the ARIA source code in ~/ARIA-src-2.9.2:
-  export ARIA=~/ARIA-src-2.9.2
+    export ARIA=~/ARIA-src-2.9.2
 
 AMRISim uses `pkg-config` to determine appropriate build flags for ROS.
 To allow `pkg-config` to determine these, the ROS build/run environment 
 must be imported  before building AMRISim:
 
-  . /opt/ros/melodic/setup.bash
+    . /opt/ros/melodic/setup.bash
 
 When building AMRISim, you can set environment variables that affect
 compilation options:
  
-  CXX                     Set the C++ compiler; if unset, "c++" is used.
+    CXX                     Set the C++ compiler; if unset, "c++" is used.
 
-  CC                      Set the C compiler; if unset, "cc" is used.
+    CC                      Set the C compiler; if unset, "cc" is used.
 
-  CFLAGS                  Additional compilation flags for C.
+    CFLAGS                  Additional compilation flags.
+    
+    LFLAGS                  Additional linker flags.
   
-  CXXFLAGS                Additional compilation flags for C++.
-
-  LFLAGS                  Additional linker flags.
-
-  AMRISIM_DEBUG         Build AMRISim with optimizations disabled and
-                          debugging enabled if set.
-
-  AMRISIM_RELEASE       Build with optimizations enabled and debugging
-                          disabled. This is the default state.
-
-  AMRISIM_PROFILE       Build with profiling enabled with -pg; analyze later
-                          with gprof.
-
-  prefix                  Installation directory base (default is /usr/local)
-   
-  DESTDIR                 Alternate root for installation (default is none,
-                          therefore the root filesystem is used).
-
-  STAGEDIR                Alternate Stage directory (default is stage/)
-
-  STAGELIBDIR             Alternate Stage library directory (default is
-                          stage/src/.libs)
-
-  AUTORECONF		          autoreconf command
-
-  AUTOCONF                autoconf command
-
-  ACLOCAL                 aclocal command
-
-  AUTOMAKE                automake command
-
-  ROSRELEASE              ROS release distribution name (default is melodic)
+    AMRISIM_DEBUG         Build AMRISim with optimizations disabled and
+                            debugging enabled if set.
+  
+    AMRISIM_RELEASE       Build with optimizations enabled and debugging
+                            disabled. This is the default state.
+  
+    AMRISIM_PROFILE       Build with profiling enabled with -pg; analyze later
+                            with gprof.
+  
+    prefix                  Installation directory base (default is /usr/local)
+     
+    DESTDIR                 Alternate root for installation (default is none,
+                            therefore the root filesystem is used).
+  
+    STAGEDIR                Alternate Stage directory (default is stage/)
+  
+    STAGELIBDIR             Alternate Stage library directory (default is
+                            stage/src/.libs)
+  
+    AUTORECONF		          autoreconf command
+  
+    AUTOCONF                autoconf command
+  
+    ACLOCAL                 aclocal command
+  
+    AUTOMAKE                automake command
+  
+    ROSRELEASE              ROS release distribution name (default is melodic)
+  
+    AMRISIM_INCLUDE_PIONEER Include (yes) or omit (no) Pioneer support (see details below)
+  
+    AMRISIM_INCLUDE_ROS    Include (yes) or omit (no) ROS support (see details below)
 
 For example, to build with debugging options enabled:
 
-  make AMRISIM_DEBUG=1
+    make AMRISIM_DEBUG=1
 
 
 You can also edit Makefile if neccesary.
@@ -308,6 +297,37 @@ was not set.
 For example, if you want to run AMRISim after building it in a source 
 directory ~/AMRISim:
 
-  export AMRISIM=~/AMRISim
-  ./AMRISim
+    export AMRISIM=~/AMRISim
+    ./AMRISim
+
+### How to omit ROS or Pioneer support
+
+To omit ROS or Pioneer support, set the `AMRISIM_INCLUDE_PIONEER` or
+`AMRISIM_INCLUDE_ROS` variables to "no" when building. For example:
+
+    make AMRISIM_INCLUDE_ROS=no
+
+or
+
+    make AMRISIM_INCLUDE_PIONEER=no
+
+NOTE: If you want to rebuild AMRISim with different options for
+`AMRISIM_INCLUDE_PIONEER` or `AMRISIM_INCLUDE_ROS` you must also
+rebuild the `make` dependencies (`Makefile.dep`) to include or omit 
+source files and headers containing ROS and Pioneer support. Do 
+so with the `dep` rule and the desired variable value:
+
+    make dep AMRISIM_INCLUDE_ROS=no
+    make AMRISIM_INCLUDEROS=no
+
+Or together:
+
+    make dep all AMRISIM_INCLUDE_ROS=no
+
+You can also set environment variables as well:
+
+    export AMRISIM_INCLUDEROS=no
+    make dep
+    make all
+
 
