@@ -1,17 +1,23 @@
 {
     "configurations": [
         {
-            "name": "Linux-ariacoda-rosmelodic",
+            "name": "default",
             "includePath": [
                 "${workspaceFolder}/**",
+                "../AriaCoda/include/Aria",
                 "../AriaCoda/include",
                 "/opt/ros/melodic/include/**"
+            ],
+            "browse.path": [
+                "${workspaceFolder}",
+                "../AriaCoda/include/Aria",
+                "../AriaCoda/include",
+                "/opt/ros/melodic/include"
             ],
             "defines": [
                 "AMRISIM_PIONEER",
                 "AMRISIM_ROS",
-                "AMRISIM_VERSION=xxx",
-                "AMRISIM_BUILDDATE=xxx"
+                "AMRISIM_VERSION=\"vscodesyntaxcheckingonly\""
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",

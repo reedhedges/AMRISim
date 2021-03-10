@@ -1,0 +1,53 @@
+
+// https://code.visualstudio.com/docs/editor/tasks
+// I recommend the simple "Tasks" extension for a really basic and easy way to run these tasks from buttons on the status bar
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "make (default)",
+      "command": "make",
+      "type": "shell",
+      "args": [
+        "-j4"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always"
+      },
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "make AMRISIM_INCLUDE_ROS=no",
+      "command": "make",
+      "type": "shell",
+      "args": [ "-j4", "AMRISIM_INCLUDE_ROS=no" ],
+      "problemMatcher": [ "$gcc" ],
+      "presentation": { "reveal": "always" },
+      "group": "build"
+    },
+
+    {
+      "label": "make clean",
+      "command": "make",
+      "type": "shell",
+      "args": [ "clean" ],
+      "problemMatcher": [ "$gcc" ],
+      "presentation": { "reveal": "always" },
+      "group": "build"
+    },
+    {
+      "label": "make cleanAMRISim (only)",
+      "command": "make",
+      "type": "shell",
+      "args": [ "cleanAMRISim" ],
+      "problemMatcher": [ "$gcc" ],
+      "presentation": { "reveal": "always" },
+      "group": "build"
+    }
+
+  ]
+}
