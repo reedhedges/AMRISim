@@ -52,7 +52,7 @@
 
 
 ifdef TRACE
-REAL_SHELL:=$(SHELL)
+REAL_SHELL = $(SHELL)
 SHELL=$(warning at rule   $@.   Modified prerequisites are: [$?]    All prerequisites are: [$^])$(REAL_SHELL)
 endif
 
@@ -62,36 +62,36 @@ endif
 
 default: all
 
-host:=$(shell uname | cut -d _ -f 1)
+host = $(shell uname | cut -d _ -f 1)
 
 DATESTAMP=$(shell date +'%Y%m%d')
 
 ifndef VERSION
 ifeq (dist/version.num,$(wildcard dist/version.num))
-VERSION:=$(shell cat dist/version.num)
+VERSION = $(shell cat dist/version.num)
 VERSION_NUM_FILE=dist/version.num
 else
-VERSION:=dev$(DATESTAMP)
+VERSION = dev$(DATESTAMP)
 VERSION_NUM_FILE=
 endif
 endif
 
-DATESTR:=$(shell date +'%B %e, %Y')
+DATESTR = $(shell date +'%B %e, %Y')
 
-DEBIAN_PKG_REV_APPEND:=
-# e.g. DEBIAN_PKG_REV_APPEND:="-3"
-RPM_PKG_REV:=0
+DEBIAN_PKG_REV_APPEND = 
+# e.g. DEBIAN_PKG_REV_APPEND = "-3"
+RPM_PKG_REV = 0
 
 ifndef ROSRELEASE
-ROSRELEASE:=melodic
+ROSRELEASE = melodic
 endif
 
 ifeq ($(host),Linux)
-arch:=$(shell dpkg-architecture -qDEB_BUILD_ARCH || echo "")
-debver:=$(shell cat /etc/debian_version | tr '/\\ \t' '-' | cut -d '.' -f 1)
+arch = $(shell dpkg-architecture -qDEB_BUILD_ARCH || echo "")
+debver = $(shell cat /etc/debian_version | tr '/\\ \t' '-' | cut -d '.' -f 1)
 ifneq ($(debver), 6)
 $(info debver=$(debver))
-SYSTEM_SUFFIX:=+debian$(debver)
+SYSTEM_SUFFIX = +debian$(debver)
 endif
 endif
 
@@ -101,10 +101,10 @@ endif
 
 ifneq ($(arch), i386)
 $(info arch=$(arch))
-SYSTEM_SUFFIX:=$(SYSTEM_SUFFIX)+$(arch)
+SYSTEM_SUFFIX+=+$(arch)
 endif
 
-ICONSET:=$(shell find icons.iconset)
+ICONSET = $(shell find icons.iconset)
 
 # TODO automatically use debchange to change debian changelog (see aria/arnl
 # makefiles)
@@ -130,37 +130,37 @@ SOURCE_DISTRIBUTED_FILES_EXEC=stage/configure stage/config.guess stage/config.su
 
 SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 
-CFLAGS+=-DAMRISIM
+CFLAGS += -std=c++17 -Wall -Wextra -Wconversion -DAMRISIM
 
 
 
 ifdef AMRISIM_DEBUG
 
 $(info Debug build)
-CFLAGS+=-g -O0 -Wall -W -Wconversion # -W is the same as -Wextra but supported by gcc 2
-STAGE_CONFIGURE_ARGS:=--disable-optimize --enable-debug 
-datestamp:=$(shell date +%Y%m%d)
+CFLAGS += -g -O0
+STAGE_CONFIGURE_ARGS = --disable-optimize --enable-debug 
+datestamp = $(shell date +%Y%m%d)
 -include lastDevReleaseVer
 ifdef lastDevReleaseVer
-lastDevReleaseVerDatestamp:=$(shell echo $(lastDevReleaseVer) | cut -d '.' -f 1)
-lastDevReleaseVerRev:=$(shell echo $(lastDevReleaseVer) | cut -d '.' -f 2)
+lastDevReleaseVerDatestamp = $(shell echo $(lastDevReleaseVer) | cut -d '.' -f 1)
+lastDevReleaseVerRev = $(shell echo $(lastDevReleaseVer) | cut -d '.' -f 2)
 ifeq ($(lastDevReleaseVerDatestamp),$(datestamp))
  ifeq ($(lastDevReleaseVerDatestamp),$(lastDevReleaseVerRev))
   # has no revision
-  DEV_RELEASE_VER:=$(datestamp).1
+  DEV_RELEASE_VER = $(datestamp).1
  else
   # increment revision
-  DEV_RELEASE_VER:=$(datestamp).$(shell let foo=$(lastDevReleaseVerRev)+1; echo $$foo)
+  DEV_RELEASE_VER = $(datestamp).$(shell let foo=$(lastDevReleaseVerRev)+1; echo $$foo)
  endif
 else
   # new date
-  DEV_RELEASE_VER:=$(datestamp)
+  DEV_RELEASE_VER = $(datestamp)
 endif #ifeq lastDevRelease, datestamp
 else
-  DEV_RELEASE_VER:=$(datestamp)
+  DEV_RELEASE_VER = $(datestamp)
 endif #ifdef lastDevReleaseVer
 # In debug mode, replace version with special dev tag with timestamp:
-VERSION:=$(VERSION)-dev$(DEV_RELEASE_VER)
+VERSION = $(VERSION)-dev$(DEV_RELEASE_VER)
 
 dist-all:
 	$(warning Re-running make dist-all with AMRISIM_RELEASE=1)
@@ -168,10 +168,10 @@ dist-all:
 
 else
 
-CFLAGS+=-O2
-STAGE_CONFIGURE_ARGS:=--enable-debug --enable-optimize=2 
+CFLAGS += -O2
+STAGE_CONFIGURE_ARGS = --enable-debug --enable-optimize=2 
 
-LFLAGS+=$(RELEASE_EXTRA_LFLAGS)
+LFLAGS += $(RELEASE_EXTRA_LFLAGS)
 
 dist-all: all
 
@@ -179,18 +179,18 @@ endif	 #ifdef AMRISIM_RELEASE
 
 
 ifdef AMRISIM_PROFILE
-CXX+=-pg -g -O0
-CC+=-pg -g -O0
-STAGE_CONFIGURE_ARGS+=--enable-profile --enable-debug --disable-optimize
+CXX += -pg -g -O0
+CC += -pg -g -O0
+STAGE_CONFIGURE_ARGS += --enable-profile --enable-debug --disable-optimize
 endif	 #AMRISIM_PROFILE
 
 
 ifndef TAR_DIRECTORY
-TAR_DIRECTORY:=AMRISim-$(VERSION)
+TAR_DIRECTORY = AMRISim-$(VERSION)
 endif
 
 ifndef ARIA
-ARIA=../AriaCoda
+ARIA = ../AriaCoda
 endif
 
 #### Different options for Windows or Linux:
@@ -210,26 +210,26 @@ ifeq ($(host),MINGW)
 
   ifdef AMRISIM_DEBUG
     # Omitting -mwindows makes it show stdout to a DOS command window:
-    CFLAGS+=-mms-bitfields -DMINGW -D__MINGW__ -DARIA_STATIC
+    CFLAGS += -mms-bitfields -DMINGW -D__MINGW__ -DARIA_STATIC
   else
-    CFLAGS+=-mwindows -mms-bitfields -DMINGW -D__MINGW__ -DARIA_STATIC
+    CFLAGS += -mwindows -mms-bitfields -DMINGW -D__MINGW__ -DARIA_STATIC
   endif #AMRISIM_DEBUG
-  binary_suffix:=.exe
+  binary_suffix = .exe
 
-  platformsuffix:=_WIN
-  #SYSTEM_LINK:=-lpthreadGC2 -lwinmm -lws2_32 -lstdc++ 
-  SYSTEM_LINK:=-lpthreadGC-3 -lwinmm -lws2_32 -lpthread #-lstdc++ 
+  platformsuffix = _WIN
+  #SYSTEM_LINK = -lpthreadGC2 -lwinmm -lws2_32 -lstdc++ 
+  SYSTEM_LINK = -lpthreadGC-3 -lwinmm -lws2_32 -lpthread #-lstdc++ 
 
-  LIBNETPBM:=libnetpbm/lib/libnetpbm.a
+  LIBNETPBM = libnetpbm/lib/libnetpbm.a
 
 $(LIBNETPBM):
 	$(MAKE) -C libnetpbm
 
   ARIA_LINK=-L$(ARIA)/lib -Wl,-Bstatic -lAria -Wl,-Bdynamic -lm
-  STAGE_AUTOCONF_ARGS:=-I gtk-win/share/aclocal
+  STAGE_AUTOCONF_ARGS = -I gtk-win/share/aclocal
 
-  PKG_CONFIG_PATH:=$(PKG_CONFIG_PATH):stage/gtk-win/lib/pkgconfig
-  PKG_CONFIG:=stage/gtk-win/bin/pkg-config.exe
+  PKG_CONFIG_PATH = $(PKG_CONFIG_PATH):stage/gtk-win/lib/pkgconfig
+  PKG_CONFIG = stage/gtk-win/bin/pkg-config.exe
 
   $(info On MinGW, will expect GTK libraries and other resources in stage/gtk-win/:)
   $(info      PKG_CONFIG=$(PKG_CONFIG))
@@ -237,35 +237,35 @@ $(LIBNETPBM):
   $(info      PKG_CONFIG=$(PKG_CONFIG))
 
 ifdef AMRISIM_INCLUDE_PIONEER
-  $(info AMRISIM_INCLUDE_PIONEER was set in environment to $(AMRISIM_INCLUDE_PIONEER). Unset to use default for this platform instead.)
+  $(info AMRISIM_INCLUDE_PIONEER was set in environment to $(AMRISIM_INCLUDE_PIONEER). Unset to use default for this platform instead, and rebuild make dependencies using "make dep all".)
 else
-  $(info Pioneer interface WILL be included by default on Windows. Set AMRISIM_INCLUDE_PIONEER=no to omit.)
+  $(info Pioneer interface WILL be included by default on Windows. Set AMRISIM_INCLUDE_PIONEER=no to omit and build new make dependencies using "make dep all")
   AMRISIM_INCLUDE_PIONEER=yes
 endif
 
 ifdef AMRISIM_INCLUDE_ROS
-  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead.)
+  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead, and build new make dependencies "make dep all")
 else
-  $(info ROS interface WILL NOT be included by default on Windows. Set AMRISIM_INCLUDE_ROS=yes to include.)
+  $(info ROS interface WILL NOT be included by default on Windows. Set AMRISIM_INCLUDE_ROS=yes to include and build new make dependencies using "make dep all")
   AMRISIM_INCLUDE_ROS=no
 endif
 
 else #else assume Linux or Unix-like (e.g MacOSX):
 
-  CFLAGS+=-fPIC
-  SYSTEM_LINK:=-ldl -lm
-  LIBNETPBM:=-lnetpbm
-  ARIA_LINK=$(ARIA)/lib/libAria.a
-  platformsuffix:=_LIN
+  CFLAGS += -fPIC
+  SYSTEM_LINK = -ldl -lm
+  LIBNETPBM = -lnetpbm
+  ARIA_LINK = $(ARIA)/lib/libAria.a
+  platformsuffix = _LIN
 
   ifeq ($(host),Darwin)
     $(info Building on Mac OSX (Darwin))
-    CFLAGS+=-DMACOSX
+    CFLAGS += -DMACOSX
     ifdef GTK_DIR
       $(info GTK_DIR environment variable set to $(GTK_DIR) will look there for GTK)
-      PATH:=$(PATH):$(GTK_DIR)/bin
-      PKG_CONFIG_PATH:=$(PKG_CONFIG_PATH):$(GTK_DIR)/lib/pkgconfig:$(GTK_DIR)/share/pkgconfig
-      STAGE_AUTOCONF_ARGS:=-I $(GTK_DIR)/share/aclocal
+      PATH = $(PATH):$(GTK_DIR)/bin
+      PKG_CONFIG_PATH = $(PKG_CONFIG_PATH):$(GTK_DIR)/lib/pkgconfig:$(GTK_DIR)/share/pkgconfig
+      STAGE_AUTOCONF_ARGS = -I $(GTK_DIR)/share/aclocal
     else
       $(warning Warning: GTK_DIR environment variable not set. Build may fail unless GTK has been installed on the system in default locations.)
     endif
@@ -277,35 +277,34 @@ else #else assume Linux or Unix-like (e.g MacOSX):
     AUTOHEADER=$(GTK_DIR)/bin/autoheader
   else
     SYSTEM_LINK+=-lrt
-    STAGE_AUTOCONF_ARGS:=
-    #ARIA_LINK:=-L$(ARIA)/lib -Wl,-Bstatic -lAria -Wl,-Bdynamic  
+    STAGE_AUTOCONF_ARGS = 
+    #ARIA_LINK = -L$(ARIA)/lib -Wl,-Bstatic -lAria -Wl,-Bdynamic  
     RELEASE_EXTRA_LFLAGS=-Wl,--gc-sections
   endif
 
   PKG_CONFIG=pkg-config
 
 ifdef AMRISIM_INCLUDE_PIONEER
-  $(info AMRISIM_INCLUDE_PIONEER was set in environment to $(AMRISIM_INCLUDE_PIONEER). Unset to use default for this platform instead.)
+  $(info AMRISIM_INCLUDE_PIONEER was set in environment to $(AMRISIM_INCLUDE_PIONEER). Unset to use default for this platform instead. Rebuild with new make dependencies using "make dep all".)
 else
-  $(info Pioneer interface WILL be included by default on Linux. Set AMRISIM_INCLUDE_PIONEER=no to omit.)
+  $(info Pioneer interface WILL be included by default on Linux. Set AMRISIM_INCLUDE_PIONEER=no to omit. Rebuild with new make dependencies using "make dep all".)
   AMRISIM_INCLUDE_PIONEER=yes
 endif
 
 ifdef AMRISIM_INCLUDE_ROS
-  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead.)
+  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead. Rebuild with new make dependencies using "make dep all".)
 else
-  $(info ROS interface WILL be included by default on Linux. ROS must be installed in /opt/$(ROSRELEASE). Set AMRISIM_INCLUDE_ROS=no to omit.)
+  $(info ROS interface WILL be included by default on Linux. ROS must be installed in /opt/$(ROSRELEASE). Set AMRISIM_INCLUDE_ROS=no to omit. Rebuild with new make dependencies using "make dep all".)
   AMRISIM_INCLUDE_ROS=yes
 endif
 
 endif #host is MINGW32 or not
 
-LIBARIA:=$(ARIA)/lib/libAria.a
-ARIA_CFLAGS:=-I$(ARIA)/include  -I$(ARIA)/include/Aria
+LIBARIA = $(ARIA)/lib/libAria.a
+ARIA_CFLAGS = -I$(ARIA)/include  -I$(ARIA)/include/Aria
 
 
-SOURCES:=\
-  main.cc \
+SOURCES = main.cc \
   RobotFactory.cc \
   StageInterface.cc \
   StageRobotFactory.cc \
@@ -316,8 +315,7 @@ SOURCES:=\
   Socket.cc \
   ListeningSocket.cc 
 
-HEADERS:=\
-  RobotFactory.hh \
+HEADERS = RobotFactory.hh \
   StageInterface.hh \
   StageRobotFactory.hh \
   Config.hh \
@@ -330,13 +328,13 @@ HEADERS:=\
   NetworkDiscovery.hh
 
 ifeq ($(AMRISIM_INCLUDE_PIONEER),yes)
-SOURCES:=$(SOURCES) EmulatePioneer.cc
-HEADERS:=$(HEADERS) EmulattePioneer.hh
+SOURCES += EmulatePioneer.cc
+HEADERS += EmulatePioneer.hh
 endif
 
 ifeq ($(AMRISIM_INCLUDE_ROS),yes)
-SOURCES:=$(SOURCES) ROSNode.cc
-HEADERS:=$(HEADERS) ROSNode.hh
+SOURCES += ROSNode.cc
+HEADERS += ROSNode.hh
 endif
 
 _stage_all_src=$(shell ls stage/src/*.c stage/src/*.h stage/src/*.cc stage/src/*.hh)
@@ -344,38 +342,38 @@ _stage_unused_src=$(shell ls stage/src/zoo_* stage/src/p_* stage/src/ptest.c sta
 STAGE_SRC=$(filter-out $(_stage_unused_src),$(_stage_all_src))
   
 
-OBJS:=$(patsubst %.cc,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
+OBJS = $(patsubst %.cc,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
 
 
-CFLAGS+=-I/usr/local/include
-LFLAGS+=-L/usr/local/lib
+CFLAGS += -I/usr/local/include
+LFLAGS += -L/usr/local/lib
 
 ifndef STAGEDIR
-STAGEDIR:=stage
+STAGEDIR = stage
 endif
 
 ifndef STAGELIBDIR
-STAGELIBDIR:=$(STAGEDIR)/src
+STAGELIBDIR = $(STAGEDIR)/src
 endif
 
 # Root directory that install is relative too. Normally relative 
 # to nothing (i.e. in /)
 ifndef DESTDIR
-DESTDIR:=
+DESTDIR = 
 endif
 
-STAGELIBS:=$(STAGELIBDIR)/libstage.a $(STAGEDIR)/replace/libreplace.a
+STAGELIBS = $(STAGELIBDIR)/libstage.a $(STAGEDIR)/replace/libreplace.a
 
 
 # Run pkg-config to get GTK flags: 
 #GTK_LIBS=`pkg-config --libs gtk+-2.0`
 #GTK_CFLAGS=`pkg-config --cflags gtk+-2.0`
-GTK_LIBS:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" $(PKG_CONFIG) --libs gtk+-2.0)
-GTK_CFLAGS:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" $(PKG_CONFIG) --cflags gtk+-2.0)
+GTK_LIBS = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" $(PKG_CONFIG) --libs gtk+-2.0)
+GTK_CFLAGS = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" $(PKG_CONFIG) --cflags gtk+-2.0)
 $(info ok)
 
 # For dynamic linkage (always works fine):
-GTK_LINK:=$(GTK_LIBS)
+GTK_LINK = $(GTK_LIBS)
 
 # A try at static linkage, has mysterious problems with gobject initialization at runtime:
 #GTK_CFLAGS=`pkg-config --cflags --static gtk+-2.0`
@@ -390,47 +388,47 @@ GTK_LINK:=$(GTK_LIBS)
 #		-lXi -lX11 -ldl
 
 
-ROS_CFLAGS:=
-ROS_LINK:=
+#ROS_CFLAGS= 
+#ROS_LINK= 
 
 ifeq ($(AMRISIM_INCLUDE_ROS),yes)
 
 
 
 $(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROSRELEASE).)
-ros_modules_used:=roscpp std_msgs sensor_msgs geometry_msgs tf 
-ROS_CFLAGS:=-DAMRISIM_ROS $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
-ROS_LINK:=$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
+ros_modules_used = roscpp std_msgs sensor_msgs geometry_msgs tf 
+ROS_CFLAGS = -DAMRISIM_ROS $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
+ROS_LINK = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
 
 # For more info about using ROS from Make or CMake without using catkin etc see https://github.com/gerkey/ros1_external_use
 
 endif
 
 ifeq ($(AMRISIM_INCLUDE_PIONEER),yes)
-MSIM_CFLAGS:=-DAMRISIM_PIONEER
+MSIM_CFLAGS = -DAMRISIM_PIONEER
 endif
 
-MSIM_CFLAGS:=-DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" $(MSIM_CFLAGS)  \
+MSIM_CFLAGS += -DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" \
   -I. $(CFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
 	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS_CFLAGS)
 
-MSIM_LFLAGS := $(LFLAGS) 
+MSIM_LFLAGS  =  $(LFLAGS) 
 
 
 # For installation:
 ifndef INSTALL_DIR
-INSTALL_DIR:=/usr/local/AMRISim
+INSTALL_DIR = /usr/local/AMRISim
 endif
 
-bindir:=$(DESTDIR)/$(INSTALL_DIR)
-docdir:=$(DESTDIR)/$(INSTALL_DIR)
-confdir:=$(DESTDIR)/$(INSTALL_DIR)
-ourlibdir:=$(DESTDIR)/$(INSTALL_DIR)
-sysbindir:=$(DESTDIR)/usr/local/bin
+bindir = $(DESTDIR)/$(INSTALL_DIR)
+docdir = $(DESTDIR)/$(INSTALL_DIR)
+confdir = $(DESTDIR)/$(INSTALL_DIR)
+ourlibdir = $(DESTDIR)/$(INSTALL_DIR)
+sysbindir = $(DESTDIR)/usr/local/bin
 
 # Bypases DESTDIR:
 ifndef installed_bindir
-installed_bindir:=$(bindir)
+installed_bindir = $(bindir)
 endif
 
 
@@ -438,7 +436,7 @@ endif
 all: AMRISim$(binary_suffix) $(EXTRA_TARGETS) columbia.map
 
 
-debug:  AMRISim_debug$(binary_suffix)
+altdebug:  AMRISim_debug$(binary_suffix)
 
 %.o: %.cc
 	$(CXX) -c $(MSIM_CFLAGS) -o $@ $<
@@ -456,7 +454,7 @@ endif
 	$(CC) -c $(MSIM_CFLAGS) -o $@ $<
 
 # Manually rebuild dep
-dep: clean clean-dep 
+dep: clean cleandep 
 	$(MAKE) Makefile.dep
 
 include Makefile.dep
@@ -465,9 +463,8 @@ Makefile.dep:  $(STAGEDIR)/src/config.h
 	$(info Building Makefile.dep)
 	$(CXX) $(MSIM_CFLAGS) -MM $(SOURCES) >Makefile.dep
 
-cleanDep: clean-dep
 
-clean-dep:
+cleandep:
 	-rm Makefile.dep
 
 # We have source code, depend on it being built
@@ -538,19 +535,19 @@ test_sleep_time: test_sleep_time.cc $(LIBARIA)
 
 
 ifndef AUTOCONF
-AUTOCONF:=autoconf
+AUTOCONF = autoconf
 endif
 
 ifndef AUTORECONF
-AUTORECONF:=autoreconf
+AUTORECONF = autoreconf
 endif
 
 ifndef ACLOCAL
-ACLOCAL:=aclocal
+ACLOCAL = aclocal
 endif
 
 ifndef AUTOHEADER
-AUTOHEADER:=autoheader
+AUTOHEADER = autoheader
 endif
 
 $(STAGEDIR)/config.status $(STAGEDIR)/Makefile $(STAGEDIR)/src/config.h: $(STAGEDIR)/configure
@@ -593,22 +590,20 @@ help:
 	@echo '       make clean'
 	@echo '       make install'
 	@echo '       make distclean                Clean temporary files, but leave binaries to be distributed'
-	@echo '       make release-dist'
-	@echo '       make dev-dist'
-	@echo '       make release-srcdist'
-	@echo '       make dev-srcdist'
-	@echo '       make release-bindist'
-	@echo '       make dev-bindist'
-	@echo '       make release-windist'
-	@echo '       make dev-windist'
+	@echo '       make dist-release'
+	@echo '       make dist-dev'
+	@echo '       make srcdist-release'
+	@echo '       make srcdist-dev'
+	@echo '       make bindist-release'
+	@echo '       make bindist-dev'
 	@echo '       make rpm'
 	@echo '       make dev-rpm'
 	@echo '       make deb'
 	@echo '       make dev-deb'
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE to build with profiling information (for use with gprof)'
-	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults)'
-	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS to yes to force inclusion of ROS interface or no to force omission (regardless of platform defaults)'
+	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
+	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS to yes to force inclusion of ROS interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
 
 info:
 	@echo SOURCES=$(SOURCES)
@@ -696,42 +691,24 @@ uninstall:
 		/usr/share/applications/AMRISim.desktop \
     $(sysbindir)/AMRISim
 
-rpm:
-	$(MAKE) real-rpm AMRISIM_RELEASE=1
 
-real-rpm: $(BINARY_DISTRIBUTED_FILES) sudo-dist-install AMRISim.spec 
-	sudo rpm -bb AMRISim.spec && cp /usr/src/redhat/RPMS/i386/AMRISim-$(VERSION_NODASH)-$(RPM_PKG_REV).i386.rpm . && echo "Copied RPM into current directory."
-
-
-debian: deb
-deb: 
+debian:
 	fakeroot debian/rules binary AMRISIM_RELEASE=1
 
-dev-deb: 
+debian-dev: 
 	fakeroot debian/rules binary
 	echo lastDevReleaseVer=$(DEV_RELEASE_VER) > lastDevReleaseVer
 
-dev-debian: dev-deb
 
-dist: release-dist
+#srcdist: srcdist-release
 
-release-dist:
-	$(MAKE) base-dist AMRISIM_RELEASE=1
+srcdist-release:
+	$(MAKE) srcdistbase AMRISIM_RELEASE=1
 
-dev-dist: base-dist
+srcdist-dev: srcdistbase
 	echo lastDevReleaseVer=$(DEV_RELEASE_VER) > lastDevReleaseVer
 
-base-dist: base-srcdist base-bindist
-
-srcdist: release-srcdist
-
-release-srcdist:
-	$(MAKE) base-srcdist AMRISIM_RELEASE=1
-
-dev-srcdist: base-srcdist
-	echo lastDevReleaseVer=$(DEV_RELEASE_VER) > lastDevReleaseVer
-
-base-srcdist: $(SOURCE_DISTRIBUTED_FILES)  $(SOURCE_DISTRIBUTED_FILES_EXEC)
+srcdistbase: $(SOURCE_DISTRIBUTED_FILES)  $(SOURCE_DISTRIBUTED_FILES_EXEC)
 	$(INSTALL) -m 775 -d $(DESTDIR)$(INSTALL_DIR)
 	for d in $(SOURCE_DISTRIBUTED_FILES); do install -m 644 -D -p $$d $(DESTDIR)$(INSTALL_DIR)/$$d; done
 	for d in $(SOURCE_DISTRIBUTED_FILES_MAYBE); do if test -f $$d; then install -m 644 -D -p $$d $(DESTDIR)$(INSTALL_DIR)/$$d; fi; done
@@ -740,16 +717,15 @@ base-srcdist: $(SOURCE_DISTRIBUTED_FILES)  $(SOURCE_DISTRIBUTED_FILES_EXEC)
 #	if test -n "$(ZIPFILE)"; then zip -9 -r AMRISim-src-$(VERSION).zip AMRISim-src-$(VERSION);\
 #  else tar cf AMRISim-src-$(VERSION).tar AMRISim-src-$(VERSION) && gzip -9 AMRISim-src-$(VERSION).tar && mv AMRISim-src-$(VERSION).tar.gz AMRISim-src-$(VERSION).tgz; fi
 
-srcdist-install: release-srcdist
 
-tgz: release-bindist
+tgz: bindist-release
 
-bindist: release-bindist
+#bindist: bindist-release
 
-release-bindist:
-	$(MAKE) base-bindist AMRISIM_RELEASE=1
+bindist-release:
+	$(MAKE) bindistbase AMRISIM_RELEASE=1
 
-dev-bindist: base-bindist
+bindist-dev: bindistbase
 	echo lastDevReleaseVer=$(VERSION) > lastDevReleaseVer
 
 
@@ -758,7 +734,7 @@ PKGFILE_TGZ=AMRISim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX).tgz
 PKGFILE=$(PKGFILE_TGZ)
 DISTINFO_FILE=AMRISim-$(VERSION)$(BINDIST_SUFFIX)$(SYSTEM_SUFFIX)__info.txt
 
-base-bindist: $(BINARY_DISTRIBUTED_FILES)
+bindistbase: $(BINARY_DISTRIBUTED_FILES)
 	-mkdir -p tmp/$(TAR_DIRECTORY)
 	for f in $(BINARY_DISTRIBUTED_FILES); do cp $$f tmp/$(TAR_DIRECTORY)/$$f; done
 	if test -n "$(EXCLUDE_FILES)"; then for f in $(EXCLUDE_FILES); do rm tmp/$(TAR_DIRECTORY)/$$f; done; fi
@@ -787,6 +763,9 @@ ctags: tags
 tags: $(SOURCES) $(HEADERS) $(STAGE_SRC)
 	ctags $(SOURCES) $(HEADERS) $(STAGE_SRC)
 
-.PHONY: all clean distclean dep cleanDep install uninstall dist-install sudo-install sudo-dist-install rpm deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf windist base-windist base-bindist base-srcdist dev-debian dev-deb dev-srcdist dev-bindist release-srcdist release-bindist ctags AMRISimAppBundle
+tidy:
+	clang-tidy $(HEADERS) $(SOURCES) -- $(MSIM_CFLAGS)
+
+.PHONY: all clean distclean dep cleandep debug opt optimize install uninstall deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf bindistbase srcdistbase debian-dev srcdist-dev bindist-dev srcdist-release bindist-release ctags AMRISimAppBundle tidy
 
 FORCE:
