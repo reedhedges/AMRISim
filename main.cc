@@ -215,7 +215,7 @@ void add_model_to_robot_type_map_if_position(stg_model_t* model, char* model_nam
 #if GTK_CHECK_VERSION(2, 4, 0)
 # define GTKFILEDIALOG GtkFileChooserDialog
 # define GTKFILECHOOSER GtkFileChooser
-# define GTKCOMBOWIDGET GtkComboBox
+# define GTKCOMBOWIDGET GtkComboBoxText
 # define USE_GTKFILECHOOSER 1
 # define USE_GTKCOMBOBOX 1
 # define USE_GTKEXPANDER 1
@@ -2398,15 +2398,16 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
 
 # ifdef USE_GTKCOMBOBOX
 # if GTK_CHECK_VERSION(2, 4, 0) // check 2,6,0 instead?s
-      modelmenu = GTK_COMBO_BOX(gtk_combo_box_entry_new_text());
-# else
+      //modelmenu = GTK_COMBO_BOX(gtk_combo_box_entry_new_text());
+      modelmenu = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new_with_entry());
+#else
       modelmenu = GTK_COMBO_BOX(gtk_combo_box_new_text());
 # endif
 
       for(const char** p = CommonRobotModels; *p; p++) {
-        gtk_combo_box_append_text(modelmenu, *p);
+        gtk_combo_box_text_append_text(modelmenu, *p);
       }
-      gtk_combo_box_set_active(modelmenu, 0);
+      gtk_combo_box_set_active(GTK_COMBO_BOX(modelmenu), 0);
 
 #else   /* (not using newer combobox) */ 
 
@@ -2597,7 +2598,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
     std::string selected_robot;
 #ifdef USE_GTKCOMBOBOX
 # if GTK_CHECK_VERSION(2,6,0)
-    selected_robot = gtk_combo_box_get_active_text(modelmenu);
+    selected_robot = gtk_combo_box_text_get_active_text(modelmenu);
 # else
     gint i = gtk_combo_box_get_active(modelmenu);
     if(i != -1)

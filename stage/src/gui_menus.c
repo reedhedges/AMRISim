@@ -320,8 +320,12 @@ void gui_action_about( _MENU_ACTION_FUNCTION_ARGS )
 		+ strlen(stg_about_info_stageversion) + strlen("\n\nBuilt with Stage x and GTK xx.xx.xx (running GTK xx.xx.xx)\nhttp://playerstage.sourceforge.net\n");
 #if GTK_CHECK_VERSION(2, 6, 0)
 	GtkAboutDialog *about = GTK_ABOUT_DIALOG(gtk_about_dialog_new());
-	gtk_about_dialog_set_name(about, stg_about_info_appname);
-	gtk_about_dialog_set_version(about, stg_about_info_appversion ?  stg_about_info_appversion : PACKAGE_VERSION);
+#if GTK_CHECK_VERSION(2, 11, 0)
+	gtk_about_dialog_set_program_name(about, stg_about_info_appname);
+#else
+  gtk_about_dialog_set_name(about, stg_about_info_appname);
+#endif
+  gtk_about_dialog_set_version(about, stg_about_info_appversion ?  stg_about_info_appversion : PACKAGE_VERSION);
 	if(stg_about_info_appversion != NULL)
 	{
 		char* comments = malloc(comments_len+1); 
