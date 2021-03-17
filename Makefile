@@ -640,8 +640,12 @@ $(STAGELIBDIR)/libstage.a $(STAGEDIR)/replace/libreplace.a: $(STAGEDIR)/config.s
 	test -d $(STAGEDIR) || { echo "STAGEDIR \"$(STAGEDIR)\" does not exist. Set STAGEDIR in the environment, or check if there is something wrong with your original source archive or VCS checkout..."; false; }
 	$(MAKE) -C $(STAGEDIR) -j1
 
-clean:
+clean: cleanStage cleanAMRISim
+
+cleanStage:
 	+$(MAKE) -C $(STAGEDIR) -j1 clean
+
+cleanAMRISim:
 	-rm AMRISim$(binary_suffix) *.o
 
 cleanAll: clean
