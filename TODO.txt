@@ -1,5 +1,9 @@
 
-* Debian standard Packaging
+* Fix all warnings, fix all c++ code to correct usage for c++17.
+* Update stage build for newer versions of autotools
+* Consider updating any GTK code for newer version of GTK. Remove support for
+  old GTK versions. Is there a newer GTK-Win Windows version available?
+* Debian/Ubuntu Packaging
 * Remove unused stuff 
 * Remove use of temp file
 * Clearly document exact dependencies
@@ -45,6 +49,11 @@
   frameworks; systemd?)
 * Finish adding multiple lasers
 * Add more tests (unit and demos, internal and external clients)
+  * Artificially move the robot a bit, then use something like ApprovalTestsCPP
+    to verify that the state of the simuator is correct?
+  * Feature to record Pioneer protocol output
+* Add command to turn odometry error on/off
+* Add command to change any property?
 * Dynamically configurable model hierarcy and properties in GUI.
 * Replace GUI? Qt? Remote Web Frontend UI? Or just upgrade to newer GTK versions?
 * Maybe a remotely acessible web view (or start with simple
