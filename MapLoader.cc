@@ -87,7 +87,7 @@ void MapLoader::removeCallback(MapLoadedCallback cb)
 
 }
 
-bool MapLoader::newMap(const std::string& newmapfile, RobotInterface *requestor, MapLoadedCallback cb, std::string *errorMsg)
+bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInterface *requestor, MapLoadedCallback cb, std::string *errorMsg)
 {
 #ifdef DEBUG
   ArLog::log(ArLog::Normal, "MapLoader::newMap: newmapfile=%s", newmapfile.c_str());
@@ -126,8 +126,8 @@ bool MapLoader::newMap(const std::string& newmapfile, RobotInterface *requestor,
 
   char errbuf[128];
 
-  struct stat path_st = {0};
-  struct stat file_st = {0};
+  struct stat path_st;
+  struct stat file_st;
   char fileName[256];
   char curPath[256];
   char copyPath[256];
@@ -156,10 +156,12 @@ bool MapLoader::newMap(const std::string& newmapfile, RobotInterface *requestor,
   else
   {
     stg_print_msg("Found the map and the copyDir. Copying to new location: %s", copyPath);
-    char cpCommand[256];
-    sprintf(cpCommand, "cp \"%s\" \"%s\"", newmapfile.c_str(), copyPath);
+    char cpCommand[264];
+    const auto r = snprintf(cpCommand, 263, "cp \"%s\" \"%s\"", newmapfile.c_str(), copyPath);
+    assert(r < 263);
     stg_print_msg("Copy command: %s", cpCommand);
-    system(cpCommand);
+    const int sr = system(cpCommand);
+    assert(sr == 0);
 
     ArUtil::getFileName(newmapfile.c_str(), fileName, 256);
 
@@ -205,6 +207,7 @@ bool MapLoader::newMap(MapLoadedCallback cb)
   myProcessState = MapLoader::NEWMAP_STARTPROCESS;
   loading = true;
 
+  // XXX should we call callback?
 
     // TODO build a new matrix at the right resolution and size and use it to
     // filter out redundant points for that resolution (avoid too much data in
@@ -287,12 +290,12 @@ bool MapLoader::process(unsigned int maxTime)
       myMapPolysChunks.clear();
       myMapPolysChunks.resize(myNumMapPolysChunks);
 
-      for (int i = 0; i < myNumMapPolysChunks; ++i)
+      for (size_t i = 0; i < myNumMapPolysChunks; ++i)
       {
         if(i < myNumMapPolysChunks-1 || myNumLines % myPolysPerChunk == 0)
-          myMapPolysChunks[i] = stg_polygons_create(myPolysPerChunk);
+          myMapPolysChunks[i] = stg_polygons_create((int) myPolysPerChunk);
         else
-          myMapPolysChunks[i] = stg_polygons_create(myNumLines % myPolysPerChunk);
+          myMapPolysChunks[i] = stg_polygons_create((int) (myNumLines % myPolysPerChunk));
       }
       myLine_it = map->getLines()->begin();
       myNumPolys = 0;
@@ -380,7 +383,7 @@ bool MapLoader::process(unsigned int maxTime)
       if (myNumPoints % myPointsPerChunk != 0) ++myNumMapPointsChunks;
       myMapPointsChunks.clear();
       myMapPointsChunks.resize(myNumMapPointsChunks);
-      for (int i = 0; i < myNumMapPointsChunks; ++i)
+      for (size_t i = 0; i < myNumMapPointsChunks; ++i)
       {
 #ifdef DEBUG
         print_debug("MapLoader::process(): Allocating chunk %d of %d...", i, myNumMapPointsChunks);
@@ -514,7 +517,7 @@ bool MapLoader::process(unsigned int maxTime)
 
     myMapPolysModels.clear();
     myMapPolysModels.resize(myNumMapPolysChunks);
-    for(int i = 0; i < myNumMapPolysChunks; ++i)
+    for(size_t i = 0; i < myNumMapPolysChunks; ++i)
     {
       myMapPolysModels[i] = stg_model_create(world, NULL, id, mapfile.c_str(), "model", "model", 0, NULL, TRUE);
       myModelsToInit.push_back(myMapPolysModels[i]);
@@ -523,7 +526,7 @@ bool MapLoader::process(unsigned int maxTime)
 
     myMapPointsModels.clear();
     myMapPointsModels.resize(myNumMapPointsChunks);
-    for(int i = 0; i < myNumMapPointsChunks; ++i)
+    for(size_t i = 0; i < myNumMapPointsChunks; ++i)
     {
       myMapPointsModels[i] = stg_model_create(world, NULL, id, mapfile.c_str(), "model", "model", 0, NULL, TRUE);
       myModelsToInit.push_back(myMapPointsModels[i]);
@@ -761,14 +764,14 @@ bool MapLoader::process(unsigned int maxTime)
 
 
     // Remember the polygons models
-    for(int i = 0; i < myNumMapPolysChunks; ++i)
+    for(size_t i = 0; i < myNumMapPolysChunks; ++i)
     {
       mapModels.insert(myMapPolysModels[i]);            // Remember this model locally
       stg_world_add_model(world, myMapPolysModels[i]);  // Add model to stage world. Just an entry in the hash table.
     }
 
     // Remember the points models
-    for(int i = 0; i < myNumMapPointsChunks; ++i)
+    for(size_t i = 0; i < myNumMapPointsChunks; ++i)
     {
       mapModels.insert(myMapPointsModels[i]);            // Remember this model locally
       stg_world_add_model(world, myMapPointsModels[i]);  // Add model to stage world. Just an entry in the hash table.
@@ -833,7 +836,7 @@ bool MapLoader::process(unsigned int maxTime)
       // Reflectors can be built-in reflectors, or have a name that
       // previous versions of AMRISim interpreted as automatically being
       // reflectors.
-      int val = 1;
+      //int val = 1;
       const char* endTag = strrchr(type_name, '.');
       if(   strcmp( type_name, "Sim.Reflector") == 0
         || strcmp(  type_name, "Reflector") == 0
@@ -925,7 +928,7 @@ bool MapLoader::process(unsigned int maxTime)
 
       stg_model_t* model = NULL;
 
-      bool builtinReflector = false;
+      //bool builtinReflector = false;
 
       // XXX this needs to be refactored a bit, probably eliminate the seperate
       // loadReflector and LoadBoxObstacle functions, just set unique properties
@@ -937,7 +940,7 @@ bool MapLoader::process(unsigned int maxTime)
         // Built-in Reflector objects have special fixed properties (color, shape, etc.)
         if(strcmp(obj->getType(), "Reflector") == 0 || c->second.laser_return > 1)
         {
-          builtinReflector = true;
+          //builtinReflector = true;
           model = loadReflector(obj, myMapModel, c->second.laser_return);
         }
         // Is the object of a type (class) that should be an obstacle?

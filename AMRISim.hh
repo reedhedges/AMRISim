@@ -334,7 +334,7 @@ namespace AMRISim
   inline long int max(long int x, long int y) { return ((x >= y) ? x : y); }
 
   /** Wrapper around usleep. (Don't use ArUtil::sleep(), it adds error) */
-  inline void sleep(unsigned long msec) 
+  inline void sleep(unsigned int msec) 
   { 
     if(msec > 0) 
 #ifdef WIN32

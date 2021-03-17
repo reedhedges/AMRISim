@@ -60,7 +60,7 @@ ArSocket *ListeningSocket::init(int port, RobotFactory *parentFactory, const cha
   }
 }
 
-void * ListeningSocket::runThread(void *arg)
+void * ListeningSocket::runThread(void *)
 {
   threadStarted();
 

@@ -384,7 +384,7 @@ public:
   /** A debugging tool, assert that this is a laser packet, then print it out */
   void printLaserPacket(ArRobotPacket* pkt) const;
 
-  void setRobotMoved(bool m = true) {
+  void setRobotMoved([[maybe_unused]] bool m = true) {
     robotMoved = true;
   }
 };
@@ -678,13 +678,13 @@ public:
 
     ArDeviceConnection *clientConnection;
 
-    /** Get a signed short integer from a command packet. 
+    /** Get a signed integer from a command packet. 
      *  Unpack three bytes from the packet's data buffer. The first byte 
      *  determines the sign of the integer, the second and third bytes are
      *  the absolute value of the integer. 
      *  No check is made that the packet's buffer contains enough bytes.
      */
-    ArTypes::Byte2 getIntFromPacket(ArRobotPacket* pkt); 
+    int getIntFromPacket(ArRobotPacket* pkt); 
 
     long initialPoseX, initialPoseY; 
     int initialPoseTheta;
@@ -722,14 +722,14 @@ public:
     void changeDigout(ArTypes::UByte mask, ArTypes::UByte states)
     {
       const ArTypes::UByte curr = robotInterface->getDigoutState();
-      robotInterface->setDigoutState( (curr & ~mask) | (~curr & mask & states) );
+      robotInterface->setDigoutState( (unsigned char) ( (curr & ~mask) | (~curr & mask & states) ) );
       inform("Pioneer digital output changed to %s", AMRISim::byte_as_bitstring(robotInterface->getDigoutState()).c_str());
     }
 
     void changeDigin(ArTypes::UByte mask, ArTypes::UByte states)
     {
       const ArTypes::UByte curr = robotInterface->getDiginState();
-      robotInterface->setDiginState( (curr & ~mask) | (~curr & mask & states) );
+      robotInterface->setDiginState( (unsigned char) ( (curr & ~mask) | (~curr & mask & states) ) );
       inform("Pioneer digital input changed to %s", AMRISim::byte_as_bitstring(robotInterface->getDiginState()).c_str());
     }
 

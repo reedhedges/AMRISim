@@ -61,7 +61,7 @@ public:
   AREXPORT void setLoggingPrefix(const char *loggingPrefix);
 
   /// Reads in all the data available calling the processPacketCB
-  AREXPORT bool readData(int msWait = 0);
+  AREXPORT bool readData(unsigned int msWait = 0);
 
   /// Sets whether we're quiet about errors or not
   void setQuiet(bool quiet) { myQuiet = quiet; }
@@ -95,7 +95,7 @@ protected:
   ArRobotPacket myPacket;
 
 
-  char myReadBuff[BUFFER_SIZE];  ///< store input data read from socket for processing in readPacket
+  unsigned char myReadBuff[BUFFER_SIZE];  ///< store input data read from socket for processing in readPacket. must be unsigned char
   int myReadDataCount; ///< How much of the packet data (payload) has been read so far.
   int myReadLength; ///< Length value read from input data
   int myReadCommand; ///< Command ID read from input data

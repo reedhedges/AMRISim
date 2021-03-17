@@ -45,7 +45,7 @@
 #include <string.h>
 #include <errno.h>
 #include <dirent.h>
-#include <limits.h>
+#include <limits>
 #include <unistd.h>
 #include <signal.h>
 
@@ -555,10 +555,13 @@ int main(int argc, char** argv)
           model = arg.substr(0, sep);
           name = model;
           char buf[4];
-          for(int i = 2; robotInstanceRequests.find(name) != robotInstanceRequests.end(); i++) {
-            snprintf(buf, 4, "%03d", i);
-            name = model + "_" + buf;
-          }
+          int i = 2;
+          for (int i = 2; robotInstanceRequests.find(name) != robotInstanceRequests.end() && i <= 999; ++i)
+          {}
+          assert(i <= 999);
+          int r = snprintf(buf, 4, "%03d", i);
+          assert(r >= 4);
+          name = model + "_" + buf;
         } else {
           model = arg.substr(0, sep);
           name = arg.substr(sep+1);
@@ -1185,10 +1188,10 @@ int main(int argc, char** argv)
   {
     case mobilesim_start_fixedpos:
     {
-        stg_print_msg("AMRISim: Starting robots at position given by --start option: %f, %f, %f.", opt.start_pos_override_pose_x/1000.0, opt.start_pos_override_pose_y/1000.0, opt.start_pos_override_pose_th);
-      map_home_x = opt.start_pos_override_pose_x;
-      map_home_y = opt.start_pos_override_pose_y;
-      map_home_th = opt.start_pos_override_pose_th;
+        stg_print_msg("AMRISim: Starting robots at position given by --start option: %f, %f, %f.", (double)opt.start_pos_override_pose_x/1000.0, (double)opt.start_pos_override_pose_y/1000.0, (double) opt.start_pos_override_pose_th);
+      map_home_x = (double) opt.start_pos_override_pose_x;
+      map_home_y = (double) opt.start_pos_override_pose_y;
+      map_home_th = (double) opt.start_pos_override_pose_th;
     }
 
     break;
@@ -1244,7 +1247,7 @@ int main(int argc, char** argv)
     stg_print_msg("AMRISim: Creating new robot factory for \"%s\"...", modelname);
     RobotFactory *stagefac;
     if(mobilesim_startplace == mobilesim_start_fixedpos) 
-      stagefac = new StageRobotFactory(world, modelname, opt.start_pos_override_pose_x, opt.start_pos_override_pose_y, opt.start_pos_override_pose_th, &opt);
+      stagefac = new StageRobotFactory(world, modelname, (double) opt.start_pos_override_pose_x, (double) opt.start_pos_override_pose_y, (double) opt.start_pos_override_pose_th, &opt);
     else
       stagefac = new StageRobotFactory(world, modelname, &mobilesim_get_map_home, &mobilesim_get_map_bounds, (mobilesim_startplace==mobilesim_start_outside), &opt );
     //stagefac->setCommandsToIgnore(opt.ignore_commands);
@@ -1474,12 +1477,12 @@ int main(int argc, char** argv)
   ArTime lastClientInput;
   ArTime lastMapProcess;
   ArTime lastRobotFactory;
-  const int clientInputWindow = 20; // Do client and factory input if we have this much time available or it's been too long (see below)
-  const int clientInputMaxFreq = 200; // Do client input if it's been this long since the last time, or we have some free time available (see above)
-  const int mapProcessWindow = 50; // See clientInputWindow
-  const int mapProcessMaxFreq = 400; // See clientInputMaxFreq
-  const int RobotFactoryWindow = 50; // See clientInputWindow
-  const int RobotFactoryMaxFreq = 400; // See clientInputMaxFreq
+  const long clientInputWindow = 20; // Do client and factory input if we have this much time available or it's been too long (see below)
+  const long clientInputMaxFreq = 200; // Do client input if it's been this long since the last time, or we have some free time available (see above)
+  const long mapProcessWindow = 50; // See clientInputWindow
+  const long mapProcessMaxFreq = 400; // See clientInputMaxFreq
+  const long RobotFactoryWindow = 50; // See clientInputWindow
+  const long RobotFactoryMaxFreq = 400; // See clientInputMaxFreq
 
   // If either the StageUpdate or ClientOutput has waited for longer than this time,
   //   restart the loop so that it can get serviced
@@ -1494,14 +1497,16 @@ int main(int argc, char** argv)
   {
     long untilStageUpdate = stageUpdateDue.mSecTo();
     if(untilStageUpdate < 0) untilStageUpdate = 0;
+    assert(untilStageUpdate <= std::numeric_limits<unsigned int>::max());
     long untilClientOutput = clientOutputDue.mSecTo();
     if(untilClientOutput < 0) untilClientOutput = 0;
+    assert(untilClientOutput <= std::numeric_limits<unsigned int>::max());
     //print_debug("%ld ms until stage update, %ld ms to client output.", untilStageUpdate, untilClientOutput);
     if(untilStageUpdate < untilClientOutput)
     {
       /* Stage update */
       //ArTime t;
-      AMRISim::sleep(untilStageUpdate);
+      AMRISim::sleep((unsigned int) untilStageUpdate);
       //print_debug("Waiting for stage update: sleep(%ld) took %ld ms", untilStageUpdate, t.mSecSince());
       if(lastStageUpdate.mSecSince() > stageUpdateWarningTime)
         print_warning("Took >%ld ms since last stage simulation update (%ld, interval is %ld)", stageUpdateWarningTime, lastStageUpdate.mSecSince(), stageUpdateFreq);
@@ -1514,7 +1519,7 @@ int main(int argc, char** argv)
     {
       /* Client output and other periodic client interface work */
       //ArTime t;
-      AMRISim::sleep(untilClientOutput);
+      AMRISim::sleep((unsigned int) untilClientOutput);
       //print_debug("Waiting for client output: sleep(%ld) took %ld ms", untilClientOutput, t.mSecSince());
       if(lastClientOutput.mSecSince() > clientOutputWarningTime)
         print_warning("Warning: Took >%ld ms since last clients output update (%ld, interval is %ld)", clientOutputWarningTime, lastClientOutput.mSecSince(), clientOutputFreq);
@@ -1571,14 +1576,14 @@ int main(int argc, char** argv)
     if( (stageUpdateDue.mSecTo() > mapProcessWindow && clientOutputDue.mSecTo() > mapProcessWindow) ||
         (lastMapProcess.mSecSince() > mapProcessMaxFreq && !mapLoader.shouldWaitForOthers()))
     {
-      int processTimeWindow;
+      long processTimeWindow;
       if (stageUpdateDue.mSecTo() > mapProcessWindow && clientOutputDue.mSecTo() > mapProcessWindow)
         processTimeWindow = min(stageUpdateDue.mSecTo(), clientOutputDue.mSecTo());
       else
         processTimeWindow = mapProcessWindow;
 
       lastMapProcess.setToNow();
-      mapLoader.process(processTimeWindow);
+      mapLoader.process((unsigned int) processTimeWindow);
     }
    
     /* Robot Factory */
@@ -1832,9 +1837,10 @@ stg_world_t* create_stage_world(const char* mapfile,
     }
     else
     {
-      char buf[256];
-      snprintf(buf, 255, "Could not write Stage world file \"%s\" (%s).\nIs the system temporary directory \"%s\" accessible?", worldfile, strerror(errno), tempdir);
-      stg_gui_fatal_error_dialog("AMRISim: Error creating temprorary file.", buf, ERR_TEMPFILE, FALSE); 
+      char buf[512];
+      const int r = snprintf(buf, 511, "Could not write Stage world file \"%s\" (%s).\nIs the system temporary directory \"%s\" accessible?", worldfile, strerror(errno), tempdir);
+      assert(r < 511);
+      stg_gui_fatal_error_dialog("AMRISim: Error creating temprorary file.", buf, ERR_TEMPFILE, FALSE);
       exit(ERR_TEMPFILE);
     }
   }
@@ -2113,7 +2119,8 @@ stg_world_t* create_stage_world(const char* mapfile,
       snprintf(renamed_worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world_ERROR.world", tempdir, PATHSEPCH);
       if(rename(worldfile, renamed_worldfile) != -1)
       {
-        snprintf(message, maxlen-1, "%s%s%s%s", errormsg, prefixtext, renamed_worldfile, postfixtext);
+        const auto r = snprintf(message, maxlen-1, "%s%s%s%s", errormsg, prefixtext, renamed_worldfile, postfixtext);
+        assert((size_t)r < maxlen - 1);
       }
       else
       {
@@ -2613,7 +2620,8 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
       {
         (*robotInstanceRequests)[name] = selected_robot;
         char numstr[8];
-        snprintf(numstr, 8, "_%03d", i+2);
+        const auto r = snprintf(numstr, 8, "_%03d", i+2);
+        assert(r < 8);
         name = selected_robot + numstr;
       }
     }
@@ -2663,9 +2671,9 @@ void print_msg(const char *m, ...)
 
 void print_debug(const char *m, ...)
 {
-  char *formatstr = (char*)malloc(strlen(m) + strlen("DEBUG :") + 1); // + 1 for terminating NULL
+  char *formatstr = (char*)malloc(7 + strlen(m) + 1); // + 1 for terminating NULL. 7 is length of "DEBUG: "
   strcpy(formatstr, "DEBUG: ");
-  strncpy(formatstr + strlen("DEBUG: "), m, strlen(m) + 1); // + 1 includes terminating NULL
+  strncpy(formatstr + 7, m, strlen(m)); //  7 is length of "DEBUG: "
   va_list args;
   va_start(args, m);
   stg_print_msg_v(formatstr, args);

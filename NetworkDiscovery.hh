@@ -70,14 +70,14 @@ private:
     while(socket.recvFrom(request, 4, &sin) >= 4)
     {
       //printf("got data %x %x %x %x, want 3 to be %x\n", request[0], request[1], request[2], request[3], (int)0xf6);
-      if(request[3] == (char)0xf6)
+      if(request[3] == '\xf6')
       {
         //puts("got 0xf6, sending response");
         char response[30];
         memset(response, 0, 30);
-        response[3] = 0xF7;
-        response[8] = 0xFA;
-        response[9] = 0xFB;
+        response[3] = '\xF7';
+        response[8] = '\xFA';
+        response[9] = '\xFB';
         socket.sendTo(response, 30, &sin);
       }
       ArUtil::sleep(300);

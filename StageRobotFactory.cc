@@ -126,7 +126,8 @@ RobotInterface* StageRobotFactory::createRobot(const std::string& modelName, con
 RobotInterface* StageRobotFactory::createStubRobot(const std::string& modelName, const std::string& requestedRobotName)
 {
   //stg_world_lock(myWorld);
-  stg_model_t* model;
+  print_debug("StageRobotInterface::createStubRobot(%s, %s)", modelName.c_str(), requestedRobotName.c_str());
+  stg_model_t *model;
   if(requestedRobotName == "")
   {
     stg_print_msg("StageRobotFactory: Creating robot of type %s...", "position");

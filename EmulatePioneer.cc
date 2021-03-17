@@ -35,6 +35,7 @@
 #include <stdint.h>
 #include <string>
 #include <assert.h>
+#include <limits>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -491,7 +492,7 @@ void EmulatePioneer::readClientInput(unsigned int maxTime)
   if(!session || !myClientSocket || !sessionActive)
     return;
   try {
-    if(!session->packetReceiver.readData((int)maxTime))  // will call handlePacket() for each packet received.
+    if(!session->packetReceiver.readData(maxTime))  // will call handlePacket() for each packet received.
     {
       warn("Error reading client data. Ending session.");
       endSession();
@@ -919,11 +920,11 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
   }
 
 
-  char argType;
+  [[maybe_unused]] char argType; // argument type byte must be read from each packet but only really needed for certain commands
   int intVal;
   unsigned int index;
   int x, y, th;
-  char byte1, byte2, byte3;
+  [[maybe_unused]] char byte1, byte2, byte3;
   double left, right;
   const int charbuf_maxlen = 128;
   char charbuf[charbuf_maxlen];
@@ -1279,7 +1280,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
       if(params.BatteryType == 2)  // battery uses state of change instead of voltage, set that
       { 
         robotInterface->inform("Setting battery state of change to %d%% (set by BATTEST command #%d)", intVal, ArCommands::BATTEST);
-        robotInterface->setStateOfCharge(intVal);
+        robotInterface->setStateOfCharge((float) intVal);
       }
       else    // battery is just voltage, change that
       {
@@ -1290,8 +1291,8 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
         }
         else
         {
-          robotInterface->inform("Setting battery voltage value to %.2f volts (set by BATTEST command #%d)", (double)intVal / 10.0, ArCommands::BATTEST);
-          robotInterface->setBatteryVoltage( (double)intVal / 10.0 );
+          robotInterface->inform("Setting battery voltage value to %.2f volts (set by BATTEST command #%d)", (float)intVal / 10.0f, ArCommands::BATTEST);
+          robotInterface->setBatteryVoltage( (float)intVal / 10.0f );
         }
       }
       break;
@@ -1344,11 +1345,12 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
     case OLD_RESET_TO_ORIGIN:
        WARN_DEPRECATED("OLDSIM_RESETTOORIGIN", pkt->getID(), "SIM_RESET", ArCommands::SIM_RESET);
        if(!SRISimCompat) break;
+       [[fallthrough]];
     case ArCommands::SIM_RESET:
-       robotInterface->inform_s("Client requested simulator reset. Moving robot back to its initial pose.");
-       robotInterface->setOdom(0, 0, 0);
-       robotInterface->resetSimulatorPose();
-       break;
+      robotInterface->inform_s("Client requested simulator reset. Moving robot back to its initial pose.");
+      robotInterface->setOdom(0, 0, 0);
+      robotInterface->resetSimulatorPose();
+      break;
       
     case OLD_LRF_ENABLE:
        if(!SRISimLaserCompat) 
@@ -1459,11 +1461,11 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        byte3 = pkt->bufToByte();  
        byte2 = pkt->bufToByte();
        byte1 = pkt->bufToByte();
-       len -= 3u;
+       len -= 3;
        goto msg_getchars;
     case ArCommands::SIM_MESSAGE:
        argType = pkt->bufToByte();
-       len = pkt->bufToByte();
+       len = pkt->bufToUByte();
     msg_getchars:
        memset(charbuf, 0, charbuf_maxlen);
        for(int i = 0; i < charbuf_maxlen && i < len && i < (MAX_PACKET_PAYLOAD_SIZE-1) &&  (c = pkt->bufToByte()); ++i)
@@ -1477,6 +1479,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
         // problem is fixed)
        //ArUtil::sleep(100);
        break;
+
 
     case ArCommands::SIM_EXIT:
        argType = pkt->bufToByte();
@@ -1536,9 +1539,9 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
         }
         char mapfile[256];
         memset(mapfile, 0, 256);
-        size_t len = pkt->bufToUByte2();
-        if(len > 255) len = 255;
-        pkt->bufToStr((char*)mapfile, len);
+        size_t filenamelen = pkt->bufToUByte2();
+        if(filenamelen > 255) filenamelen = 255;
+        pkt->bufToStr((char*)mapfile, (int)filenamelen);
         if(intVal == SIM_CTRL_MASTER_LOAD_MAP)
         {
             mapMasterEnabled = true;
@@ -1644,7 +1647,8 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
          // devices:
          std::vector< RobotInterface::DeviceInfo > devs = robotInterface->getDeviceInfo();
          //printf("SIMINFO: %lu devices.\n", devs.size());
-         replyPkt.uByte4ToBuf(devs.size());
+         assert(devs.size() <= std::numeric_limits<ArTypes::UByte4>::max());
+         replyPkt.uByte4ToBuf((ArTypes::UByte4) devs.size());
          for(std::vector< RobotInterface::DeviceInfo >::const_iterator i = devs.begin(); i != devs.end(); ++i)
          {
            //printf("SIMINFO: adding device %s (%s:%d)\n", i->name.c_str(), i->type.c_str(), i->which);
@@ -1676,8 +1680,8 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        // The byte parameters are signed, but the argument type still
        // applies to each, I guess. Consistent, but confusing.
       intVal = getIntFromPacket(pkt);
-      ubyte2 = (char)intVal;
-      ubyte1 = (char)(intVal >> 8);
+      ubyte2 = (unsigned char)intVal;
+      ubyte1 = (unsigned char)(intVal >> 8);
       changeDigout(ubyte1, ubyte2);
       break;
 
@@ -1704,9 +1708,9 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
       if(!warn_unsupported_commands) break;
 
       argType = pkt->bufToByte();
-      byte1 = pkt->bufToUByte();  // On/Off (this was the LSB of the 2-byte int)
-      byte2 = pkt->bufToUByte();  // Num    (this was the MSB of the 2-byte int)
-      warn("Ignoring unsupported command: SETPBIOPORT %u %s.", byte2, byte1?"ON":"OFF");
+      ubyte1 = pkt->bufToUByte();  // On/Off (this was the LSB of the 2-byte int)
+      ubyte2 = pkt->bufToUByte();  // Num    (this was the MSB of the 2-byte int)
+      warn("Ignoring unsupported command: SETPBIOPORT %u %s.", ubyte2, ubyte1?"ON":"OFF");
       break;
     }
 
@@ -1885,6 +1889,9 @@ ArRobotPacket* SIPGenerator::getPacket()
     // the pos returned wraps at the 16 bit limit just like ARIA checks for,
     // with a minimum of fuss.
 
+    // Note: Compilers and analyzers will warn about conversion from int32_t to ArTypes::Byte2 (int16_t). 
+    // We want to force the conversion however. Someday this may be fixed to express this better.
+
     assert(params->DistConvFactor > 0.0001);
 
     xPosAccum += (int32_t)( (double)x/params->DistConvFactor - xPosAccum );
@@ -1896,9 +1903,9 @@ ArRobotPacket* SIPGenerator::getPacket()
 
     // theta, just truncated from 32 bits, stage should keep this between
     // -180,180 for us.
-    int siptheta;
     assert(params->AngleConvFactor > 0.0001);
-    pkt.byte2ToBuf( (ArTypes::Byte2) ( siptheta = (ArMath::degToRad(theta)/params->AngleConvFactor) ) );  
+    const ArTypes::Byte2 siptheta = (ArTypes::Byte2) (ArMath::degToRad(theta) / params->AngleConvFactor);
+    pkt.byte2ToBuf(siptheta);  
 
     // wheel velocities (left, right):
     int16_t rightVel, leftVel;
@@ -1975,7 +1982,7 @@ ArRobotPacket* SIPGenerator::getPacket()
   // Sonar values:
   if(robotInterface->sonarOpen() && robotInterface->haveSonar())
   {
-    size_t n = robotInterface->numSonarReadings(); 
+    const int n = (int) robotInterface->numSonarReadings(); 
 #ifdef DEBUG_SIP_SONAR_DATA
     print_debug("SIP: sonar has %d readings. Max per packet is %d.", n, params->Sim_MaxSonarReadingsPerSIP);
 #endif
@@ -1991,9 +1998,9 @@ ArRobotPacket* SIPGenerator::getPacket()
       PackSonarReadingFunc(ArRobotPacket &init_pkt, const double &init_conv, const size_t &init_max, const size_t &init_i = 0) 
         : pkt(init_pkt), conv(init_conv), max(init_max), i(init_i), count(0)
         {}
-      virtual bool operator()(int r) {
+      virtual bool operator()(const int r) {
         pkt.byteToBuf((ArTypes::Byte)i);
-        ArTypes::Byte2 convr = (ArTypes::Byte2) ArMath::roundInt(r / conv);
+        const ArTypes::Byte2 convr = (ArTypes::Byte2) ArMath::roundInt(r / conv);
         pkt.byte2ToBuf(convr);
 
 #ifdef DEBUG_SIP_SONAR_DATA
@@ -2006,9 +2013,9 @@ ArRobotPacket* SIPGenerator::getPacket()
       }
     };
   
-    PackSonarReadingFunc func(pkt, params->RangeConvFactor, params->Sim_MaxSonarReadingsPerSIP, firstSonarReadingToSend);
+    PackSonarReadingFunc func(pkt, params->RangeConvFactor, (size_t) params->Sim_MaxSonarReadingsPerSIP, (size_t) firstSonarReadingToSend);
 
-    size_t numPacked = robotInterface->forEachSonarReading(func, firstSonarReadingToSend);
+    const int numPacked = (int) robotInterface->forEachSonarReading(func, firstSonarReadingToSend);
 #ifdef DEBUG_SIP_SONAR_DATA
     print_debug("SIP: Sent %d sonar readings", numPacked);
 #endif
@@ -2090,7 +2097,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
   // Figure out how many readings to put in this packet. 
 
   //ArTypes::Byte2 totalReadings = robotInterface->numLaserReadings();
-  size_t totalReadings = robotInterface->numLaserReadings(0);
+  const size_t totalReadings = robotInterface->numLaserReadings(0);
   if(currentReading >= totalReadings) 
   {
     currentReading = 0;
@@ -2113,9 +2120,10 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
     pkt.byte2ToBuf((ArTypes::Byte2)y);
     pkt.byte2ToBuf((ArTypes::Byte2)th);
   }
-  pkt.byte2ToBuf((ArTypes::Byte2) totalReadings);  // total range reading count the device has
+  assert(totalReadings <= std::numeric_limits<ArTypes::Byte2>::max());
+  pkt.byte2ToBuf((ArTypes::Byte2)totalReadings);   // total range reading count the device has
   pkt.byte2ToBuf((ArTypes::Byte2) currentReading); // which reading is the first one in this packet
-  const size_t numReadingsThisPacket = AMRISim::min(MaxReadingsPerPacket, totalReadings - currentReading);  // num. readings that follow
+  const size_t numReadingsThisPacket = AMRISim::min(MaxReadingsPerPacket, (int)(totalReadings - currentReading));  // num. readings that follow
   pkt.uByteToBuf((ArTypes::UByte) numReadingsThisPacket);
 
   class PackLaserReadingFunc_OldFormat : public virtual RobotInterface::LaserReadingFunc {
@@ -2144,7 +2152,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
       {}
     virtual ~PackLaserReadingFunc_ExtFormat() {}
     virtual bool operator()(int range, int ref) {
-      bool r = PackLaserReadingFunc_OldFormat::operator()(range, ref);
+      const bool r = PackLaserReadingFunc_OldFormat::operator()(range, ref);
       pkt.uByteToBuf((ArTypes::UByte)(ref));
       pkt.uByteToBuf(0); // reserved for future flags
       pkt.uByteToBuf(0); // reserved for future flags
@@ -2217,10 +2225,10 @@ void LaserPacketGenerator::printLaserPacket(ArRobotPacket* pkt) const
   printf("\n");
 }
 
-ArTypes::Byte2 EmulatePioneer::getIntFromPacket(ArRobotPacket* pkt)
+int EmulatePioneer::getIntFromPacket(ArRobotPacket* pkt)
 {
    if(pkt->bufToByte() == ArgTypes::NEGINT)
-     return (ArTypes::Byte2)(-1 * pkt->bufToByte2());
+     return (-1 * pkt->bufToByte2());
    else
      return pkt->bufToByte2();
 }
@@ -2274,17 +2282,17 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
     const double yoffset = gpspx*sinth + gpspy*costh;
     //print_debug("Pioneer emulation: Sending GPS position with GPS position offset %f, %f mm", xoffset, yoffset);
     double lat, lon, alt;
-    mapCoords.convertMap2LLACoords(x+xoffset, y+yoffset, mapOrigin.getAltitude(), lat, lon, alt);
+    mapCoords.convertMap2LLACoords((double)x+xoffset, (double)y+yoffset, mapOrigin.getAltitude(), lat, lon, alt);
     replyPkt.byte4ToBuf((int)(lat*10e6));
     replyPkt.byte4ToBuf((int)(lon*10e6));
     replyPkt.byte4ToBuf((int)(alt*100));
-    if(insideBadGPSSector(ArPose(x+xoffset, y+yoffset, th)))
+    if(insideBadGPSSector(ArPose((double)x+xoffset, (double)y+yoffset, th)))
     {
       replyPkt.byte4ToBuf(0);
     }
     else
     {
-      replyPkt.byte4ToBuf(robotInterface->getSimGPSDOP() * 100);
+      replyPkt.byte4ToBuf((ArTypes::Byte4)(robotInterface->getSimGPSDOP() * 100.0));
       //replyPkt.byte4ToBuf(100);
     }
   }
@@ -2373,14 +2381,14 @@ void EmulatePioneer::loadMapObjects(ArMap *map)
 
 void Session::checkLogStats(LogInterface* l)
 {
-  if(loggedStats.mSecSince() >= AMRISim::log_stats_freq) {
+  if((unsigned long) loggedStats.mSecSince() >= AMRISim::log_stats_freq) {
     logStats(l);
   }
 }
 
 void Session::logStats(LogInterface *l)
 {
-  double tsec = loggedStats.mSecSince()/1000.0;
+  const float tsec = (float)loggedStats.mSecSince()/1000.0;
   l->log("Sent %.1f SIP packets/sec (%lu SIP packets), received %.1f packets/sec (%lu packets) in last %.0f sec.", (double)packetsSent/tsec, packetsSent, (double)packetsReceived/tsec, packetsReceived, tsec);
   loggedStats.setToNow();
   packetsSent = 0;

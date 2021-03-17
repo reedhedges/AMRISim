@@ -79,11 +79,11 @@ class RobotInterface : public LogInterface {
     {
     }
 
-/*
     virtual ~RobotInterface() {
       //removeStoredRobotInterface(this);
     }
- */
+
+    // TODO add other required constructors and operators
 
     std::string getRobotName() const { return robotName; }
 

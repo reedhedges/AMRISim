@@ -157,7 +157,7 @@ void RobotFactory::acceptNewClient(unsigned int /*maxTime*/)
   //ep->setWarnUnsupportedCommands(myWarnUnsupportedCommands);
 } 
 
-void RobotFactory::acceptNewClientFromListenerThread(ArSocket *clientSocket, unsigned int maxTime/*=0*/)
+void RobotFactory::acceptNewClientFromListenerThread(ArSocket *clientSocket, [[maybe_unused]] unsigned int maxTime/*=0*/)
 {
   myClientSocketsMutex.lock();
   //ArLog::log(ArLog::Normal, "RobotFactory::acceptNewClientFromListenerThread(): %s factory accepted new client. Adding to myNewClientSockets...", myModelName.c_str());

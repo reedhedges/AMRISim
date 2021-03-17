@@ -71,7 +71,7 @@ int Sockets::processInput(unsigned int maxTime)
   struct timeval tv;
   //printf("maxtime=%u\n", maxTime);
   //assert(maxTime < 99999);
-  long usec = (long)(((double)maxTime)*1000.0);
+  //long usec = (long)(((double)maxTime)*1000.0);
   //printf("maxtime usec=%ld\n", usec);
   if(maxTime > 1000)
     tv.tv_sec = (long)floor((double)maxTime/1000.0);
@@ -111,7 +111,7 @@ int Sockets::processInput(unsigned int maxTime)
   int n = select(maxfd+1, &rfds, NULL, NULL, &tv); //NULL);// &tv);
   //print_debug("...select returned %d after %ld msec\n\n", n, t.mSecSince()); fflush(stdout);
   if(t.mSecSince() < (long)maxTime)
-    maxTime -= t.mSecSince();
+    maxTime -= (unsigned int) t.mSecSince();
   else
     maxTime = 0;
 
@@ -159,7 +159,7 @@ int Sockets::processInput(unsigned int maxTime)
     //print_debug("invoking socket callback 0x%x", c);
     try
     {
-      c->invoke(maxTime/readycbs.size());
+      c->invoke(maxTime / (unsigned int) readycbs.size());
     }
     catch(AMRISim::DeletionRequest &r)
     {

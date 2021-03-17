@@ -220,7 +220,7 @@ private:
   size_t myPolysPerChunk;
   std::vector<stg_polygon_t*> myMapPolysChunks;
   size_t myNumMapPolysChunks;
-  int myCurPolysChunkIdx;
+  size_t myCurPolysChunkIdx;
   std::vector<stg_model_t*> myMapPolysModels;
 
   // myMapPointsModels is a list of arbitrary-sized groups of points, so they can be loaded without long blocking executions
@@ -230,7 +230,7 @@ private:
   size_t myPointsPerChunk;
   std::vector<stg_point_t*> myMapPointsChunks;
   size_t myNumMapPointsChunks;
-  int myCurPointsChunkIdx;
+  size_t myCurPointsChunkIdx;
   std::vector<stg_model_t*> myMapPointsModels;
 
   std::map<std::string, ObjectClass> myObjectClasses;

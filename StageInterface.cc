@@ -67,12 +67,14 @@ StageInterface::StageInterface(stg_world_t* _world, stg_model_t* _model, std::st
 }
 
 StageInterface::Laser::Laser(size_t i, stg_model_t* model) :
-    subscribed(false), opened(false), stageModel(model), startAngle(-90.0), endAngle(90.0)
+  stageModel(model),
+  subscribed(false), opened(false), 
+  startAngle(-90.0), endAngle(90.0)
 {
   DeviceInfo::name = stg_model_get_token(model);
   DeviceInfo::type = stg_model_get_instance_type_name(model);
   DeviceInfo::basetype = stg_model_get_base_type_name(model);
-  DeviceInfo::which = i;
+  DeviceInfo::which = (unsigned int)i;
 }
 
 StageInterface::~StageInterface()
@@ -526,9 +528,9 @@ void StageInterface::setOdom(int x, int y, int theta)
 void StageInterface::setSimulatorPose(long int x, long int y, long int /*z*/, int theta)
 {
   stg_pose_t* p = (stg_pose_t*) stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
-  p->x = (x / 1000.0);
-  p->y = (y / 1000.0);
-  p->a = DTOR((double)theta);
+  p->x = (stg_meters_t)((double)x / 1000.0);
+  p->y = (stg_meters_t)((double)y / 1000.0);
+  p->a = (stg_meters_t) DTOR((double)theta);
   stg_model_property_changed(positionModel, "pose");
 }
 
@@ -665,7 +667,7 @@ int StageInterface::getSonarReading(int i) {
   assert(subscribedToSonar);
   size_t len = 0;
   stg_ranger_sample_t* data = (stg_ranger_sample_t*)stg_model_get_property(sonarModel, "ranger_data", &len);
-  int numSonarReadings = len / sizeof(stg_ranger_sample_t);
+  int numSonarReadings = (int)(len / sizeof(stg_ranger_sample_t));
   assert(i <= numSonarReadings && i >= 0);
   int r =(int) ArMath::roundInt(data[i].range * 1000.0); 
   return  r;
@@ -698,7 +700,7 @@ int StageInterface::Laser::getReading(int i) {
   if(!stageModel || !subscribed || !opened ) return 0;
   size_t len = 0;
   stg_laser_sample_t* data = (stg_laser_sample_t*)stg_model_get_property(stageModel, "laser_data", &len);
-  int numLaserReadings = len / sizeof(stg_laser_sample_t);
+  int numLaserReadings = (int)(len / sizeof(stg_laser_sample_t));
   assert(i <= numLaserReadings && i >= 0);
   return data[i].range;
 }
@@ -714,7 +716,7 @@ int StageInterface::Laser::getReflectance(int i) {
     return 0;
   size_t len = 0;
   stg_laser_sample_t* data = (stg_laser_sample_t*)stg_model_get_property(stageModel, "laser_data", &len);
-  int numLaserReadings = len / sizeof(stg_laser_sample_t);
+  int numLaserReadings = (int)(len / sizeof(stg_laser_sample_t));
   assert(i <= numLaserReadings && i >= 0);
   return data[i].reflectance;
 }
@@ -941,37 +943,31 @@ void StageInterface::getSimulatorPose(long &x, long &y, long &z, int &theta)
 long StageInterface::getSimulatorPoseX() {
   stg_pose_t* pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
   assert(pose);
-  int x = (int)(pose->x * 1000.0);
-  return x;
+  return (long)(pose->x * 1000.0);
 }
 
 long StageInterface::getSimulatorPoseY() {
   stg_pose_t* pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
   assert(pose);
-  int y = (int)(pose->y * 1000.0);
-  return y;
+  return (long)(pose->y * 1000.0);
 }
 
 int StageInterface::getSimulatorPoseTheta() {
   stg_pose_t* pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
   assert(pose);
-  int th = (int)ArMath::roundInt(RTOD(pose->a));
-  return th;
+  return ArMath::roundInt(RTOD(pose->a));
 }
 
 int StageInterface::getLastInterval() { 
-  int i = stg_world_get_last_interval(stageWorld);
-  return i;
+  return (int) stg_world_get_last_interval(stageWorld);
 }
 
 int StageInterface::getSimInterval() {
-  int i = stg_world_get_sim_interval(stageWorld);
-  return i;
+  return (int) stg_world_get_sim_interval(stageWorld);
 }
 
 int StageInterface::getRealInterval() {
-  int i = stg_world_get_real_interval(stageWorld);
-  return i;
+  return (int) stg_world_get_real_interval(stageWorld);
 }
 
 void StageInterface::error_s(const char* message)
@@ -1038,7 +1034,7 @@ std::vector< RobotInterface::DeviceInfo > StageInterface::getDeviceInfo()
       inf.name = stg_model_get_token(m);
       inf.basetype = stg_model_get_base_type_name(m);
       inf.type = stg_model_get_instance_type_name(m);
-      inf.which = stg_model_get_instance_index(m);
+      inf.which = (unsigned int) stg_model_get_instance_index(m);
       inf.status = 0;
       devs.push_back(inf);
     }

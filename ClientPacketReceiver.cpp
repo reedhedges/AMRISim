@@ -154,7 +154,7 @@ AREXPORT bool ClientPacketReceiver::OLDreadData(int msWait)
 }
 #endif
 
-bool ClientPacketReceiver::readData(int msWait)
+bool ClientPacketReceiver::readData(unsigned int msWait)
 {
   int n = mySocket->read(this->myReadBuff, BUFFER_SIZE, msWait);
   //printf("ClientPacketReceiver: mySocket->read() returned %d. myState=%d\n", n, myState);
@@ -172,7 +172,7 @@ bool ClientPacketReceiver::readData(int msWait)
   // Scan myReadBuf for next expected value, storing it. If end of packet is reached, call callback.
   for(int i = 0; i < n; ++i)
   {
-    const unsigned char c = myReadBuff[i];
+    const unsigned char c = myReadBuff[i]; // must be unsigned char
     switch(myState)
     {
       case STATE_SYNC1:
@@ -207,7 +207,7 @@ bool ClientPacketReceiver::readData(int msWait)
           ArLog::log(ArLog::Normal, "%sWarning: Illegal length in packet: %u (must be less than %u). Scanning for next packet...", myLoggingPrefix.c_str(), myReadLength, MAX_PACKET_SIZE+1);
           myState = STATE_SYNC1;
         }
-        myPacket.uByteToBuf(c);
+        myPacket.byteToBuf(c);
         myState = STATE_DATA;
         break;
       }

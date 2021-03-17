@@ -142,7 +142,9 @@ void mobilesim_crash_handler(int signum)
         char *argstr = (char*) malloc(argstr_len);   // concat all argvs for logging
 
         strncpy(argstr, progname, argstr_len);
-        argv[1] = strdup("--restarting-after-crash");
+        argv[1] = (char*) malloc(25);
+        strncpy(argv[1], "--restarting-after-crash", 24);
+        std::string("--restarting-after-crash").c_str();
         argstr_len += strlen(" --restarting-after-crash");
         argstr = (char*) realloc(argstr, argstr_len);
         strncat(argstr, " --restarting-after-crash", argstr_len);

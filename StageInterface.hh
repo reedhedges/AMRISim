@@ -33,7 +33,7 @@
 #include <deque>
 #include <map>
 
-#include <stage.h>
+#include "stage.h"
 
 #define MAX_SONAR_SAMPLES 128
 #define MAX_LASER_SAMPLES (361*2)
