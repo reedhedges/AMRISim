@@ -12,8 +12,8 @@ for debugging and experimentation.
 
 Current software interfaces available are Pioneer protocol
 (for [ARIA](http://robots.mobilerobots.com/wiki/ARIA) or
-[AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS](http://ros.org) (under development, 
-not included on Windows).
+[AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS 1](http://ros.org) (under development, 
+not included on Windows.  ROS 2 is not yet supported).
 
 AMRISim can be built on Linux, Windows using MinGW (untested currently) and Mac OSX.
 
@@ -172,18 +172,49 @@ To build AMRISim, AriaCoda or ARIA, and ROS melodic are required (see
 On Linux, GTK+ 2.x development packages are also needed, as well as
 g++, make, libtool, automake and autoconf.
 
-ROS melodic is expected to be installed in /opt/ros/melodic.
-
-AriaCoda source code is expected to be in ../AriaCoda.  (Define
-the `ARIA` environment variable before building to change location.)
-
 Run "make" to build.
 
 On Windows, MinGW and MSYS should be used. 
-GTK+ is not needed, it will be included.
+GTK+ does not need tobe installed on Windows, a local copy is used. 
 
 Detailed build instructions for each platform are available in
 [BUILD.md](BUILD.md).
+
+ROS1 and ARIA or AriaCoda are required to build AMRISim:
+
+### ROS1
+
+ROS1 melodic is expected to be installed in `/opt/ros/melodic`, or ROS to be
+installed on the system from Ubuntu repositories using `apt`.
+
+If you will be doing general ROS1 development on the same system, it is
+recommended to install ROS1 in `/opt/ros/...` according to the instructions 
+found at <http://www.ros.org>. (Note that each version
+of ROS1 is supported on certain versions of Ubuntu only. ROS2 is not yet
+supported in AMRISim.)
+
+If you just want to more easily build AMRISim with ROS support on Ubuntu,
+installing ROS Ubuntu packages using apt is easier than configuring the custom
+ROS installation and build system.  The required Ubuntu packages to build are: 
+
+    libroscpp-dev libtf-dev libsensor-msgs-dev libgeometry-msgs-dev libstd-msgs-dev libstd-srvs-dev libnav-msgs-dev libnodelet-dev
+
+Additionally to run AMRISim and use `rostopic` to test you will also need:
+
+    python3-roslaunch python3-rostopic ros-geometry-msgs ros-nav-msgs ros-std-msgs ros-sensor-msgs ros-std-srvs
+
+You could also install `rviz`. 
+
+(Or install `ros-base-dev` or `ros-desktop-dev` to for a collection of many ROS
+packages.)
+
+To omit ROS1 support from AMRISim, build with `AMRISIM_INCLUDE_ROS=no`. See
+[BUILD.md](BUILD.md) and `make help` for details.
+
+### AriaCoda
+
+AriaCoda source code is expected to be in ../AriaCoda.  (Define
+the `ARIA` environment variable before building to change location.)
 
 How to get started
 ------------------

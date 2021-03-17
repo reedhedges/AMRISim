@@ -1331,7 +1331,7 @@ int main(int argc, char** argv)
       // TODO option to choose ROS version, in command line, and config GUI when enabling ROS
       print_msg("Running gnome-terminal. Will import ROS melodic setup environment into shell, then will run roscore.");
       // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
-      system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; . /opt/ros/melodic/setup.sh && roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
+      system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
       AMRISim::sleep(5*1000);
      }
   }

@@ -390,13 +390,12 @@ GTK_LINK = $(GTK_LIBS)
 
 #ROS_CFLAGS= 
 #ROS_LINK= 
-
 ifeq ($(AMRISIM_INCLUDE_ROS),yes)
 
 
 
-$(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROSRELEASE).)
-ros_modules_used = roscpp std_msgs sensor_msgs geometry_msgs tf 
+$(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROSRELEASE or on the system).)
+ros_modules_used = roscpp std_msgs sensor_msgs geometry_msgs tf nav_msgs std_srvs
 ROS_CFLAGS = -DAMRISIM_ROS $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
 ROS_LINK = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
 
