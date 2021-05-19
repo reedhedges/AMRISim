@@ -79,7 +79,7 @@ protected:
   }
 private:
   std::string myModelName;
-  int myPort;
+  //int myPort;
   ArSocket myListenSocket;
   //std::set<int> myCommandsToIgnore;
   //bool myVerbose;

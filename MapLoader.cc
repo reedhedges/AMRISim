@@ -52,6 +52,17 @@ const double MapLoader::ReflectorThickness = 0.0200; // meters (=2cm).
 #define PRINT_NUM_POINTS_CREATED 1
 #define PRINT_NUM_LINES_CREATED  1
 
+MapLoader::MapLoader(stg_world_t *_world) :
+    world(_world), map(NULL), created_map(false), loading(false), hostHasEM(false), haveMapOriginLLA(false),
+    myProcessState(MapLoader::NEWMAP_INACTIVE),
+    myMapModel(NULL), myNumLines(0), myNumPolys(0), 
+    myPolysPerChunk(0), myNumMapPolysChunks(0), myCurPolysChunkIdx(0),
+    myNumPoints(0), myPointCount(0), myPointsPerChunk(0), myNumMapPointsChunks(0), myCurPointsChunkIdx(0),
+    lastMapReloadTime(0),
+    myLoadedData(false)
+  { }
+
+
 MapLoader::~MapLoader()
 {
   if(map && created_map)
@@ -132,13 +143,19 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
   char curPath[256];
   char copyPath[256];
 
-  strcpy(curPath, newmapfile.c_str());
+  // XXX TODO remove map copying, check for EM, etc. from here 
+
+  strncpy(curPath, newmapfile.c_str(), 255);
+  curPath[255] = '\0';
   ArUtil::getDirectory(newmapfile.c_str(), curPath, 256);
-  strcpy(copyPath, curPath);
-  if(hostHasEM)
-    strcat(copyPath, "./sim/");
+  strncpy(copyPath, curPath, 255);
+  copyPath[255] = '\0';
+  const size_t len = strlen(copyPath);
+  if (hostHasEM)
+    strncat(copyPath, "./sim/", 255-len);
   else
-    strcat(copyPath, "/copyMap/");
+    strncat(copyPath, "/copyMap/", 255-len);
+  copyPath[255 - len] = '\0';
 
   if(stat(newmapfile.c_str(), &file_st) == -1 || stat(copyPath, &path_st) == -1)
   {
@@ -737,7 +754,7 @@ bool MapLoader::process(unsigned int maxTime)
   {
     DEBUG_LOG_STATE_ACTION();
     // Clear any existing map models
-    for(std::set<stg_model_t*>::const_iterator i = mapModels.begin(); i != mapModels.end(); i++)
+    for(std::set<stg_model_t*>::const_iterator i = mapModels.begin(); i != mapModels.end(); ++i)
     {
       assert(*i);
       stg_world_remove_model(world, *i);
@@ -1049,38 +1066,37 @@ bool MapLoader::processTimeCheck(unsigned int maxTime, ArTime mapProcessStart, N
   #define PROCESSWINDOW_CALLBACK     20
   #define PROCESSWINDOW_RESET        75
 
-  char stateBuff[200];
-  long long processWindow;
+  long long processWindow = 0;
 
-  strcpy(stateBuff, stateName(checkProcessState));
+  std::string stateDesc = stateName(checkProcessState);
 
   switch (checkProcessState)
   {
-  case MapLoader::NEWMAP_INACTIVE:       strcpy(stateBuff, "INACTIVE");       processWindow = 0;                          break; // TODO: obsolete, now that this function was created
-  case MapLoader::NEWMAP_LOADLINESTART:  strcpy(stateBuff, "LOADLINESTART");  processWindow = PROCESSWINDOW_LOADLINE;     break;
-  case MapLoader::NEWMAP_LOADLINECONT:   strcpy(stateBuff, "LOADLINECONT");   processWindow = PROCESSWINDOW_LOADLINE;     break;
-  case MapLoader::NEWMAP_LOADPOINTSTART: strcpy(stateBuff, "LOADPOINTSTART"); processWindow = PROCESSWINDOW_LOADPOINT;    break;
-  case MapLoader::NEWMAP_LOADPOINTCONT:  strcpy(stateBuff, "LOADPOINTCONT");  processWindow = PROCESSWINDOW_LOADPOINT;    break;
-  case MapLoader::NEWMAP_LOADCHECK:      strcpy(stateBuff, "LOADCHECK");      processWindow = PROCESSWINDOW_LOADCHECK;    break;
-  case MapLoader::NEWMAP_STAGECREATE:    strcpy(stateBuff, "STAGECREATE");    processWindow = PROCESSWINDOW_STGCREATE;    break;
-  //case MapLoader::NEWMAP_STAGEGRID:      strcpy(stateBuff, "STAGEGRID");      processWindow = PROCESSWINDOW_STGGRID;      break;
-  case MapLoader::NEWMAP_STAGEINITPOLY:  strcpy(stateBuff, "STAGEINITPOLY");  processWindow = PROCESSWINDOW_STGINITPOLY;  break;
-  case MapLoader::NEWMAP_STAGEINITPOINT: strcpy(stateBuff, "STAGEINITPOINT"); processWindow = PROCESSWINDOW_STGINITPOINT; break;
-  case MapLoader::NEWMAP_STAGECLEAR:     strcpy(stateBuff, "STAGECLEAR");     processWindow = PROCESSWINDOW_STGCLEAR;     break;
-  case MapLoader::NEWMAP_STAGEINSERT:    strcpy(stateBuff, "STAGEINSERT");    processWindow = PROCESSWINDOW_STGINSERT;    break;
-  case MapLoader::NEWMAP_CUSTTYPESTART:  strcpy(stateBuff, "CUSTTYPESTART");  processWindow = PROCESSWINDOW_CUSTTYPE;     break;
-  case MapLoader::NEWMAP_CUSTTYPECONT:   strcpy(stateBuff, "CUSTTYPECONT");   processWindow = PROCESSWINDOW_CUSTTYPE;     break;
-  case MapLoader::NEWMAP_CAIRNSTART:     strcpy(stateBuff, "CAIRNSTART");     processWindow = PROCESSWINDOW_CAIRNOBJ;     break;
-  case MapLoader::NEWMAP_CAIRNCONT:      strcpy(stateBuff, "CAIRNCONT");      processWindow = PROCESSWINDOW_CAIRNOBJ;     break;
-  case MapLoader::NEWMAP_RESIZE:         strcpy(stateBuff, "RESIZE");         processWindow = PROCESSWINDOW_RESIZE;       break;
-  case MapLoader::NEWMAP_CALLBACK:       strcpy(stateBuff, "CALLBACK");       processWindow = PROCESSWINDOW_CALLBACK;     break;
-  case MapLoader::NEWMAP_RESET:          strcpy(stateBuff, "RESET");          processWindow = PROCESSWINDOW_RESET;        break;
+    case MapLoader::NEWMAP_INACTIVE:       stateDesc = "INACTIVE";       processWindow = 0;                          break; // TODO: obsolete, now that this function was created
+    case MapLoader::NEWMAP_LOADLINESTART:  stateDesc = "LOADLINESTART";  processWindow = PROCESSWINDOW_LOADLINE;     break;
+    case MapLoader::NEWMAP_LOADLINECONT:   stateDesc = "LOADLINECONT";   processWindow = PROCESSWINDOW_LOADLINE;     break;
+    case MapLoader::NEWMAP_LOADPOINTSTART: stateDesc = "LOADPOINTSTART"; processWindow = PROCESSWINDOW_LOADPOINT;    break;
+    case MapLoader::NEWMAP_LOADPOINTCONT:  stateDesc = "LOADPOINTCONT";  processWindow = PROCESSWINDOW_LOADPOINT;    break;
+    case MapLoader::NEWMAP_LOADCHECK:      stateDesc = "LOADCHECK";      processWindow = PROCESSWINDOW_LOADCHECK;    break;
+    case MapLoader::NEWMAP_STAGECREATE:    stateDesc = "STAGECREATE";    processWindow = PROCESSWINDOW_STGCREATE;    break;
+    //case MapLoader::NEWMAP_STAGEGRID:      stateDesc = "STAGEGRID";      processWindow = PROCESSWINDOW_STGGRID;      break;
+    case MapLoader::NEWMAP_STAGEINITPOLY:  stateDesc = "STAGEINITPOLY";  processWindow = PROCESSWINDOW_STGINITPOLY;  break;
+    case MapLoader::NEWMAP_STAGEINITPOINT: stateDesc = "STAGEINITPOINT"; processWindow = PROCESSWINDOW_STGINITPOINT; break;
+    case MapLoader::NEWMAP_STAGECLEAR:     stateDesc = "STAGECLEAR";     processWindow = PROCESSWINDOW_STGCLEAR;     break;
+    case MapLoader::NEWMAP_STAGEINSERT:    stateDesc = "STAGEINSERT";    processWindow = PROCESSWINDOW_STGINSERT;    break;
+    case MapLoader::NEWMAP_CUSTTYPESTART:  stateDesc = "CUSTTYPESTART";  processWindow = PROCESSWINDOW_CUSTTYPE;     break;
+    case MapLoader::NEWMAP_CUSTTYPECONT:   stateDesc = "CUSTTYPECONT";   processWindow = PROCESSWINDOW_CUSTTYPE;     break;
+    case MapLoader::NEWMAP_CAIRNSTART:     stateDesc = "CAIRNSTART";     processWindow = PROCESSWINDOW_CAIRNOBJ;     break;
+    case MapLoader::NEWMAP_CAIRNCONT:      stateDesc = "CAIRNCONT";      processWindow = PROCESSWINDOW_CAIRNOBJ;     break;
+    case MapLoader::NEWMAP_RESIZE:         stateDesc = "RESIZE";         processWindow = PROCESSWINDOW_RESIZE;       break;
+    case MapLoader::NEWMAP_CALLBACK:       stateDesc = "CALLBACK";       processWindow = PROCESSWINDOW_CALLBACK;     break;
+    case MapLoader::NEWMAP_RESET:          stateDesc = "RESET";          processWindow = PROCESSWINDOW_RESET;        break;
 
-  default:                               strcpy(stateBuff, "INACTIVE");       processWindow = 0;                          break;
+    default:                               stateDesc = "INACTIVE";       processWindow = 0;                          break;
   }
-  long long timeLeft = (long long) maxTime - mapProcessStart.mSecSinceLL();
+  const long long timeLeft = (long long) maxTime - mapProcessStart.mSecSinceLL();
   if (logPrint)
-    ArLog::log(ArLog::Normal, "\nMapLoader: myProcessState: NEWMAP_%s, timeLeft: %lld", stateBuff, timeLeft);
+    ArLog::log(ArLog::Normal, "\nMapLoader: myProcessState: NEWMAP_%s, timeLeft: %lld", stateDesc.c_str(), timeLeft);
 
   if (timeLeft == maxTime || timeLeft >= processWindow)
     return true;
@@ -1145,7 +1161,7 @@ stg_model_t* MapLoader::loadReflector(ArMapObject* obj, stg_model_t* /*map_model
 
   // Turn it into a box with some thickness
   double line_angle = atan( fabs(line_dy) / fabs(line_dx) );
-  double reflector_theta = fabs(line_angle + reflector_pose.a);
+  double reflector_theta = fabs(line_angle); // ?? + reflector_pose.a); ??
   double disp_x = fabs(ReflectorThickness * sin(reflector_theta));
   double disp_y = fabs(ReflectorThickness * cos(reflector_theta));
 
@@ -1167,12 +1183,12 @@ stg_model_t* MapLoader::loadReflector(ArMapObject* obj, stg_model_t* /*map_model
 
   // Find a unique name
   char token[32];
-  memset(token, 0, 32);
-  strcat(token, "Reflector:0");
-  int i = 0;
+  strncpy(token, "Reflector:0", 31);
+  token[31] = '\0';
+  size_t i = 0;
   for(; stg_world_model_name_lookup(world, token) != NULL; i++)
   {
-    snprintf(token, 32, "Reflector:%i", i);
+    snprintf(token, 32, "Reflector:%lu", i); // try next number
   }
 
   // find a unique id number
@@ -1238,12 +1254,12 @@ stg_model_t* MapLoader::loadBoxObstacle(ArMapObject* obj, stg_model_t* /*map_mod
 
   // Find a unique name and id
   char token[32];
-  memset(token, 0, 32);
-  strcat(token, "Box:0");
-  int i = 0;
+  strncpy(token, "Box:0", 31);
+  token[31] = '\0';
+  size_t i = 0;
   for(; stg_world_model_name_lookup(world, token) != NULL; i++)
   {
-    snprintf(token, 32, "Box:%i", i);
+    snprintf(token, 32, "Box:%lu", i); // try next number
   }
 
   // find a unique name
@@ -1328,7 +1344,7 @@ bool MapLoader::shouldReloadMap(const std::string& newmapfile)
 
   if(hostHasEM)
   {
-    bool printTimeCompare = true;
+    const bool printTimeCompare = true;
     if (printTimeCompare)
     {
       char filemod_buff[50], modrec_buff[50];
@@ -1355,7 +1371,7 @@ bool MapLoader::shouldReloadMap(const std::string& newmapfile)
   }
 
   bool hadModelsFromThatMap = false;
-  for(std::set<stg_model_t*>::const_iterator i = mapModels.begin(); i != mapModels.end(); i++)
+  for(std::set<stg_model_t*>::const_iterator i = mapModels.begin(); i != mapModels.end(); ++i)
   {
     size_t len;
     char *source = (char*)stg_model_get_property(*i, "source", &len);
@@ -1386,7 +1402,7 @@ bool MapLoader::shouldReloadMap(const std::string& newmapfile)
 }
 
 
-void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, std::string filename, ArMap* map) const
+void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename, ArMap* map) const
 {
   if(!cb) return;
   MapLoadedInfo info;
@@ -1419,7 +1435,7 @@ void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, std::s
 }
 
 
-void MapLoader::invokeMapLoadedCallbacks(int status, std::string filename, ArMap* map) const // JPL - experimental
+void MapLoader::invokeMapLoadedCallbacks(int status, const std::string& filename, ArMap* map) const // JPL - experimental
 {
   if (callbacks.empty())
     return;
@@ -1435,11 +1451,11 @@ void MapLoader::reset()
   {
     delete map;
   }
-  map = NULL;
+  map = nullptr;
 
 
   myNumPolys = myNumLines = myNumPoints = 0;
-  myMapModel = NULL;
+  myMapModel = nullptr;
   myMapPolysChunks.clear();// TODO: ask Reid about why this doesn't cause a memory leak, and why it crashes when I try to free() the memory when it != NULL
   myMapPointsChunks.clear();// TODO: ask Reid about why this doesn't cause a memory leak, and why it crashes when I try to free() the memory when it != NULL
   myMapPolysModels.clear();

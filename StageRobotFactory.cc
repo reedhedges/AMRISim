@@ -34,7 +34,10 @@ StageRobotFactory::StageRobotFactory(stg_world_t* world, const std::string& mode
 :
   RobotFactory(modelName, userOpts),
   myWorld(world),
-  myUseFixedStartPos(true)
+  myUseFixedStartPos(true),
+  myGetStartCB(nullptr),
+  myGetBoundsCB(nullptr),
+  myStartOutsideBounds(false)
 {
   myStartPos.x = start_x / 1000.0;
   myStartPos.y = start_y / 1000.0;

@@ -766,8 +766,24 @@ ctags: tags
 tags: $(SOURCES) $(HEADERS) $(STAGE_SRC)
 	ctags $(SOURCES) $(HEADERS) $(STAGE_SRC)
 
-tidy:
-	clang-tidy $(HEADERS) $(SOURCES) -- $(MSIM_CFLAGS)
+
+tidy: compile_flags.txt
+	clang-tidy  -header-filter=".*\.hh"   $(SOURCES) $(HEADERS) -- -x c++ -std=c++17 $(MSIM_CFLAGS)
+
+clang-tidy: tidy
+
+compile_flags.txt: FORCE
+	-rm $@
+	for f in $(MSIM_CFLAGS); do echo "$$f" >> $@; done
+
+cppcheck: FORCE
+	cppcheck --enable=all --language=c++ --std=c++17 --relative-paths=./ -I . -j 4 -DAMRISIM -DARIA_STATIC -DAMRISIM_VERSION="$(VERSION)" -DAMRISIM_BUILDDATE="$(DATESTR)" $(SOURCES) $(HEADERS)
+	
+#| sed 's/^.*\.(cc|cpp|hh|h):.*:.*:/.\/&'
+
+cppclean: FORCE
+	cppclean --include-path=. --include-path=stage/src --include-path=$(ARIA)/include --include-path=$(ARIA)/include/Aria $(SOURCES) $(HEADERS)
+  
 
 .PHONY: all clean distclean dep cleandep debug opt optimize install uninstall deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf bindistbase srcdistbase debian-dev srcdist-dev bindist-dev srcdist-release bindist-release ctags AMRISimAppBundle tidy
 

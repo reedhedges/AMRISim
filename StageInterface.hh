@@ -45,10 +45,10 @@
 class StageInterface : public virtual RobotInterface
 {
   public:
-    StageInterface(stg_world_t* _world, std::string _robotModel, std::string _robotName);
-    StageInterface(stg_world_t* _world, stg_model_t* _model, std::string _robotModel, std::string _robotName);
-    virtual void connect(RobotParams* params);
-    virtual void disconnect();
+    StageInterface(stg_world_t* _world, const std::string& _robotModel, const std::string& _robotName);
+    StageInterface(stg_world_t* _world, stg_model_t* _model, const std::string& _robotModel, const std::string& _robotName);
+    virtual void connect(RobotParams* params) override;
+    virtual void disconnect() override;
     void lockStageWorld() {
 #ifdef STAGE_MUTEX_LOG
       printf("StageInterface::lockStage()... ");
@@ -67,7 +67,7 @@ class StageInterface : public virtual RobotInterface
 
     virtual ~StageInterface();
 
-    virtual void logState();
+    virtual void logState() override;
 
   protected:
 
@@ -97,7 +97,8 @@ class StageInterface : public virtual RobotInterface
       double getFOV();
       void setAngles(double start, double end);
       size_t numReadings();
-      int getReading(int i);
+      unsigned int getReading(size_t i);
+      [[deprecated]] unsigned int getReading(int i) { assert(i >= 0); return getReading((size_t)i); }
       int getReflectance(int i);
       size_t forEachReading(LaserReadingFunc &func, const size_t &start);
     };
@@ -191,7 +192,7 @@ class StageInterface : public virtual RobotInterface
     virtual std::string laserName(size_t i) { if(i <= lasers.size()) return ""; return lasers[i].name; }
     virtual std::string laserType(size_t i) { if(i <= lasers.size()) return ""; return lasers[i].type; }
     virtual size_t numLaserReadings(size_t lasernum);
-    virtual int getLaserReading(size_t lasernum, int i);
+    virtual unsigned int getLaserReading(size_t lasernum, size_t i);
     virtual size_t forEachLaserReading(size_t lasernum, LaserReadingFunc &func, const size_t &start = 0);
     virtual int getLaserReflectance(size_t lasernum, int i);
     virtual double getLaserResolution(size_t lasernum);  ///< Degrees between readings

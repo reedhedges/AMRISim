@@ -56,7 +56,6 @@
 #include "ArRobotPacketSender.h"
 #include "ClientPacketReceiver.h"
 
-#include "AMRISim.hh"
 #include "Socket.hh"
 
 /* Turn these on to get debugging messages: */
@@ -173,7 +172,7 @@ bool EmulatePioneer::mapMasterEnabled = false;
 // Constructor:
 // Retrieve options from the configuration file, and get ready to open
 // TCP socket to listen on. Call openSocket() to start listening for a client; when client is accepted, the listening socket is temporarily closed until client closes connection, then it is reopened.
-EmulatePioneer::EmulatePioneer(RobotInterface* rif, std::string robotName, 
+EmulatePioneer::EmulatePioneer(RobotInterface* rif, const std::string& robotName, 
     int port,  bool deleteOnDisconnect, bool trySubsequentPorts, const AMRISim::Options *userOptions) :
       LogInterface(robotName),
       status(0),
@@ -208,7 +207,7 @@ EmulatePioneer::EmulatePioneer(RobotInterface* rif, std::string robotName,
 
 // Constructor: just set our client socket, assumed to already be connected
 // to a client
-EmulatePioneer::EmulatePioneer(RobotInterface *rif, std::string robotName, ArSocket *clientSocket, 
+EmulatePioneer::EmulatePioneer(RobotInterface *rif, const std::string& robotName, ArSocket *clientSocket, 
     bool deleteOnDisconnectOnDisconnect, bool deleteClientSocketOnDisconnect, const AMRISim::Options *userOptions) :
       LogInterface(robotName),
       status(0),
@@ -259,8 +258,8 @@ EmulatePioneer::EmulatePioneer(RobotInterface *rif, std::string robotName, ArSoc
 void EmulatePioneer::init(const std::string& robotName, const AMRISim::Options *userOptions)
 {
   //++currentEmulatorCount;
-  memset(params.RobotName, 0, ROBOT_IDENTIFIER_LEN);
-  strncpy(params.RobotName, robotName.c_str(), ROBOT_IDENTIFIER_LEN);
+  strncpy(params.RobotName, robotName.c_str(), ROBOT_IDENTIFIER_LEN-1);
+  params.RobotName[ROBOT_IDENTIFIER_LEN - 1] = '\0';
   robotInterface->setBatteryVoltage(DEFAULT_BATTERY_VOLTAGE);
   robotInterface->setStateOfCharge(DEFAULT_STATE_OF_CHARGE);
   robotInterface->setDigoutState(DEFAULT_DIGOUT_STATE);
@@ -307,7 +306,7 @@ EmulatePioneer::~EmulatePioneer()
   {
     //print_debug("Deleting robot interface %p...", robotInterface);
     delete robotInterface;
-    robotInterface = NULL;
+    //robotInterface = NULL;
     //print_debug("Deleted robot interface.");
   }
 
@@ -317,7 +316,7 @@ EmulatePioneer::~EmulatePioneer()
   if(myDeleteClientSocketOnDisconnect && myClientSocket)
   {
     delete myClientSocket;
-    myClientSocket = NULL;
+    //myClientSocket = NULL;
   }
 
   AMRISim::Sockets::removeSocketCallback(&myListenSocket);
@@ -332,18 +331,6 @@ int EmulatePioneer::getPort()  const
   return myTCPPort;
 }
 
-Session::Session() :
-   requestedOpenSonar(false),
-   inWatchdogState(false),
-   eStopInProgress(false),
-   sendingSimstats(false),
-   syncSeq(0),
-   handshakeAttempt(0),
-   packetsSent(0),
-   packetsReceived(0)
-{
-    started.setToNow();
-}
 
 bool EmulatePioneer::openSocket()
 {
@@ -425,7 +412,7 @@ void EmulatePioneer::acceptNewClient(unsigned int /*maxTime*/)
     {
       warn("Error accepting client connection.");
       delete myClientSocket;
-      myClientSocket = NULL;
+      myClientSocket = nullptr;
       return;
     }
     if(!myClientSocket->isOpen())
@@ -433,7 +420,7 @@ void EmulatePioneer::acceptNewClient(unsigned int /*maxTime*/)
       warn("Error accepting client connection (socket closed after accept).");
       // No client connected
       delete myClientSocket;
-      myClientSocket = NULL;
+      myClientSocket = nullptr;
       return;
     }
     inform("Client connected from %s (%s)", myClientSocket->getHostName().c_str(), myClientSocket->getIPString());
@@ -605,14 +592,14 @@ bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt)
   if(session->syncSeq == 2)
   {
     if (myVerbose) log("Sending SYNC2 with robot config info.");
-    ArRobotPacket pkt;
-    pkt.setID(2);
-    pkt.strToBuf("AMRISim");
-    pkt.strToBuf(params.RobotClass);
-    pkt.strToBuf(params.RobotSubclass);
-    pkt.finalizePacket();
+    ArRobotPacket rpkt;
+    rpkt.setID(2);
+    rpkt.strToBuf("AMRISim");
+    rpkt.strToBuf(params.RobotClass);
+    rpkt.strToBuf(params.RobotSubclass);
+    rpkt.finalizePacket();
     //print_debug("writing config info to connection...");
-    if(session->connection.write(pkt.getBuf(), pkt.getLength()) == -1)
+    if(session->connection.write(rpkt.getBuf(), rpkt.getLength()) == -1)
     {
       warn("Error sending robot indentification strings to the client. Closing connection.");
       endSession();
@@ -1323,10 +1310,11 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        WARN_DEPRECATED("SET_X", pkt->getID(), "SIM_SET_POSE", ArCommands::SIM_SET_POSE);
        if(!SRISimCompat) break;
        argType = pkt->bufToByte();
-       long x, y, z;
-       robotInterface->getSimulatorPose(x, y, z, th);
-       x = pkt->bufToByte2();
-       robotInterface->setSimulatorPose(x, y, z, th);
+       long tx, ty, tz;
+       int tt;
+       robotInterface->getSimulatorPose(tx, ty, tz, tt);
+       tx = pkt->bufToByte2();
+       robotInterface->setSimulatorPose(tx, ty, tz, tt);
        break;
     }
 
@@ -1335,10 +1323,11 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        WARN_DEPRECATED("SET_Y", pkt->getID(), "SIM_SET_POSE", ArCommands::SIM_SET_POSE);
        if(!SRISimCompat) break;
        argType = pkt->bufToByte();
-       long x, y, z;
-       robotInterface->getSimulatorPose(x, y, z, th);
-       y = pkt->bufToByte2();
-       robotInterface->setSimulatorPose(x, y, z, th);
+       long tx, ty, tz;
+       int tt;
+       robotInterface->getSimulatorPose(tx, ty, tz, tt);
+       ty = pkt->bufToByte2();
+       robotInterface->setSimulatorPose(tx, ty, tz, tt);
        break;
     }
 
@@ -1692,13 +1681,13 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
       if(!myVerbose) break;
 
       argType = pkt->bufToByte();
-      size_t len = (size_t)(pkt->bufToUByte());
+      size_t strlen = (size_t)(pkt->bufToUByte());
       std::string str;
-      for(unsigned int i = 0; i < len; ++i)
+      for(unsigned int i = 0; i < strlen; ++i)
       {
         str += toPrintable(pkt->bufToUByte());
       }
-      inform("For aux tty %d: %s (%u bytes)", (pkt->getID() == ArCommands::TTY2)?1:3, str.c_str(), len);
+      inform("For aux tty %d: %s (%u bytes)", (pkt->getID() == ArCommands::TTY2)?1:3, str.c_str(), strlen);
       break;
     }
 
@@ -1814,9 +1803,9 @@ void EmulatePioneer::endSession()
       delete myClientSocket;
     }
   }
-  myClientSocket = NULL;
+  myClientSocket = nullptr;
   delete session;
-  session = NULL;
+  session = nullptr;
 
   //print_debug("EmulatePioneer::endSession: myDeleteOnDisconnect=%d", myDeleteOnDisconnect);
   if(myDeleteOnDisconnect)
@@ -1998,7 +1987,7 @@ ArRobotPacket* SIPGenerator::getPacket()
       PackSonarReadingFunc(ArRobotPacket &init_pkt, const double &init_conv, const size_t &init_max, const size_t &init_i = 0) 
         : pkt(init_pkt), conv(init_conv), max(init_max), i(init_i), count(0)
         {}
-      virtual bool operator()(const int r) {
+      virtual bool operator()(unsigned int r) override {
         pkt.byteToBuf((ArTypes::Byte)i);
         const ArTypes::Byte2 convr = (ArTypes::Byte2) ArMath::roundInt(r / conv);
         pkt.byte2ToBuf(convr);
@@ -2015,7 +2004,7 @@ ArRobotPacket* SIPGenerator::getPacket()
   
     PackSonarReadingFunc func(pkt, params->RangeConvFactor, (size_t) params->Sim_MaxSonarReadingsPerSIP, (size_t) firstSonarReadingToSend);
 
-    const int numPacked = (int) robotInterface->forEachSonarReading(func, firstSonarReadingToSend);
+    const int numPacked = (int) robotInterface->forEachSonarReading(func, (size_t) firstSonarReadingToSend);
 #ifdef DEBUG_SIP_SONAR_DATA
     print_debug("SIP: Sent %d sonar readings", numPacked);
 #endif
@@ -2040,8 +2029,8 @@ ArRobotPacket* SIPGenerator::getPacket()
   pkt.byteToBuf(robotInterface->gripperState()); 
   pkt.byteToBuf(0);   // analog select
   pkt.byteToBuf(0);   // analog data
-  pkt.byteToBuf(robotInterface->getDiginState()); //(char)0xFF);   // digital in, also used for IR on peoplebot (0 means triggered, 1 means not triggered)
-  pkt.byteToBuf(robotInterface->getDigoutState()); //(char)0xFF);   // digital out (0 means triggered, 1 means not triggered)
+  pkt.byteToBuf((ArTypes::Byte) robotInterface->getDiginState()); //(char)0xFF);   // digital in, also used for IR on peoplebot (0 means triggered, 1 means not triggered)
+  pkt.byteToBuf((ArTypes::Byte) robotInterface->getDigoutState()); //(char)0xFF);   // digital out (0 means triggered, 1 means not triggered)
   if(params->BatteryType == 2)
     pkt.byte2ToBuf(0);  // battery reports state of charge later in sip instead of voltage
   else
@@ -2123,7 +2112,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
   assert(totalReadings <= std::numeric_limits<ArTypes::Byte2>::max());
   pkt.byte2ToBuf((ArTypes::Byte2)totalReadings);   // total range reading count the device has
   pkt.byte2ToBuf((ArTypes::Byte2) currentReading); // which reading is the first one in this packet
-  const size_t numReadingsThisPacket = AMRISim::min(MaxReadingsPerPacket, (int)(totalReadings - currentReading));  // num. readings that follow
+  const int numReadingsThisPacket = AMRISim::min((int)MaxReadingsPerPacket, (int)(totalReadings - currentReading));  // num. readings that follow
   pkt.uByteToBuf((ArTypes::UByte) numReadingsThisPacket);
 
   class PackLaserReadingFunc_OldFormat : public virtual RobotInterface::LaserReadingFunc {
@@ -2137,7 +2126,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
       : pkt(set_pkt), i(init_i), max(set_max), count(0)
       {}
     virtual ~PackLaserReadingFunc_OldFormat() {}
-    virtual bool operator()(int range, int /*ref*/) {
+    virtual bool operator()(unsigned int range, int /*ref*/) override {
       pkt.uByte2ToBuf((ArTypes::UByte2)range);
       ++i;
       if(++count >= max) return false;
@@ -2151,7 +2140,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
       : PackLaserReadingFunc_OldFormat(set_pkt, set_max, init_i)
       {}
     virtual ~PackLaserReadingFunc_ExtFormat() {}
-    virtual bool operator()(int range, int ref) {
+    virtual bool operator()(unsigned int range, int ref) override {
       const bool r = PackLaserReadingFunc_OldFormat::operator()(range, ref);
       pkt.uByteToBuf((ArTypes::UByte)(ref));
       pkt.uByteToBuf(0); // reserved for future flags
@@ -2179,7 +2168,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
     numPacked = robotInterface->forEachLaserReading(0, func, currentReading);
   }
   //printf("num laser readings packed: %d (should be %d)\n", numPacked, numReadingsThisPacket);
-  assert(numPacked == numReadingsThisPacket);
+  assert(numPacked == (size_t) numReadingsThisPacket);
 
 //  pkt.uByteToBuf(1); // fake laser index for testing
 
@@ -2388,7 +2377,7 @@ void Session::checkLogStats(LogInterface* l)
 
 void Session::logStats(LogInterface *l)
 {
-  const float tsec = (float)loggedStats.mSecSince()/1000.0;
+  const float tsec = ((float)loggedStats.mSecSince())/1000.0f;
   l->log("Sent %.1f SIP packets/sec (%lu SIP packets), received %.1f packets/sec (%lu packets) in last %.0f sec.", (double)packetsSent/tsec, packetsSent, (double)packetsReceived/tsec, packetsReceived, tsec);
   loggedStats.setToNow();
   packetsSent = 0;

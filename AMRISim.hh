@@ -85,85 +85,69 @@ class ArSocket;
 namespace AMRISim
 {
 
-class Options
+struct Options
 {
-public:
-  int argc;
-  char **argv;
+  int argc = 0;
+  char **argv = nullptr;
   void log_argv();
   std::string map;
-  int port;
-  enum {NORMAL_WINDOW, MAXIMIZE_WINDOW, MINIMIZE_WINDOW, FULLSCREEN_WINDOW} windowmode;
-  enum {NORMAL_GRAPHICS, LITE_GRAPHICS, NO_GRAPHICS, NO_GUI} graphicsmode;
-  bool NonInteractive;
-  bool Daemon;
-  bool log_html;
-  char* change_to_directory;
-  char before_change_to_directory[MAX_PATH_LEN];
-  unsigned int interval_real;
-  unsigned int interval_sim;
-  double world_res;
-  long int start_pos_override_pose_x;
-  long int start_pos_override_pose_y;
-  int start_pos_override_pose_th;
-  std::set<int> ignore_commands;
-  bool verbose;
-  const char* log_file;
-  std::string listen_address;
-  size_t log_file_max_size;
-  bool srisim_compat;
-  bool srisim_laser_compat;
-  bool nomap;
-  bool RestartedAfterCrash;
-  bool EnableCrashDebug;
-  bool EnableCrashRestart;
-  bool log_packets_received;
-  bool echo_stage_worldfile;
-  bool warn_unsupported_commands;
-  bool log_sips_sent;
-  bool onHostWithEM;
-  size_t mapLoadLinesPerChunk;
-  size_t mapLoadPointsPerChunk;
-  bool run_network_discovery;
-  enum {RANDOM_INIT, RANDOM_EACH_UPDATE, CONSTANT, NONE} odom_error_mode;
-
-  Options()
+  int port = 8101;
+  enum
   {
-      port = 8101;
-      windowmode = NORMAL_WINDOW;
-      graphicsmode = NORMAL_GRAPHICS;
-      NonInteractive = false;
-      Daemon = false;
-      log_html = false;
-      change_to_directory = 0;
-      interval_real = DEFAULT_UPDATE_INTERVAL;
-      interval_sim = 0;
-      world_res = 0;
-      verbose = false;
-      log_file = NULL;
-      listen_address = "";
-      log_file_max_size = 0;
-      srisim_compat = false;
-      srisim_laser_compat = true;
-      nomap = false;
-      RestartedAfterCrash = false;
-      EnableCrashDebug = true;
-      EnableCrashRestart = false;
-      before_change_to_directory[0] = 0;
-      log_packets_received = false;
-      echo_stage_worldfile = false;
-      warn_unsupported_commands = false;
-      log_sips_sent = false;
-      onHostWithEM = false;
-      mapLoadLinesPerChunk = DEFAULT_MAP_LINES_PER_CHUNK;
-      mapLoadPointsPerChunk = DEFAULT_MAP_POINTS_PER_CHUNK;
-      run_network_discovery = true;
+    NORMAL_WINDOW,
+    MAXIMIZE_WINDOW,
+    MINIMIZE_WINDOW,
+    FULLSCREEN_WINDOW
+  } windowmode = NORMAL_WINDOW;
+  enum
+  {
+    NORMAL_GRAPHICS,
+    LITE_GRAPHICS,
+    NO_GRAPHICS,
+    NO_GUI
+  } graphicsmode = NORMAL_GRAPHICS;
+  bool NonInteractive = false;
+  bool Daemon = false;
+  bool log_html = false;
+  char* change_to_directory = nullptr;
+  char before_change_to_directory[MAX_PATH_LEN];
+  unsigned int interval_real = DEFAULT_UPDATE_INTERVAL;
+  unsigned int interval_sim = 0;
+  double world_res = 0;
+  long int start_pos_override_pose_x = 0;
+  long int start_pos_override_pose_y = 0;
+  int start_pos_override_pose_th = 0;
+  std::set<int> ignore_commands;
+  bool verbose = false;
+  const char* log_file = nullptr;
+  std::string listen_address {""};
+  size_t log_file_max_size = 0;
+  bool srisim_compat = false;
+  bool srisim_laser_compat = false;
+  bool nomap = false;
+  bool RestartedAfterCrash = false;
+  bool EnableCrashDebug = true;
+  bool EnableCrashRestart = false;
+  bool log_packets_received = false;
+  bool echo_stage_worldfile = false;
+  bool warn_unsupported_commands = false;
+  bool log_sips_sent = false;
+  bool onHostWithEM = false;
+  size_t mapLoadLinesPerChunk = DEFAULT_MAP_LINES_PER_CHUNK;
+  size_t mapLoadPointsPerChunk = DEFAULT_MAP_POINTS_PER_CHUNK;
+  bool run_network_discovery = true;
+  enum
+  {
+    RANDOM_INIT,
+    RANDOM_EACH_UPDATE,
+    CONSTANT,
+    NONE
+  } odom_error_mode =
 #ifdef AMRISIM_DEFAULT_ODOM_ERROR_MODE
-      odom_error_mode = AMRISIM_DEFAULT_ODOM_ERROR_MODE;
+      AMRISIM_DEFAULT_ODOM_ERROR_MODE;
 #else
-      odom_error_mode = RANDOM_EACH_UPDATE;
+      RANDOM_EACH_UPDATE;
 #endif
-   }
 };
 
 
@@ -225,9 +209,13 @@ class LogInterface {
   std::string name;
 public:
 
-  LogInterface(std::string _name) : name(_name) {}
+  LogInterface(const std::string& _name) : name(_name) {}
 
-  //virtual ~LogInterface() {}
+  virtual ~LogInterface() = default;
+  LogInterface(const LogInterface& other) = delete;
+  LogInterface(LogInterface&& old) = delete;
+  LogInterface& operator=(const LogInterface& other) = delete;
+  LogInterface& operator=(LogInterface&& other) = delete;
 
   /** display fatal error message. this default implementation
       prints it to cerr with some pretty colors followed by a newline.
@@ -352,6 +340,18 @@ namespace AMRISim
 
 /* function to display a byte as a string of 8 '1' and '0' characters. */
 inline std::string byte_as_bitstring(char byte) 
+{
+  char tmp[9];
+  int bit; 
+  int ch;
+  for(bit = 7, ch = 0; bit >= 0; bit--,ch++)
+    tmp[ch] = ((byte>>bit)&1) ? '1' : '0';
+  tmp[8] = 0;
+  return std::string(tmp);
+}
+
+/* function to display a byte as a string of 8 '1' and '0' characters. */
+inline std::string byte_as_bitstring(unsigned char byte) 
 {
   char tmp[9];
   int bit; 

@@ -30,7 +30,6 @@
 #include <string>
 #include <vector>
 #include "stage.h"
-#include "ArFunctor.h"
 #include "ariaUtil.h"
 #include "ArGPSCoords.h"
 
@@ -38,6 +37,7 @@
 class ArMap;
 class ArMapObject;
 class RobotInterface;
+class ArFunctor;
 
 class MapLoadedInfo {
 public:
@@ -80,15 +80,13 @@ private:
   bool loading; ///< true while we are in the process of loading a map, false when done.
   bool hostHasEM; // If this AMRISim is on the same VM as the EM, then shouldReloadMap can simply check the file mod timestamp directly from the source file
   time_t lastMapReloadTime;
+public:
+  bool haveMapOriginLLA;
 
   ArLLACoords mapOriginLLA;
 
 public:
-
-  MapLoader(stg_world_t *_world = NULL) :
-    world(_world), map(NULL), created_map(false), loading(false), haveMapOriginLLA(false),
-    myProcessState(MapLoader::NEWMAP_INACTIVE)
-  { }
+  MapLoader(stg_world_t *_world = NULL); 
 
   void setWorld(stg_world_t *_world) {
     cancelLoad();
@@ -111,7 +109,6 @@ public:
     
   std::string getMapName() { return mapfile; }
 
-  bool haveMapOriginLLA;
   ArLLACoords getMapOriginLLA() { return mapOriginLLA; }
 
   /** Prepare to load a new map from the given file.
@@ -162,17 +159,17 @@ private:
 
   struct ObjectClass {
     std::string name;
-    bool obstacle;
-    stg_laser_return_t laser_return;
-    bool sonar_return;
-    ObjectClass() : obstacle(true), laser_return(1), sonar_return(1) {}
-    ObjectClass(std::string _name) : name(_name), obstacle(true), laser_return(1), sonar_return(1) {}
+    bool obstacle = true;
+    stg_laser_return_t laser_return = 1;
+    bool sonar_return = true;
+    ObjectClass() {}
+    ObjectClass(const std::string& _name) : name(_name), obstacle(true), laser_return(1), sonar_return(1) {}
   };
   stg_model_t* loadReflector(ArMapObject* cairnObj, stg_model_t* map_model, stg_laser_return_t laser_return);
   stg_model_t* loadBoxObstacle(ArMapObject* cairnObj, stg_model_t* map_model, ObjectClass objclass);
 
-  void invokeMapLoadedCallback(MapLoadedCallback cb, int status, std::string filename, ArMap* map) const;
-  void invokeMapLoadedCallbacks(int status, std::string filename, ArMap* map) const; // JPL - experimental
+  void invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename, ArMap* map) const;
+  void invokeMapLoadedCallbacks(int status, const std::string& filename, ArMap* map) const; // JPL - experimental
   void reset();
 
   typedef enum

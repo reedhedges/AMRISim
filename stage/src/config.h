@@ -44,7 +44,7 @@
 #define HAVE_DIRNAME 1
 
 /* Define to 1 if you have the `drand48' function. */
-/* #undef HAVE_DRAND48 */
+#define HAVE_DRAND48 1
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #define HAVE_GETTIMEOFDAY 1
@@ -59,19 +59,19 @@
 /* #undef HAVE_PTHREAD_H */
 
 /* Define to 1 if you have the `rindex' function. */
-/* #undef HAVE_RINDEX */
+#define HAVE_RINDEX 1
 
 /* Define to 1 if you have the `scandir' function. */
-/* #undef HAVE_SCANDIR */
+#define HAVE_SCANDIR 1
 
 /* Define to 1 if you have the <semaphore.h> header file. */
 /* #undef HAVE_SEMAPHORE_H */
 
 /* Define to '1' if you have the GNU sincos function in libm */
-/* #undef HAVE_SINCOS */
+#define HAVE_SINCOS 1
 
 /* Define to 1 if you have the `srand48' function. */
-/* #undef HAVE_SRAND48 */
+#define HAVE_SRAND48 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -110,10 +110,10 @@
 /* #undef HAVE_WIN32_SLEEP */
 
 /* Define to 1 if you have the `_ftime' function. */
-#define HAVE__FTIME 1
+/* #undef HAVE__FTIME */
 
 /* Define to 1 if you have the `_sleep' function. */
-#define HAVE__SLEEP 1
+/* #undef HAVE__SLEEP */
 
 /* building GTK components */
 #define INCLUDE_GTK 1

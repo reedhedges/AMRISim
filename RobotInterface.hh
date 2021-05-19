@@ -41,8 +41,6 @@
 
 #include "ArFunctor.h"
 
-#include "ArFunctor.h"
-
 #include "ArRobotPacket.h"
 
 
@@ -61,27 +59,33 @@ class RobotParams;
  *  The purpose of this class is to collect all of a target robot or simulator's
  *  objects and functions into a single unified set of methods specifically for
  *  EmulatePioneer's needs.
+ * 
+ * @todo XXX TODO make accessors const
  */
 class RobotInterface : public LogInterface {
   private:
-    bool requestedOpenSonar;
+    bool requestedOpenSonar = false;
     std::string robotName;
-    float batteryVoltage;
-    bool tempWarning;
-    bool haveTemp;
-    double temperature;
-    float stateOfCharge;
+    float batteryVoltage = 0.0;
+    bool tempWarning = false;
+    bool haveTemp = false;
+    double temperature = 0.0;
+    float stateOfCharge = 0.0;
+    unsigned char digoutState = 0;
+    unsigned char diginState = 0;
+
   public:
-    RobotInterface(std::string init_robotName) :
-      LogInterface(init_robotName),
-      requestedOpenSonar(false), robotName(init_robotName), batteryVoltage(0.0),
-      tempWarning(false), haveTemp(false), temperature(0.0), stateOfCharge(0.0)
+    RobotInterface(const std::string& init_robotName) :
+      LogInterface(init_robotName)
     {
     }
 
-    virtual ~RobotInterface() {
-      //removeStoredRobotInterface(this);
-    }
+ 
+    virtual ~RobotInterface() = default;
+    RobotInterface(const RobotInterface& other) = delete;
+    RobotInterface(RobotInterface&& old) = delete; // TODO perhaps subclasses could implement
+    RobotInterface& operator=(const RobotInterface& other) = delete;
+    RobotInterface& operator=(RobotInterface&& other) = delete; // TODO perhaps subclasses could implement
 
     // TODO add other required constructors and operators
 
@@ -203,7 +207,7 @@ class RobotInterface : public LogInterface {
     virtual bool haveSimulatorOdomError() { return false; }
 
     virtual size_t numSonarReadings() = 0;
-    virtual unsigned int getSonarRange(size_t i) = 0;
+    virtual unsigned int getSonarRange(size_t i) = 0; ///< mm. any range >= getMaxSonarRange() or < 0 may be invalid.
     [[deprecated]] unsigned int getSonarReading(size_t i) { return getSonarRange(i); }
     [[deprecated]] unsigned int getSonarReading(int i) { assert(i >= 0); return getSonarReading((size_t)i); }
     virtual unsigned int getMaxSonarRange() = 0;
@@ -238,13 +242,17 @@ class RobotInterface : public LogInterface {
     virtual size_t forEachSonarReading(SonarReadingFunc &func, const size_t &start = 0) = 0;
 
     virtual size_t numLaserReadings(size_t lasernum) = 0;
-    virtual int getLaserReading(size_t lasernum, int i) = 0;
+    [[deprecated]] unsigned int getLaserReading(size_t lasernum, int i) {
+      assert(i >= 0);
+      return getLaserReading(lasernum, (size_t)i);
+    }
+    virtual unsigned int getLaserReading(size_t lasernum, size_t i) = 0;
     virtual int getLaserReflectance(size_t lasernum, int i) = 0;
 
-    class LaserReadingFunc : public std::binary_function<int, int, bool>
+    class LaserReadingFunc : public std::binary_function<unsigned int, int, bool>
     {
     public:
-      virtual bool operator()(int range, int ref) = 0;
+      virtual bool operator()(unsigned int range, int ref) = 0;
       virtual ~LaserReadingFunc() {}
     };
 
@@ -254,9 +262,9 @@ class RobotInterface : public LogInterface {
      *
      *  Example of a class you can use for @a func:
      *  @code
-     *  class PrintReadingFunc : binary_function<int, int, bool> {
+     *  class PrintReadingFunc : binary_function<unsigned int, int, bool> {
      *  public:
-     *    bool operator()(int range, int ref) {
+     *    bool operator()(unsigned int range, int ref) {
      *      std::cout << "Laser reading: " << range << " (" << ref << ")" << std::endl;
      *    }
      *  };
@@ -283,13 +291,12 @@ class RobotInterface : public LogInterface {
 
 
     /** Stores identifying information about a device. */
-    class DeviceInfo {
-    public:
+    struct DeviceInfo {
       std::string name;
       std::string type;
       std::string basetype;
-      unsigned int which;
-      unsigned char status;
+      unsigned int which = 0;
+      unsigned char status = 0;
     };
 
     /** Get a list of device names (with index for multiple devices of the same 
@@ -333,8 +340,7 @@ class RobotInterface : public LogInterface {
     /// Set whether other robots can collide with this robot, if possible
   virtual void setEphemeral(bool s) = 0;
 
-  unsigned char digoutState;
-  unsigned char diginState;
+
   virtual void setDigoutState(unsigned char state)
   {
     digoutState = state;

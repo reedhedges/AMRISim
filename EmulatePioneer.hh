@@ -332,7 +332,7 @@ public:
    *  @return packet filled with current data, or NULL if we haven't been
    *  "started" yet.
    */
-  virtual ArRobotPacket* getPacket();
+  virtual ArRobotPacket* getPacket() override;
 
 };
 
@@ -368,7 +368,7 @@ public:
    *     send(laserPacket);
    * @endcode
    */
-  virtual ArRobotPacket* getPacket();
+  virtual ArRobotPacket* getPacket() override;
 
   virtual void start(bool enableExtraReadingInfo = false) {
     extendedInfoFormat = enableExtraReadingInfo;
@@ -395,33 +395,32 @@ public:
  */
 class Session {
 public:
-    Session();
-    bool requestedOpenSonar;
+    bool requestedOpenSonar {false};
     ArTime started;
-    bool inWatchdogState;
-    bool eStopInProgress;
-    bool sendingSimstats;
+    bool inWatchdogState {false};
+    bool eStopInProgress {false};
+    bool sendingSimstats {false};
     ArTcpConnection connection;
     ClientPacketReceiver packetReceiver;
     ArRobotPacketSender packetSender;
     CurrentSettings settings;
     //ArSocket *clientSocket; use EmulatePioneer::myClientSocket instead
-    int syncSeq;
-    int handshakeAttempt;
+    int syncSeq{0};
+    int handshakeAttempt{0};
     ArTime syncStart;
     SIPGenerator sipGen;
     LaserPacketGenerator laserGen;
     ArTime sentLastSIP;
     ArTime gotLastCommand;
     ArTime gotLastValidCommand;
-    unsigned long packetsSent;
-    unsigned long packetsReceived;
-    unsigned long laserPacketsSent;
-    unsigned long miscPacketsSent;
+    unsigned long packetsSent{0};
+    unsigned long packetsReceived{0};
+    unsigned long laserPacketsSent{0};
+    unsigned long miscPacketsSent{0};
     ArTime loggedStats;
     ArTime lastSimSetPoseTime;
     ArPose lastSimSetPose;
-    bool gotSimSetPose;
+    bool gotSimSetPose{false};
 
     void init(RobotInterface *robotInterface, RobotParams *params, bool logSipsSent) {
       sipGen.init(robotInterface, params);
@@ -486,7 +485,7 @@ class EmulatePioneer : public ClientInterface, public LogInterface
       EmulatePioneer* instance;
     public:
       DeletionRequest(EmulatePioneer* _inst) : instance(_inst) {}
-      virtual void doDelete();
+      virtual void doDelete() override;
     };
 
     // indicates that a session disconnected and no longer active, and should not be processed for cu
@@ -502,13 +501,13 @@ class EmulatePioneer : public ClientInterface, public LogInterface
      *  The socket must already be connected to the client. EmulatePioneer will
      *  not reopen it.
      */
-    EmulatePioneer(RobotInterface *rif, std::string robotModel, ArSocket *clientSocket, bool deleteRobotInterfaceOnDisconnect = false, bool deleteClientSocketOnDisconnect = true, const AMRISim::Options *userOptions = NULL);
+    EmulatePioneer(RobotInterface *rif, const std::string& robotModel, ArSocket *clientSocket, bool deleteRobotInterfaceOnDisconnect = false, bool deleteClientSocketOnDisconnect = true, const AMRISim::Options *userOptions = NULL);
 
     /** Create a new EmulatePioneer using the given RobotInterface for the given
      *  robot model. Use @a port as the default when opening a new listening
      *  socket
      */
-    EmulatePioneer(RobotInterface *rif, std::string robotModel, int port =
+    EmulatePioneer(RobotInterface *rif, const std::string& robotModel, int port =
 DEFAULT_PIONEER_SIM_PORT, bool deleteRobotInterface = false, bool
 trySubsequentPorts = true, const AMRISim::Options *userOptions = NULL);
 
@@ -533,7 +532,7 @@ public:
       warn_unsupported_commands = v;
     }
 
-    void setListenAddress(std::string addr) {
+    void setListenAddress(const std::string& addr) {
       myListenAddress = addr;
     }
 
@@ -734,19 +733,19 @@ public:
     }
 
 
-    virtual void error_s(const char *m) {
+    virtual void error_s(const char *m) override {
       if(robotInterface) robotInterface->error_s(m);
       else LogInterface::error_s(m);
     }
-    virtual void warn_s(const char *m) {
+    virtual void warn_s(const char *m) override {
       if(robotInterface) robotInterface->warn_s(m);
       else LogInterface::warn_s(m);
     }
-    virtual void inform_s(const char *m) {
+    virtual void inform_s(const char *m) override {
       if(robotInterface) robotInterface->inform_s(m);
       else LogInterface::inform_s(m);
     }
-    virtual void log_s(const char *m) {
+    virtual void log_s(const char *m) override {
       if(robotInterface) robotInterface->log_s(m);
       else LogInterface::log_s(m);
     }

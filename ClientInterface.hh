@@ -2,6 +2,8 @@
 
 
 class ClientInterface {
+public:
+  virtual ~ClientInterface() = default;
 };
 
 #endif

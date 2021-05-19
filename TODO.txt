@@ -1,12 +1,21 @@
 
+* Lasers might be broken?
+* Command line options to enable/disable ROS and Pioneer interfaces at runtime.
+* Add options to GUI at startup to enable/disable robot interfaces (Pioneer/ROS). Runtime menu
+  items?
+* Enable multiple ROS nodes for multiple robots (nodelets)
+* Edit (review and improve) README
+* Make sure we are using latest version of GTK on Windows. Update particularly
+  old or deprecated GTK API usage and remove support for
+  old GTK versions. 
 * Fix all warnings, fix all c++ code to correct usage for c++17.
 * Update stage build for newer versions of autotools
-* Consider updating any GTK code for newer version of GTK. Remove support for
-  old GTK versions. Is there a newer GTK-Win Windows version available?
 * Debian/Ubuntu Packaging
 * Remove unused stuff 
 * Remove use of temp file
 * Clearly document exact dependencies
+* Change as many char* to std::string and string_view as possible
+* Use shared_ptr etc instead of raw pointers
 * True no-GUI build. 
   * Verify or refactor stage so that rendering/drawing depends on model types
     but model types do not directly include or depend on any rendering code.
@@ -18,6 +27,7 @@
 * Accept other map file formats (bitmap, ROS occupancy grid file)
   * Also option to subscribe to map data from a ROS map_server.
 * Improve ROS client inerface. 
+  * Bug: a disconnecting Pioneer client causes ROS node to stop publishing sonar.
   * Maybe separate builds for Pioneer/ARIA and ROS
   * Enable/disable in GUI
   * Verify we are creating multiple ROS nodes in one process correcly.
@@ -38,6 +48,7 @@
   * ROS commands to access more of internal Stage API including adding/modifying
     objects and sensors.
   * Document
+  * Fix or remove sonar publishing of pointcloud1 data (pointcloud2 data works). 
 * ROS2 interface.
 * Use more modern portable C++/stdlib features
   * Use std::chrono etc.

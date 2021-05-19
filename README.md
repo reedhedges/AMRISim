@@ -216,6 +216,8 @@ To omit ROS1 support from AMRISim, build with `AMRISIM_INCLUDE_ROS=no`. See
 AriaCoda source code is expected to be in ../AriaCoda.  (Define
 the `ARIA` environment variable before building to change location.)
 
+AriaCoda can be cloned from <http://github.com/reedhedges/AriaCoda>.
+
 How to get started
 ------------------
 

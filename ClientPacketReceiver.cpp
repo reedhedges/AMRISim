@@ -69,7 +69,7 @@ AREXPORT void ClientPacketReceiver::setLoggingPrefix(
   if (loggingPrefix != NULL && loggingPrefix[0] != '\0')
     myLoggingPrefix = loggingPrefix;
   else
-    myLoggingPrefix = "";
+    myLoggingPrefix.clear();
 }
 
 /**
@@ -181,7 +181,7 @@ bool ClientPacketReceiver::readData(unsigned int msWait)
         {
           myPacket.setLength(0);
           myReadDataCount = 0;
-          myPacket.uByteToBuf(c);
+          myPacket.uByteToBuf(c); // echo back SYNC1 byte
           myState = STATE_SYNC2;
         }
         //else
@@ -192,7 +192,7 @@ bool ClientPacketReceiver::readData(unsigned int msWait)
       {
         if(c == mySync2)
         {
-          myPacket.uByteToBuf(c);
+          myPacket.uByteToBuf(c); // echo back SYNC2 byte
           myState = STATE_LENGTH;
         }
         else
@@ -207,7 +207,7 @@ bool ClientPacketReceiver::readData(unsigned int msWait)
           ArLog::log(ArLog::Normal, "%sWarning: Illegal length in packet: %u (must be less than %u). Scanning for next packet...", myLoggingPrefix.c_str(), myReadLength, MAX_PACKET_SIZE+1);
           myState = STATE_SYNC1;
         }
-        myPacket.byteToBuf(c);
+        myPacket.uByteToBuf(c); // echo back byte
         myState = STATE_DATA;
         break;
       }

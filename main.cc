@@ -23,7 +23,8 @@
  *
  */
 
-#define _BSD_SOURCE 1	// to get getcwd() from LiOnux's <unistd.h> 
+//#define _BSD_SOURCE 1	// to get getcwd() from LiOnux's <unistd.h> 
+#define _DEFAULT_SOURCE // new version of _BSD_SOURCE define since GLibC 2.19
 
 #include <stage.h>
 
@@ -74,8 +75,6 @@
 #endif
 
 using namespace AMRISim;
-
-#include "ArSocket.h"
 
 #include <stdio.h>
 // if defined, measure time it takes to do world updates in main loop
@@ -180,7 +179,7 @@ typedef  std::list<std::string> RobotFactoryRequests;
 /* Used to load maps */
 MapLoader mapLoader;
 
-ArMap *map = NULL;
+ArMap *map = nullptr;
 
 unsigned long AMRISim::log_stats_freq = 0;
 
@@ -511,9 +510,14 @@ int main(int argc, char** argv)
   // List or set of model type strings.
   RobotFactoryRequests robotFactoryRequests;
 //
-//  // Stored config
+//  // Stored config from config file
 //  AMRISimConfig config;
+// todo
 
+
+
+  // parse command line options. 
+  // TODO: abstract getting extra numeric or string argument following a flag, with type checking.
   for(int i = 1; i < argc; ++i) {
     if(command_argument_match(argv[i], "h", "help")) {
       usage();
@@ -541,7 +545,7 @@ int main(int argc, char** argv)
     }
     else if(command_argument_match(argv[i], "", "nomap")) {
       // if -m was already given, don't change it. otherwise set to empty string
-      opt.map = "";
+      opt.map.clear();
       opt.nomap = true;
     }
     else if(command_argument_match(argv[i], "r", "robot")) {
@@ -658,7 +662,15 @@ int main(int argc, char** argv)
     else if(command_argument_match(argv[i], "", "log-file-max-size"))
     {
         if(++i < argc)
-            opt.log_file_max_size = atoi(argv[i]);
+        {
+          int x = atoi(argv[i]);
+          if(x < 0)
+          {
+            print_error("Error: argument with --log-file-max-size must not be negative.");
+            exit(ERR_USAGE);
+          }
+          opt.log_file_max_size = (size_t)x;
+        }
         else
         {
             usage();
@@ -669,7 +681,13 @@ int main(int argc, char** argv)
     {
       if(++i < argc)
       {
-        opt.interval_real = (stg_msec_t) atoi(argv[i]);
+        int x = atoi(argv[i]);
+        if(x < 0)
+        {
+          print_error("Error: argument with --update-interval must not be negative.");
+          exit(ERR_USAGE);
+        }
+        opt.interval_real = (unsigned int)x;
       }
       else
       {
@@ -681,7 +699,13 @@ int main(int argc, char** argv)
     {
       if(++i < argc)
       {
-        opt.interval_sim = (stg_msec_t) atoi(argv[i]);
+        int x = atoi(argv[i]);
+        if(x < 0)
+        {
+          print_error("Error: argument with --update-sim-time must not be negative.");
+          exit(ERR_USAGE);
+        }
+        opt.interval_sim = (unsigned int)x;
       }
       else
       {
@@ -749,7 +773,8 @@ int main(int argc, char** argv)
       int sec = 30;
       if(i+1 < argc && argv[i+1][0] != '-')
         sec = atoi(argv[++i]);
-      AMRISim::log_stats_freq = stg_log_stats_freq = sec*1000; // msec
+      assert(sec > 0);
+      AMRISim::log_stats_freq = stg_log_stats_freq = (unsigned)sec * 1000; // msec
       stg_print_msg("AMRISim: Will log timing information every %d seconds.", sec);
     }
     else if(command_argument_match(argv[i], "", "bind-to-address"))
@@ -818,7 +843,9 @@ int main(int argc, char** argv)
     {
       if(++i < argc)
       {
-        opt.mapLoadLinesPerChunk = atol(argv[i]);
+        long x = atol(argv[i]);
+        assert(x >= 0);
+        opt.mapLoadLinesPerChunk = (size_t)x;
       }
       else
       {
@@ -830,7 +857,9 @@ int main(int argc, char** argv)
     {
       if(++i < argc)
       {
-        opt.mapLoadPointsPerChunk = atol(argv[i]);
+        long points_chunksize  = atol(argv[i]);
+        assert(points_chunksize > 0);
+        opt.mapLoadPointsPerChunk = (size_t) points_chunksize;
       }
       else
       {
@@ -1331,8 +1360,10 @@ int main(int argc, char** argv)
       // TODO option to choose ROS version, in command line, and config GUI when enabling ROS
       print_msg("Running gnome-terminal. Will import ROS melodic setup environment into shell, then will run roscore.");
       // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
-      system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
-      AMRISim::sleep(5*1000);
+      int s = system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
+      if(s != 0)
+        stg_print_warning("Error running ROS Master (roscore) in gnome-terminal: system returned %d", s);
+      AMRISim::sleep(5 * 1000);
      }
   }
 #endif
@@ -1466,10 +1497,10 @@ int main(int argc, char** argv)
      this runloop to a priority queue containing the stage update
      task plus each group of clients that has a distinct SIPFreq set.
   */
-  const int clientOutputFreq = DEFAULT_SIP_FREQ; //100;
-  const int clientOutputWarningTime = clientOutputFreq * 2;
-  const int stageUpdateFreq = opt.interval_real;
-  const int stageUpdateWarningTime = stageUpdateFreq * 2;
+  const unsigned int clientOutputFreq = DEFAULT_SIP_FREQ; //100;
+  const unsigned int clientOutputWarningTime = clientOutputFreq * 2;
+  const unsigned int stageUpdateFreq = opt.interval_real;
+  const unsigned int stageUpdateWarningTime = stageUpdateFreq * 2;
   ArTime stageUpdateDue;
   ArTime clientOutputDue;
   ArTime lastStageUpdate;
@@ -1509,7 +1540,7 @@ int main(int argc, char** argv)
       AMRISim::sleep((unsigned int) untilStageUpdate);
       //print_debug("Waiting for stage update: sleep(%ld) took %ld ms", untilStageUpdate, t.mSecSince());
       if(lastStageUpdate.mSecSince() > stageUpdateWarningTime)
-        print_warning("Took >%ld ms since last stage simulation update (%ld, interval is %ld)", stageUpdateWarningTime, lastStageUpdate.mSecSince(), stageUpdateFreq);
+        print_warning("Took >%u ms since last stage simulation update (%ld, interval is %ld)", stageUpdateWarningTime, lastStageUpdate.mSecSince(), stageUpdateFreq);
       lastStageUpdate.setToNow();
       stageUpdateDue.setToNow(); 
       stageUpdateDue.addMSec(stageUpdateFreq);
@@ -1522,7 +1553,7 @@ int main(int argc, char** argv)
       AMRISim::sleep((unsigned int) untilClientOutput);
       //print_debug("Waiting for client output: sleep(%ld) took %ld ms", untilClientOutput, t.mSecSince());
       if(lastClientOutput.mSecSince() > clientOutputWarningTime)
-        print_warning("Warning: Took >%ld ms since last clients output update (%ld, interval is %ld)", clientOutputWarningTime, lastClientOutput.mSecSince(), clientOutputFreq);
+        print_warning("Warning: Took >%u ms since last clients output update (%ld, interval is %ld)", clientOutputWarningTime, lastClientOutput.mSecSince(), clientOutputFreq);
       lastClientOutput.setToNow();
       clientOutputDue.setToNow();
       clientOutputDue.addMSec(clientOutputFreq);
@@ -2093,7 +2124,8 @@ stg_world_t* create_stage_world(const char* mapfile,
   fclose(world_fp);
 
   // Store filename in global variables so we can delete it on exit:
-  strncpy(TempWorldFile, worldfile, 256);
+  strncpy(TempWorldFile, worldfile, 511);
+  TempWorldFile[511] = '\0';
 
   stg_print_msg("AMRISim: Loading stage world file \"%s\"...", worldfile);
   
@@ -2158,7 +2190,7 @@ void cleanup_temp_files()
 
 #ifdef CLEANUP_TEMP_FILES
 
-  if(TempWorldFile == NULL || strlen(TempWorldFile) == 0)
+  if(strlen(TempWorldFile) == 0)
     return;
 
 #ifdef WIN32
@@ -2584,11 +2616,10 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
     ret = 1;
   } else if( r == GTK_RESPONSE_DELETE_EVENT ) {
     // closed dialog box. exit program.
-    ret = 0;
     exit(0);
   } else {
     // clicked "No Map"
-    map = "";
+    map.clear();
     ret = 2;
   }
 
@@ -2672,14 +2703,16 @@ void print_msg(const char *m, ...)
 
 void print_debug(const char *m, ...)
 {
-  char *formatstr = (char*)malloc(7 + strlen(m) + 1); // + 1 for terminating NULL. 7 is length of "DEBUG: "
-  strcpy(formatstr, "DEBUG: ");
-  strncpy(formatstr + 7, m, strlen(m)); //  7 is length of "DEBUG: "
+  std::string formatstr("DEBUG: ");
+  formatstr += m;
+  //char *formatstr = (char *)malloc(7 + strlen(m) + 1); // + 1 for terminating NULL. 7 is length of "DEBUG: "
+  //strncpy(formatstr, "DEBUG: ", 7);
+  //strncpy(formatstr + 7, m, strlen(m) - 8); //  7 is length of "DEBUG: "
   va_list args;
   va_start(args, m);
-  stg_print_msg_v(formatstr, args);
+  stg_print_msg_v(formatstr.c_str(), args);
   va_end(args);
-  free(formatstr);
+  //free(formatstr);
   fflush(stg_output_file);
 }
 

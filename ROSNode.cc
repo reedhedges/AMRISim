@@ -239,14 +239,14 @@ void ROSNode::cmdvel_cb(const geometry_msgs::TwistConstPtr& vel)
   robot->rotVel((int) RTOD(vel->angular.z) );
 }
 
-bool ROSNode::enable_motors_cb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool ROSNode::enable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
   ROS_INFO("enable_motors service called, enabling motors.");
   robot->enableMotors();
   return true;
 }
 
-bool ROSNode::disable_motors_cb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response) 
+bool ROSNode::disable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&) 
 {
   ROS_INFO("disable_motors service called, disabling motors.");
   robot->disableMotors();

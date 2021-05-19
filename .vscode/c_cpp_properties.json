@@ -8,12 +8,12 @@
                 "../AriaCoda/include",
                 "/opt/ros/melodic/include/**"
             ],
-            "browse.path": [
-                "${workspaceFolder}",
-                "../AriaCoda/include/Aria",
-                "../AriaCoda/include",
-                "/opt/ros/melodic/include"
-            ],
+//            "browse.path": [
+//                "${workspaceFolder}",
+//                "../AriaCoda/include/Aria",
+//                "../AriaCoda/include",
+//                "/opt/ros/melodic/include"
+//            ],
             "defines": [
                 "AMRISIM_PIONEER",
                 "AMRISIM_ROS",

@@ -146,7 +146,16 @@ void mobilesim_crash_handler(int signum)
         strncpy(argv[1], "--restarting-after-crash", 24);
         std::string("--restarting-after-crash").c_str();
         argstr_len += strlen(" --restarting-after-crash");
-        argstr = (char*) realloc(argstr, argstr_len);
+        char *a = (char*) realloc(argstr, argstr_len);
+        if(a == NULL)
+        {
+          perror("AMRISIM: Error in realloc()");
+          free(argstr);
+          free(argv[1]);
+          free(argv);
+          abort();
+        }
+        argstr = a;
         strncat(argstr, " --restarting-after-crash", argstr_len);
 
         for(int i = 2; i <= options.argc; ++i)
@@ -154,6 +163,7 @@ void mobilesim_crash_handler(int signum)
             argv[i] = options.argv[i-1];
             argstr_len += strlen(argv[i]) + 1; // + 1 for " "
             argstr = (char*) realloc(argstr, argstr_len);
+            assert(argstr);
             strncat(argstr, " ", 1);
             strncat(argstr, argv[i], argstr_len-1);
         }

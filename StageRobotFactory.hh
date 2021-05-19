@@ -42,10 +42,10 @@ start_x, double start_y, double start_th, const AMRISim::Options *userOpts);
     const AMRISim::Options *userOpts);
   //virtual ~StageRobotFactory() {} 
 protected:
-  virtual RobotInterface *createRobot(const std::string& modelName, const std::string& requestedRobotName = "");
-  virtual RobotInterface *createStubRobot(const std::string& modelName, const std::string& requestedRobotName = "");
-  virtual void log_s(const char *msg) { stg_print_msg("Robot Factory: %s", msg); }
-  virtual void log(const char *fmt, ...)
+  virtual RobotInterface *createRobot(const std::string& modelName, const std::string& requestedRobotName = "") override;
+  virtual RobotInterface *createStubRobot(const std::string& modelName, const std::string& requestedRobotName = "") override;
+  virtual void log_s(const char *msg) override { stg_print_msg("Robot Factory: %s", msg); }
+  virtual void log(const char *fmt, ...) override
   {
     va_list args;
     va_start(args, fmt);

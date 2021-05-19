@@ -43,7 +43,7 @@ ArMutex RobotFactory::myClientSocketsMutex;
 //RobotFactory::RobotFactory(const std::string& modelName, bool verbose, const char *listenAddress, const AMRISim::Options *userOpts) :
 RobotFactory::RobotFactory(const std::string& modelName, const AMRISim::Options *userOpts, const char *listenAddress) :
   myModelName(modelName),
-  myPort(8101),
+  //myPort(8101),
   //myVerbose(verbose),
   myListenAddress(listenAddress),
   //mySRISimCompat(false),
@@ -51,7 +51,8 @@ RobotFactory::RobotFactory(const std::string& modelName, const AMRISim::Options 
   //myLogPacketsReceived(false),
   acceptClientCB(this, &RobotFactory::acceptNewClient),
   //myWarnUnsupportedCommands(false)
-  myUserOptions(userOpts)
+  myUserOptions(userOpts),
+  myListeningSocket(nullptr)
 {
   //ArLog::log(ArLog::Normal, "RobotFactory::ctor: modelName = %s, verbose = %d, listenAddress = %s, userOpts = %d\n", modelName.c_str(), (int)verbose, listenAddress, (int)userOpts);
 

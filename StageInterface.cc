@@ -46,17 +46,17 @@
 #include "stage.h"
 
 
-StageInterface::StageInterface(stg_world_t* _world, std::string _robotModel, std::string _robotName) :
+StageInterface::StageInterface(stg_world_t* _world, const std::string& _robotModel, const std::string& _robotName) :
   RobotInterface(_robotName), params(NULL),
   stageWorld(_world), robotModel(_robotModel), robotName(_robotName),
   positionModel(NULL), sonarModel(NULL), //laserModel(NULL), //messagesModel(NULL),
   subscribedToSonar(false),
   openedSonar(false),
-  motorsEnabled(true)
+  areMotorsEnabled(true)
 {
 }
 
-StageInterface::StageInterface(stg_world_t* _world, stg_model_t* _model, std::string _robotModel, std::string _robotName) :
+StageInterface::StageInterface(stg_world_t* _world, stg_model_t* _model, const std::string& _robotModel, const std::string& _robotName) :
   RobotInterface(_robotName), params(NULL),
   stageWorld(_world), robotModel(_robotModel), robotName(_robotName),
   positionModel(_model), sonarModel(NULL), //laserModel(NULL), //messagesModel(NULL),
@@ -291,7 +291,7 @@ void StageInterface::disconnect()
   {
     stg_model_unsubscribe(positionModel);
   }
-  params = NULL;
+  params = nullptr;
 }
 
 
@@ -713,18 +713,18 @@ size_t StageInterface::forEachSonarReading(SonarReadingFunc &func, const size_t 
   return i - start;
 }
 
-int StageInterface::getLaserReading(size_t lasernum, int i) {
+unsigned int StageInterface::getLaserReading(size_t lasernum, size_t i) {
   if(lasernum >= lasers.size())
     return 0;
   return lasers[lasernum].getReading(i);
 }
 
-int StageInterface::Laser::getReading(int i) {
+unsigned int StageInterface::Laser::getReading(size_t i) {
   if(!stageModel || !subscribed || !opened ) return 0;
   size_t len = 0;
   stg_laser_sample_t* data = (stg_laser_sample_t*)stg_model_get_property(stageModel, "laser_data", &len);
-  int numLaserReadings = (int)(len / sizeof(stg_laser_sample_t));
-  assert(i <= numLaserReadings && i >= 0);
+  size_t numLaserReadings = (len / sizeof(stg_laser_sample_t));
+  assert(i <= numLaserReadings);
   return data[i].range;
 }
 

@@ -47,7 +47,30 @@
       "problemMatcher": [ "$gcc" ],
       "presentation": { "reveal": "always" },
       "group": "build"
+    },
+    {
+      "label": "cppcheck",
+      "command": "make",
+      "args": [ "cppcheck" ],
+      "type": "shell",
+      "presentation": { "reveal": "always" },
+      "group": "build",
+      "problemMatcher": 
+      {
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "severity": "info",
+        "pattern": {
+          "kind": "location",
+          "regexp": "^(.+):(\\d+):(\\d+):\\s+(style|performance|warning|error|portability|information):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 5
+        }
+      }
+      
     }
+
 
   ]
 }
