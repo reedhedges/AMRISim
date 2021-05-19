@@ -54,7 +54,7 @@ ROSNode::ROSNode(RobotInterface *r, AMRISim::Options *opts) :
   LogInterface(r->getRobotName()+" ROS Client Interface Node"),
   robot(r),
   nodeHandle(std::string("~")), // XXX TODO unique names for multiple robots
-  publish_sonar(false), publish_sonar_pointcloud2(false),
+  publish_sonar(true), publish_sonar_pointcloud2(true),
   published_motors_state(false),
   frame_id_odom("odom"), // XXX TODO prepend model name or other unique ID?
   frame_id_base_link("base_link"),
@@ -181,28 +181,18 @@ void ROSNode::publish()
     std::stringstream sonar_debug_info; // Log debugging info
     //sonar_debug_info << "Sonar readings: ";
 
-    for (int i = 0; i < robot->numSonarReadings(); ++i) {
- 
-      int r = robot->getSonarReading(i);
-      //sonar_debug_info << r << " ";
+    for (size_t i = 0; i < robot->numSonarReadings(); ++i) {
 
-       // XXX TODO calculate x,y.  Maybe just use ARIA to help?
+      assert(i <= INT_MAX);
+      const double range = robot->getSonarRange(i); 
+      RobotInterface::Pose spose = robot->getSonarSensorPose(i);
 
-      // local (x,y). Appears to be from the centre of the robot, since values may
-      // exceed 5000. This is good, since it means we only need 1 transform.
-      // x & y seem to be swapped though, i.e. if the robot is driving north
-      // x is north/south and y is east/west.
-      //
-      //ArPose sensor = reading->getSensorPosition();  //position of sensor.
-      // sonar_debug_info << "(" << reading->getLocalX() 
-      //                  << ", " << reading->getLocalY()
-      //                  << ") from (" << sensor.getX() << ", " 
-      //                  << sensor.getY() << ") ;; " ;
-    
       //add sonar readings (robot-local coordinate frame) to cloud
+      double sinth, costh;
+      sincos(DTOR(spose.th), &sinth, &costh);
       geometry_msgs::Point32 p;
-      p.x = 0; //reading->getLocalX() / 1000.0;
-      p.y = 0; //reading->getLocalY() / 1000.0;
+      p.x = (float)(spose.x + costh*range) / 1000.0f;
+      p.y = (float)(spose.y + sinth*range) / 1000.0f;
       p.z = 0.0;
       cloud.points.push_back(p);
     }

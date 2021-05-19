@@ -663,14 +663,27 @@ size_t StageInterface::Laser::numReadings() {
   return len / sizeof(stg_laser_sample_t);
 }
 
-int StageInterface::getSonarReading(int i) {
+unsigned int StageInterface::getSonarRange(size_t i) {
   assert(subscribedToSonar);
   size_t len = 0;
   stg_ranger_sample_t* data = (stg_ranger_sample_t*)stg_model_get_property(sonarModel, "ranger_data", &len);
-  int numSonarReadings = (int)(len / sizeof(stg_ranger_sample_t));
-  assert(i <= numSonarReadings && i >= 0);
-  int r =(int) ArMath::roundInt(data[i].range * 1000.0); 
+  size_t numSonarReadings = (len / sizeof(stg_ranger_sample_t));
+  assert(i <= numSonarReadings);
+  assert(data[i].range >= 0);
+  unsigned int r = (unsigned int)ArMath::roundInt(data[i].range * 1000.0);
   return  r;
+}
+
+RobotInterface::Pose StageInterface::getSonarSensorPose(size_t i) {
+  size_t len = 0;
+  stg_ranger_config_t *cfg = (stg_ranger_config_t *)stg_model_get_property(sonarModel, "ranger_cfg", &len);
+  size_t n = len / sizeof(stg_ranger_config_t);
+  assert(i < n);
+  return RobotInterface::Pose {
+      (int)ArMath::roundInt(cfg[i].pose.x * 1000.0),
+      (int)ArMath::roundInt(cfg[i].pose.y * 1000.0),
+      (int)ArMath::roundInt(RTOD(cfg[i].pose.a))
+   };
 }
 
 size_t StageInterface::forEachSonarReading(SonarReadingFunc &func, const size_t &start) {
@@ -684,7 +697,9 @@ size_t StageInterface::forEachSonarReading(SonarReadingFunc &func, const size_t 
   size_t i;
   //printf(">> XXX forEachSonarReading: there are %d sonar readings. start=%d\n", n, start);
   for(i = start; i < n; ++i) {
-    if(!func( (int) ArMath::roundInt(data[i].range * 1000.0 ))) break;
+    assert(data[i].range >= 0);
+    if (!func((unsigned int)ArMath::roundInt(data[i].range * 1000.0)))
+      break;
   }
   // printf(">> XXX forEachSonarReading: did %d readings\n", i-start);
   return i - start;

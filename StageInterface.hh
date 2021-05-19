@@ -181,7 +181,8 @@ class StageInterface : public virtual RobotInterface
     virtual void getSimulatorPose(long &x, long &y, long &z, int &theta);
     virtual bool stalled();
     virtual size_t numSonarReadings();
-    virtual int getSonarReading(int i);
+    virtual unsigned int getSonarRange(size_t i) override;
+    virtual RobotInterface::Pose getSonarSensorPose(size_t i) override;
     virtual size_t forEachSonarReading(SonarReadingFunc &func, const size_t &start = 0);
     virtual char gripperState();
     virtual size_t numLasers() { return lasers.size(); }

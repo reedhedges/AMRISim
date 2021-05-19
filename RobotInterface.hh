@@ -101,6 +101,12 @@ class RobotInterface : public LogInterface {
     virtual void disconnect() = 0;
 
 
+    struct Pose {
+      int x = 0; ///< mm
+      int y = 0; ///< mm
+      int th = 0; ///< deg
+    };
+
     // commands:
     virtual void enableMotors(bool e = true) = 0;
     void disableMotors() { enableMotors(false); }
@@ -164,15 +170,15 @@ class RobotInterface : public LogInterface {
     virtual bool haveSonar() { return haveFrontSonar() || haveRearSonar(); }
     virtual bool haveLaser(size_t /*i*/) { return false; }
     virtual size_t numLasers() { return 0; }
-    virtual int xpos() = 0;   ///< odometric x
-    virtual int ypos() = 0;   ///< odometric y
-    virtual int theta() = 0;  ///< odometric theta
-    virtual int xspeed() = 0;
-    virtual int rotspeed() = 0;
-    virtual int yspeed() = 0;
-    virtual long getSimulatorPoseX() = 0;   ///< true x
-    virtual long getSimulatorPoseY() = 0;   ///< true y
-    virtual int getSimulatorPoseTheta() = 0;  ///< true theta
+    virtual int xpos() = 0;   ///< odometric x, mm
+    virtual int ypos() = 0;   ///< odometric y, mm
+    virtual int theta() = 0;  ///< odometric theta. deg
+    virtual int xspeed() = 0; ///< mm/s
+    virtual int rotspeed() = 0; ///< deg/s
+    virtual int yspeed() = 0; ///< mm/s
+    virtual long getSimulatorPoseX() = 0;   ///< true x, mm
+    virtual long getSimulatorPoseY() = 0;   ///< true y, mm
+    virtual int getSimulatorPoseTheta() = 0;  ///< true theta, deg
     virtual long getSimulatorPoseZ() { return 0; }
     virtual void getSimulatorPose(long &x, long &y, long &z, int &theta) = 0;
     virtual float getBatteryVoltage() { return batteryVoltage; }
@@ -196,12 +202,16 @@ class RobotInterface : public LogInterface {
     virtual bool haveSimulatorOdomError() { return false; }
 
     virtual size_t numSonarReadings() = 0;
-    virtual int getSonarReading(int i) = 0;
+    virtual unsigned int getSonarRange(size_t i) = 0;
+    [[deprecated]] unsigned int getSonarReading(size_t i) { return getSonarRange(i); }
+    [[deprecated]] unsigned int getSonarReading(int i) { assert(i >= 0); return getSonarReading((size_t)i); }
 
-    class SonarReadingFunc : public std::unary_function<int, bool>
+    virtual Pose getSonarSensorPose(size_t i) = 0;
+
+    class SonarReadingFunc : public std::unary_function<unsigned int, bool>
     {
     public:
-      virtual bool operator()(int r) = 0;
+      virtual bool operator()(unsigned int r) = 0;
       virtual ~SonarReadingFunc(){}
     };
 

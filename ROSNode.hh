@@ -90,6 +90,10 @@ private:
 public:
   ROSNode(RobotInterface *r, AMRISim::Options* opts);
   ~ROSNode();
+  ROSNode(const ROSNode &other) = delete;
+  ROSNode(ROSNode&& old) = delete;
+  ROSNode& operator=(const ROSNode& other) = delete;
+  ROSNode& operator=(ROSNode&& other) = delete;
   bool start();
   void publish(); ///< Normally called automatically by ROS callback spin loop
 };
