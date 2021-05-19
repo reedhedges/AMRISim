@@ -163,6 +163,7 @@ class RobotInterface : public LogInterface {
     virtual void getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &motorsEnabled) = 0;
     virtual void getPosition(int &x, int &y, int &theta) = 0;
     virtual void getVelocity(int &x, int &y, int &theta) = 0;
+    virtual bool motorsEnabled() const = 0;
     virtual bool havePositionData() { return false; }
     virtual bool haveGripper()  { return false; }
     virtual bool haveFrontSonar() { return false; }
@@ -205,6 +206,7 @@ class RobotInterface : public LogInterface {
     virtual unsigned int getSonarRange(size_t i) = 0;
     [[deprecated]] unsigned int getSonarReading(size_t i) { return getSonarRange(i); }
     [[deprecated]] unsigned int getSonarReading(int i) { assert(i >= 0); return getSonarReading((size_t)i); }
+    virtual unsigned int getMaxSonarRange() = 0;
 
     virtual Pose getSonarSensorPose(size_t i) = 0;
 

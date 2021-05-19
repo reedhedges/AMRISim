@@ -126,7 +126,7 @@ class StageInterface : public virtual RobotInterface
 
   private:
     bool subscribedToSonar, openedSonar;
-    bool motorsEnabled;
+    bool areMotorsEnabled;
 
   public:
     virtual void openSonar();
@@ -175,6 +175,7 @@ class StageInterface : public virtual RobotInterface
     virtual void getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &enabled);
     virtual void getPosition(int &x, int &y, int &theta);
     virtual void getVelocity(int &x, int &y, int &theta);
+    virtual bool motorsEnabled() const override { return areMotorsEnabled; }
     virtual long getSimulatorPoseX();
     virtual long getSimulatorPoseY();
     virtual int getSimulatorPoseTheta();
@@ -183,6 +184,7 @@ class StageInterface : public virtual RobotInterface
     virtual size_t numSonarReadings();
     virtual unsigned int getSonarRange(size_t i) override;
     virtual RobotInterface::Pose getSonarSensorPose(size_t i) override;
+    virtual unsigned int getMaxSonarRange() override;
     virtual size_t forEachSonarReading(SonarReadingFunc &func, const size_t &start = 0);
     virtual char gripperState();
     virtual size_t numLasers() { return lasers.size(); }

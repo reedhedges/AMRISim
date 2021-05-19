@@ -57,8 +57,8 @@ ROSNode::ROSNode(RobotInterface *r, AMRISim::Options *opts) :
   publish_sonar(true), publish_sonar_pointcloud2(true),
   published_motors_state(false),
   frame_id_odom("odom"), // XXX TODO prepend model name or other unique ID?
-  frame_id_base_link("base_link"),
-  frame_id_sonar("sonar")
+  frame_id_base_link("base_link")
+  //frame_id_sonar("sonar")
  //publishCB(this)
  // publishCBPtr(boost::make_shared<PublishCallback, ROSNode>(this))
 {
@@ -74,8 +74,8 @@ ROSNode::ROSNode(RobotInterface *r, AMRISim::Options *opts) :
   motors_state.data = false;
   published_motors_state = false;
 
-  //todo enable_srv = nodeHandle.advertiseService("enable_motors", &ROSNode::enable_motors_cb, this);
-  //todo disable_srv = nodeHandle.advertiseService("disable_motors", &ROSNode::disable_motors_cb, this);
+  enable_srv = nodeHandle.advertiseService("enable_motors", &ROSNode::enable_motors_cb, this);
+  disable_srv = nodeHandle.advertiseService("disable_motors", &ROSNode::disable_motors_cb, this);
  
   // TODO laser(s)
 
@@ -175,16 +175,18 @@ void ROSNode::publish()
     sensor_msgs::PointCloud cloud;	//sonar readings.
     cloud.header.stamp = timestamp;
     // sonar sensors relative to base_link
-    cloud.header.frame_id = frame_id_sonar;
-  
+    cloud.header.frame_id = frame_id_base_link;
 
-    std::stringstream sonar_debug_info; // Log debugging info
+    //std::stringstream sonar_debug_info; // Log debugging info
     //sonar_debug_info << "Sonar readings: ";
 
+    cloud.points.reserve(robot->numSonarReadings());
     for (size_t i = 0; i < robot->numSonarReadings(); ++i) {
 
       assert(i <= INT_MAX);
       const double range = robot->getSonarRange(i); 
+      if(range >= robot->getMaxSonarRange())
+        continue;
       RobotInterface::Pose spose = robot->getSonarSensorPose(i);
 
       //add sonar readings (robot-local coordinate frame) to cloud
@@ -203,12 +205,15 @@ void ROSNode::publish()
     if(publish_sonar_pointcloud2)
     {
       sensor_msgs::PointCloud2 cloud2;
-      if(!sensor_msgs::convertPointCloudToPointCloud2(cloud, cloud2))
+      cloud2.data.reserve(cloud.points.size());
+      if (!sensor_msgs::convertPointCloudToPointCloud2(cloud, cloud2))
       {
         ROS_WARN("Error converting sonar point cloud message to point_cloud2 type before publishing! Not publishing this time.");
       }
       else
       {
+        cloud2.header.stamp = timestamp;
+        cloud2.header.frame_id = frame_id_base_link;
         sonar_pointcloud2_pub.publish(cloud2);
       }
     }
@@ -226,5 +231,24 @@ void ROSNode::publish()
 
 void ROSNode::cmdvel_cb(const geometry_msgs::TwistConstPtr& vel)
 {
-  // XXX TODO
+  ROS_INFO("cmd_vel received %f, %f, %f", vel->linear.x, vel->linear.y, vel->angular.z); 
+  if(! robot->motorsEnabled() )
+    ROS_WARN("motors not enabled, velocity commands will have no effect. Use enable_motors service, e.g. rosservice call /AMRISim/enable_motors" );
+  robot->transVel((int)(vel->linear.x * 1000.0));
+  robot->latVel((int) (vel->linear.y * 1000.0) );
+  robot->rotVel((int) RTOD(vel->angular.z) );
+}
+
+bool ROSNode::enable_motors_cb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  ROS_INFO("enable_motors service called, enabling motors.");
+  robot->enableMotors();
+  return true;
+}
+
+bool ROSNode::disable_motors_cb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response) 
+{
+  ROS_INFO("disable_motors service called, disabling motors.");
+  robot->disableMotors();
+  return true;
 }

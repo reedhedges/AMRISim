@@ -62,7 +62,7 @@ StageInterface::StageInterface(stg_world_t* _world, stg_model_t* _model, std::st
   positionModel(_model), sonarModel(NULL), //laserModel(NULL), //messagesModel(NULL),
   subscribedToSonar(false),
   openedSonar(false),
-  motorsEnabled(true)
+  areMotorsEnabled(true)
 {
 }
 
@@ -299,14 +299,14 @@ void StageInterface::disconnect()
 
 void StageInterface::enableMotors(bool e) 
 {
-  motorsEnabled = e;
+  areMotorsEnabled = e;
   if(!e) stop();
 }
 
 
 void StageInterface::transVel(int v) 
 {
-  if(!motorsEnabled) return;
+  if(!motorsEnabled()) return;
   // TODO get property pointer and modify rather than copying new struct in
   positionCmd.x = (v / 1000.0);  // mm to m
   positionCmd.transmode = STG_POSITION_CONTROL_VELOCITY;
@@ -316,7 +316,7 @@ void StageInterface::transVel(int v)
 
 void StageInterface::latVel(int v)
 {
-  if(!motorsEnabled) return;
+  if(!motorsEnabled()) return;
   // TODO get property pointer and modify rather than copying new struct in
   positionCmd.y = (v / 1000.0);   // mm t m
   positionCmd.transmode = STG_POSITION_CONTROL_VELOCITY;
@@ -326,7 +326,7 @@ void StageInterface::latVel(int v)
 
 void StageInterface::rotVel(int v)
 {
-  if(!motorsEnabled) return;
+  if(!motorsEnabled()) return;
   // TODO get property pointer and modify rather than copying new struct in
   positionCmd.a = DTOR((double)v); // degrees to radians
   positionCmd.rotmode = STG_POSITION_CONTROL_VELOCITY;
@@ -336,7 +336,7 @@ void StageInterface::rotVel(int v)
 
 void StageInterface::move(int m)
 {
-  if(!motorsEnabled) return;
+  if(!motorsEnabled()) return;
   // TODO get property pointer and modify rather than copying new struct in
   positionCmd.x = (m / 1000.0);
   positionCmd.transmode = STG_POSITION_CONTROL_RELATIVE;
@@ -352,7 +352,7 @@ void StageInterface::move(int m)
 
 void StageInterface::heading(int h)
 {
-  if(!motorsEnabled) return;
+  if(!motorsEnabled()) return;
   // TODO get property pointer and modify rather than copying new struct in
   positionCmd.a = DTOR((double)h);
   positionCmd.rotmode = STG_POSITION_CONTROL_POSITION;
@@ -362,7 +362,7 @@ void StageInterface::heading(int h)
 
 void StageInterface::deltaHeading(int h)
 {
-  if(!motorsEnabled) return;
+  if(!motorsEnabled()) return;
   // TODO get property pointer and modify rather than copying new struct in
   // TODO: normalize?
   positionCmd.a = DTOR((double)h);
@@ -572,7 +572,7 @@ void StageInterface::getMotionState(int &x, int &y, int &theta, int &transVel, i
   rotVel = (int) ArMath::roundInt(RTOD(veldata->a));
   stg_position_stall_t* stall = (stg_position_stall_t*)stg_model_get_property_fixed(positionModel, "position_stall", sizeof(stg_position_stall_t));
   stalled = ((*stall) != 0);
-  enabled = motorsEnabled;
+  enabled = motorsEnabled();
 }
 
 int StageInterface::xpos() {
@@ -684,6 +684,14 @@ RobotInterface::Pose StageInterface::getSonarSensorPose(size_t i) {
       (int)ArMath::roundInt(cfg[i].pose.y * 1000.0),
       (int)ArMath::roundInt(RTOD(cfg[i].pose.a))
    };
+}
+
+unsigned int StageInterface::getMaxSonarRange() {
+  size_t len = 0;
+  stg_ranger_config_t *cfg = (stg_ranger_config_t *)stg_model_get_property(sonarModel, "ranger_cfg", &len);
+  if(len < sizeof(stg_ranger_config_t))
+    return 0;
+  return (unsigned int)(cfg[0].bounds_range.max * 1000.0);
 }
 
 size_t StageInterface::forEachSonarReading(SonarReadingFunc &func, const size_t &start) {
