@@ -8,16 +8,11 @@
                 "../AriaCoda/include",
                 "/opt/ros/melodic/include/**"
             ],
-//            "browse.path": [
-//                "${workspaceFolder}",
-//                "../AriaCoda/include/Aria",
-//                "../AriaCoda/include",
-//                "/opt/ros/melodic/include"
-//            ],
             "defines": [
                 "AMRISIM_PIONEER",
                 "AMRISIM_ROS",
-                "AMRISIM_VERSION=\"vscodesyntaxcheckingonly\""
+                "AMRISIM_VERSION=\"version will go here\"",
+                "AMRISIM_BUILDDATE=\"build date will go here\""
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",

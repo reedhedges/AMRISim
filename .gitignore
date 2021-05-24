@@ -19,3 +19,5 @@ stage/doxygen.conf
 stage/autom4te.cache
 .vscode/dryrun.log
 checks.json
+README.html
+compile_flags.txt

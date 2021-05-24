@@ -460,9 +460,9 @@ public:
 
 /** Pioneer emulator over TCP.
  *
- *  Communicates with a client over a TCP socket, recieve ARCOS command
+ *  Communicates with a client over a TCP socket, receive ARCOS command
  *  packets and call the appropriate methods in a RobotInterface object, and
- *  recieve data from the RobotInterface to return in information packets.
+ *  receive data from the RobotInterface to return in information packets.
  *
  *  EmulatePioneer can be used in two ways.  You can either give it
  *  an already-connected client socket when constructing it (see
@@ -589,7 +589,7 @@ public:
 
 protected:    
 
-    /** Called after successfuly handshake; session has started, get ready to send and receive normal commands
+    /** Called after successfully handshake; session has started, get ready to send and receive normal commands
     */
     bool beginSession();
 
@@ -600,7 +600,7 @@ protected:
 
     /** End session, close connection, clean up 
         @throws DeletionRequest
-        @throws Disconneced
+        @throws Disconnected
       */
     void endSession();
 
@@ -625,7 +625,7 @@ protected:
 
 
     /**
-     * If a client is connected, read and process commands from clien
+     * If a client is connected, read and process commands from client
      */
     void readClientInput(unsigned int maxTime);
 

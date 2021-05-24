@@ -91,7 +91,7 @@ using namespace AMRISim;
 //#define DELETE_ROBOT_INTERFACES 1
 
 // if defined, destroy stage world and call uninit at program
-// exit. unually not really neccesary since the program is exiting
+// exit. usually not really neccesary since the program is exiting
 // anyway, and causes crashes on windows.
 //#define STAGE_UNINIT 1
 
@@ -343,7 +343,7 @@ void usage()
 "                     the map bounds -- it later must be moved within the map\n"
 "                     bounds to be used -- or, use the keyword \"random\" to\n"
 "                     randomly choose a starting place within the map bounds.\n"
-"  --resolution <r> : Use resolution <r> (milimeters) for collisions and\n"
+"  --resolution <r> : Use resolution <r> (millimeters) for collisions and\n"
 "                     sensors. Default is 20mm (2cm)\n"
 "  --ignore-command <num> :\n"
 "                     Ignore the command whose number is given. Refer to robot\n"
@@ -396,9 +396,10 @@ void usage()
 "                     processing, to avoid long communication blackouts and subsequent disconnects.\n"
 "                     If disconnects are happening during map loads, try setting this below " DEFAULT_MPPC_STR "\n"
 "  --no-network-discovery : \n"
-"                     Don't respond to network broadcast discovery requests.\n"
+"                     Don't listen for or respond to network broadcast discovery requests.\n"
 "  --odom-error-mode <random_init|random_each_update|constant|none> :\n"
 "                     Specify odometry error behavior (see documentation).\n"
+"  --no-error         Same as \"--odom-error mode none\"\n"
 "  --help :           Print this help text and exit\n"
 "  --version or -v :  Print AMRISim version number and exit\n"
 "\n"
@@ -558,10 +559,12 @@ int main(int argc, char** argv)
           // No name given, invent one
           model = arg.substr(0, sep);
           name = model;
-          char buf[4];
+
           int i = 2;
-          for (int i = 2; robotInstanceRequests.find(name) != robotInstanceRequests.end() && i <= 999; ++i)
+          for (; robotInstanceRequests.find(name) != robotInstanceRequests.end() && i <= 999; ++i)
           {}
+
+          char buf[4];
           assert(i <= 999);
           int r = snprintf(buf, 4, "%03d", i);
           assert(r >= 4);
@@ -899,6 +902,10 @@ int main(int argc, char** argv)
         usage();
         exit(ERR_USAGE);
       }
+    }
+    else if(command_argument_match(argv[i], "", "no-error"))
+    {
+      opt.odom_error_mode = AMRISim::Options::NONE;
     }
     else if(i == (argc-1))
     {
@@ -2652,8 +2659,8 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
       {
         (*robotInstanceRequests)[name] = selected_robot;
         char numstr[8];
-        const auto r = snprintf(numstr, 8, "_%03d", i+2);
-        assert(r < 8);
+        const auto sr = snprintf(numstr, 8, "_%03d", i+2);
+        assert(sr < 8);
         name = selected_robot + numstr;
       }
     }

@@ -38,7 +38,7 @@ AMRISim normally runs as an interactive application with GUI.  A noninteractive
 mode may be enabled in which messages are logged rather than displayed to the
 user via the GUI.  Logging is configurable.    Various GUI options may be
 disabled for performance.   A build variant of AMRISim may be added in
-the future in which no GUI (GTK/X-Windows) dependences are included in the
+the future in which no GUI (GTK/X-Windows) dependencies are included in the
 build, as well, for complete background use on a server.
 
 Please discuss requirements for additional robot model configuration
@@ -80,7 +80,7 @@ Pioneer interface or the ROS interface at any one time.
 It is also recommended that you design your ROS application
 such that only one ROS client is sending motion commands
 (`cmd_vel`) or they are carefully coordinated.   (ROS clients
-can generally recieve published data while a Pioneer client
+can generally receive published data while a Pioneer client
 is connected, however, for logging, data collection, visualization,
 offline work, etc.) 
 
@@ -105,7 +105,7 @@ The ROS interfaces are in-process nodes created for each simulated
 robot.  If no ROS master is detected, an option is 
 presented to start roscore. The nodes currently have 
 arbitrary names beginning with the prefix "AMRISim-"
-(but better naming may be added in the fututre, similar to how
+(but better naming may be added in the future, similar to how
 information about robots is logged and reported via Pioneer connection.)
 See below for ROS topics.
 
@@ -134,11 +134,11 @@ models.
   on map georeference)
 * Multiple robots (good performance is possible on a fast computer with
   more than 50 robots)
-* Evironment and obstacles are loaded from a
+* Environment and obstacles are loaded from a
   MobileRobots/ActivMedia/ARIA map file; use the same map with ARNL/SONARNL or
   your own software.
 * Interactively move robots and obstacles
-* Objects (robots or obstactles) may be configured to be detectable
+* Objects (robots or obstacles) may be configured to be detectable
     only by some sensors
 * Objects (robots or obstacles) may be set as "highly reflective"
     for special detection by the laser range sensor
@@ -174,8 +174,8 @@ g++, make, libtool, automake and autoconf.
 
 Run "make" to build.
 
-On Windows, MinGW and MSYS should be used. 
-GTK+ does not need tobe installed on Windows, a local copy is used. 
+On Windows, MinGW and MSYS should be used.
+GTK+ does not need to be installed on Windows, a local copy is used.
 
 Detailed build instructions for each platform are available in
 [BUILD.md](BUILD.md).
@@ -195,7 +195,7 @@ supported in AMRISim.)
 
 If you just want to more easily build AMRISim with ROS support on Ubuntu,
 installing ROS Ubuntu packages using apt is easier than configuring the custom
-ROS installation and build system.  The required Ubuntu packages to build are: 
+ROS installation and build system.  The required Ubuntu packages to build are:
 
     libroscpp-dev libtf-dev libsensor-msgs-dev libgeometry-msgs-dev libstd-msgs-dev libstd-srvs-dev libnav-msgs-dev libnodelet-dev
 
@@ -253,7 +253,7 @@ given, is "p3dx".  Some additional robot models include "p3at",
 "powerbot", "peoplebot", "patrolbot-sh", "seekur", and "amigo".
 
 To create multiple simulated robots, use -r multiple times, naming
-the robots after the model type, seperated by a colon, if you wish:
+the robots after the model type, separated by a colon, if you wish:
 
      AMRISim -m columbia.map -r p3dx:robot1 -r p3dx:robot2 -r amigo:robot3
 
@@ -262,7 +262,7 @@ all at AMRISim startup.  If you use -R instead of -r, then a new robot
 will be created on demand for each ARIA/Pioneer client that connects,
 and destroyed when the client exits. (So the robot's state is not preserved.)
 (Note that this is no yet possible with ROS clients, since ROS data is
-broadcastt via ROS publishing system, rather than through a direct
+broadcast via ROS publishing system, rather than through a direct
 1:1 client connection to only one client.  If you have suggestions for
 achieving similar flexibility in the future, please let us know on
 the github discussion pages.   A service to control robot creation?
@@ -277,7 +277,7 @@ is limited to 200 x 200 meters -- gray area indicates the edge.)
 
 A window will appear, displaying your map environment and robot(s). The
 robot will start at a home position in your map, if present, or at the center
-of the map. The robot's body is drawn based on the aproximate length and
+of the map. The robot's body is drawn based on the approximate length and
 width -- including wheels -- of the model selected.  You can pan in
 the window by holding down the right mouse button, or mouse button with
 the Shift or Control key and dragging. You can zoom
@@ -468,10 +468,10 @@ A mobile robot that can move within the world. The robot may be
 differential-drive (two degrees of freedom, capable of translational and rotational motion), or
 omnidirectional (three degrees of freedom, capable of translational, lateral or
 rotational motion).   Motion can be commanded via desired velocities in each
-axis (velocity control, via ROS `cmd_vel` topic and `VEL`, `TRANSVEL`, and `RVEL` Pioneer comands),
+axis (velocity control, via ROS `cmd_vel` topic and `VEL`, `TRANSVEL`, and `RVEL` Pioneer commands),
 or discrete changes in position may be commanded
 relative-position control using Pioneer `MOVE` and `DHEAD` commands, or absolute heading
-from `HEAD` command).  In addition, clients can request artifically
+from `HEAD` command).  In addition, clients can request artificially
 dropping the robot at any new position in the world.
 
 The code implementing the position model can be found in the AMRISim source
@@ -510,7 +510,7 @@ no rotational velocity is desired.  The desired velocity will later be limited a
 to maximum speed configured.
 
 Relative heading commands (eg Pioneer `DHEAD`)
-are converted to absolute heading commands when recieved
+are converted to absolute heading commands when received
 based on the robot's current heading at the time the command is received.
 
 If a rotational velocity command (Pioneer `RVEL` or in ROS `cmd_vel`) is active instead, then this value
@@ -523,7 +523,7 @@ definitions in `PioneerRobotModels.world.inc`.)
 
 Next, acceleration and deceleration parameters are used to ramp the robot's
 current velocities up or down towards the desired velocities.  Acceleration
-and decelaration parametrs are set separately by clients using Pioneer
+and deceleration parameters are set separately by clients using Pioneer
 `SETA` and `SETRA` commands (or initial defaults from the model definitions are
 used).  (A client may also specify a temporary override deceleration value via the
 Pioneer `ESTOP`/`QSTOP` commands. Deceleration is then reset back to the previous value
@@ -531,9 +531,8 @@ once the robot has stopped.)   If accelerating, the new velocity is incremented
 by acceleration * dt, where dt is the time elapsed since the last
 update of the position model in the previous simulation loop iteration: we
 assume that the next simulation iteration will be within a similar time
-interval.  If decelerating, velocity is decreased.   If the desired velicity is within a
+interval.  If decelerating, velocity is decreased.   If the desired velocity is within a
 threshold of the current velocity, then the desired velocity is simply used.
-
 
 The above process can be logged for debugging by switching the definitions of
 some macros in the `model_position.c` source code and recompiling, though note
@@ -555,14 +554,14 @@ is simulated.  Other aspects of the robot's motion such as momentum
 or inertia are not simulated, nor are component parts such as wheels,
 nor the robot's interaction with the world other than collision detection.
 
-The updated pose estimate is calcualed by projecting
+The updated pose estimate is calculated by projecting
 the robot along its current basic trajectory (velocities) from the previous pose
 estimate, plus some error.  (The pose is initialized to
 (0,0,0) when the simulated robot is created.)
 
     mx = (vx * dt) * (1 + error.x)
     my = (vy * dt) * (1 + error.y)
-    mth = (vth * dt) * (1 + errror.th)
+    mth = (vth * dt) * (1 + error.th)
     pose.x += mx * cos(th) - my * sin(th)
     pose.y += mx * sin(th) + my * cos(th)
     pose.th += mth
@@ -575,13 +574,15 @@ move along its Y axis, but may be nonzero on robots capable of lateral motion.
 In AMRISim 0.6.x, error values of 0.0075 for error.x and error.y and 0.0075 for error.th are used by
 default for all robots, except for "p3dx\_noerr" where no error is used.
 Starting in AMRISim 0.9.x, there are several choices for calculating error,
-which can be selected via the --odom-error-mode command-line argument.
-`random_each_update` is the default (as was errorneously documented previously.)
+which can be selected via the `--odom-error-mode` command-line argument.
+`random_each_update` is the default (as was erroneously documented previously.)
 
 * `random_init`   Choose random values within a configured range at startup; each new robot will have different amount of error, even if same type.
 * `random_each_update`  Chose random values within configured range at each simulation iteration.
 * `constant`  Constant values, configured for each robot type.
-* `none`  Use 0 for error values.
+* `none`   Don't apply error (use 0 for all error values). 
+You can use the `--no-error` command line argument as an alias for
+`--odom-error-mode none`.
 
 The error ranges are specified in the robot model definitions
 (`PioneerRobotModels.world.inc`) and new custom model definitions may specify
@@ -589,7 +590,7 @@ error ranges that override defaults. (See Model Definitions below.)
 The `odom_error_range_x`, `odom_error_range_y`, and `odom_error_range_a`
 properties specify ranges for error in each axis.  Alternatively, an
 `odom_error` property can be used for constant error (if `constant` mode)
-or for symetric positive/negative error values (random modes) (this is for compatibilty).
+or for symmetric positive/negative error values (random modes) (this is for compatibility).
 (Units are meters and radians.)  The actual error values being used can be
 obtained by client software via the SIMSTAT packet (see below).
 
@@ -616,15 +617,15 @@ The code implementing the laser model can be found in the AMRISim source
 code in `stage/src/model_laser.c`.
 
 A scanning rangefinder measures distance ranges at fixed
-degree intervales over its field of view.
-At each simulation loop iteration, each of these range values is deterimed
+degree intervals over its field of view.
+At each simulation loop iteration, each of these range values is determined
 by a raycasting algorithm to search the simulation environment at that time.
 The field of view of the sensor is divided by the number of range samples that wil be taken
 to determine the angle of each sample.  A small amount of static random error
 is added to each sample's angle, and then for each sample ray,
 the environment quadtree is searched along until another object is located, or
 the maximum distance capable is reached. Then
-the intersaction point between the ray and the shape of that object is
+the intersection point between the ray and the shape of that object is
 calculated, and the distance between the center of the laser rangefinder
 model and that point is calculated.  Finally, a small amount of random error is
 added to that range value.
@@ -638,12 +639,12 @@ which case they are ignored.
 If the detected object has been configured with a special "reflectance" value,
 then this is stored with the range value, optionally modified by configurable
 rules (e.g. distance, angle of incidence, etc.)  This simulates the capability of the
-SICK LMS-200 and some other lasers to differentiate special refelctor material
+SICK LMS-200 and some other lasers to differentiate special reflector material
 applied to objects.
 
 A range error of +/- 5 mm and angular error of +/- 0.04 degrees is used for simulated LMS-200.
 A range error of +/- 7.5mm and angular error of +/- 0.04 degrees is used for
-LMS-100. A range error of +/- 6mm and agular error of +/- 0.04 degrees is used
+LMS-100. A range error of +/- 6mm and angular error of +/- 0.04 degrees is used
 for S300.
 
 If client software has requested laser data, then at each interval of client
@@ -655,17 +656,17 @@ the client.
 The "ranger" model is used to simulate sets of individual, relatively short
 range distance sensors, such as sonar and IR range sensors.  It differs
 from the "laser" model in that the positions and orientations of each individual
-sensor transciever can be configured separately.
+sensor transceiver can be configured separately.
 
 The code implementing the ranger model can be found in the AMRISim source
 code in `stage/src/model_ranger.c`.
 
-In the simplest, default mode, for each configured sensor transciever, a raycasting algorithm is used to search the
+In the simplest, default mode, for each configured sensor transceiver, a raycasting algorithm is used to search the
 environment from the center of the sensor's field of view, within the minimum
 and maximum configured range.    This distance is stored as the range data.
 
 In the alternative "closest ray" mode, several raycasts are made within the field of view of the
-sensor transciever, and the shortest range is used.  This mode is not used by
+sensor transceiver, and the shortest range is used.  This mode is not used by
 default.
 
 Finally, some random error may be added to the range value.  +/- 0.5 mm is used,
@@ -685,9 +686,14 @@ Advanced Usage
 A full listing of AMRISim's command line parameters follows:
 
 Usage:
-    AMRISim [-m *map*] [-r *robot model* ...] [...options...]
+    AMRISim [...options...]
 
+Options:
 --------------------      ----------------------------------------------------------
+`--help`                  Print this help text and exit
+
+`--version` or `-v`       Print AMRISim version information and exit
+
 `--map` *map*             Load map file (e.g. created with Mapper3)
 
 `-m` *map*                Same as `-map` *map*
@@ -742,7 +748,7 @@ Usage:
 
 `-l` *file*               Same as `--log-file` *file*.
 
-`--log-file-max-size`     If the amoount of data written to the log file exceeds *size*
+`--log-file-max-size`     If the amount of data written to the log file exceeds *size*
 *size*                    bytes, then rotate the log files (up to 5) and open a new log file.
                           This option keeps the total size of all the log files under *size**5 bytes.
                           If --noninteractive is given, the default for *size* is 5 MB. Otherwise,
@@ -753,7 +759,7 @@ Usage:
                           and data update.)
 
 `--update-sim-time` *ms*  How much simulated time each simulation update takes
-                          (Default is equal to update-intenval. More than update-interval results in
+                          (Default is equal to update-interval. More than update-interval results in
                           faster-than-realtime simulation, which may cause problems
                           for clients)
 
@@ -763,9 +769,9 @@ Usage:
 
 `--start random`          Randomly choose a starting place within the map bounds.
 
-`--resolution` *r*        Use resolution *r* (milimeters) for collisions and sensors. Default is 20mm (2cm)
+`--resolution` *r*        Use resolution *r* (millimeters) for collisions and sensors. Default is 20mm (2cm)
 
-`--ignore-command`        Ignore the command whose number is given. Refer to robot manual and AMRISim
+`--ignore-command`        Ignore the Pioneer command whose number is given. Refer to robot manual and AMRISim
 *num*                     documentation for command numbers.
                           For example, to prevent client programs from moving the robot's true position
                           with the ``SIM_SET_POSE`` command, number 224, use `--ignore-command 224`.
@@ -776,6 +782,8 @@ Usage:
                           frequently logged (such as unsupported commands), to avoid filling up log files
                           with useless info.
 
+`--verbose`               Be more verbose about logging messages.
+
 `--log-timing-stats`      Log some simulation timing information every 30 seconds.
 
 `--bind-to-address`       Only listen on the network interface with IP address *address* for new
@@ -783,8 +791,33 @@ Usage:
                           more than one AMRISim process on the same TCP ports on a machine that has more
                           than one network interface.
 
-`--disable-crash-handler` Disable the GDB crash handler (and just abort program on fatal signals). No
-                          effect on Windows, where there is no crash handler.
+`--no-crash-debug`        Disable the GDB crash handler (and just abort program on fatal signals). No
+                          effect on Windows, where there is no crash handler. (Not on Windows.)
+
+`--no-crash-restart`      Don't try to restart after a crash when in noninteractive mode. (Not available on Windows)
+
+`--srisim-compat`         Recognize old SRISim commands on Pioneer interface (which conflict with other Pioneer commands).
+                          Enable this if using very old software.
+
+`--no-srisim-laser-compat` Don't recognize old SRISim laser-related commands on Pioneer interface (which conflict with other Pioneer commands).
+                          Normally these are accepted even if `--srisim-compat` is not enabled. But use this switch
+                          to also disable them.
+
+`--warn-unsupported-commands` Warn in log and GUI when unrecognized or unsupported Pioneer commands are received (but ignored).
+
+`--lines-chunksize`       When a map is loaded or reloaded, the map lines are split into chunks for
+                          processing, to avoid long communication blackouts and subsequent disconnects.
+                          If disconnects are happening during map loads, try setting this below 10,000.
+
+`--points-chunksize`      When a map is loaded or reloaded, the map points are split into chunks for
+                          processing, to avoid long communication blackouts and subsequent disconnects.
+                          If disconnects are happening during map loads, try setting this below 100,000.
+
+`--no-network-discovery`  Don't listen for or respond to network broadcast discovery requests.  
+
+`--odom-error-mode` <`random_init`|`random_each_update`|`constant`|`none`>
+                          Override odometry error behavior (see documentation
+                          for "position model, a movable robot" above).
 --------------------      ----------------------------------------------------------
 
 Note: Windows' command shell unfortunately does not display the standard console output of GUI programs like AMRISim.

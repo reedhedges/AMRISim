@@ -68,20 +68,20 @@ typedef ArFunctor1<MapLoadedInfo>* MapLoadedCallback;
 class MapLoader
 {
 private:
-  stg_world_t *world;
+  stg_world_t *world = NULL;
   //StageInterface *interface;
   std::string mapfile;
   //MapLoadedCallback callback;
   std::set<MapLoadedCallback> callbacks;
   static const double ReflectorThickness; ///< meters
   std::set<stg_model_t*> mapModels; ///< all models created by loading maps
-  ArMap *map; ///< points to an ArMap object while we are using it to load a map
-  bool created_map; ///< we created map, and can delete it.
-  bool loading; ///< true while we are in the process of loading a map, false when done.
-  bool hostHasEM; // If this AMRISim is on the same VM as the EM, then shouldReloadMap can simply check the file mod timestamp directly from the source file
-  time_t lastMapReloadTime;
+  ArMap *map = NULL; ///< points to an ArMap object while we are using it to load a map
+  bool created_map = false; ///< we created map, and can delete it.
+  bool loading = false; ///< true while we are in the process of loading a map, false when done.
+  bool hostHasEM = false; // If this AMRISim is on the same VM as the EM, then shouldReloadMap can simply check the file mod timestamp directly from the source file
+  time_t lastMapReloadTime  = 0;
 public:
-  bool haveMapOriginLLA;
+  bool haveMapOriginLLA = false;
 
   ArLLACoords mapOriginLLA;
 
@@ -202,38 +202,38 @@ private:
 
   }NewMapProcessState;
 
-  NewMapProcessState myProcessState;
+  NewMapProcessState myProcessState = NEWMAP_INACTIVE;
 
   const char *stateName(NewMapProcessState stat);
 
   // Data needs to be persistent for using non-blocking loading processes in process()
-  stg_model_t* myMapModel;  // Holds only cairn objects (used to hold all map models)
+  stg_model_t* myMapModel = NULL;  // Holds only cairn objects (used to hold all map models)
   std::list<stg_model_t*> myModelsToInit;
 
   // myMapPolysModels is a list of arbitrary-sized groups of lines, so they can be loaded without long blocking executions
-  size_t myNumLines;
-  size_t myNumPolys;
+  size_t myNumLines = 0;
+  size_t myNumPolys = 0;
   std::vector<ArLineSegment>::const_iterator myLine_it;
-  size_t myPolysPerChunk;
+  size_t myPolysPerChunk = 0;
   std::vector<stg_polygon_t*> myMapPolysChunks;
-  size_t myNumMapPolysChunks;
-  size_t myCurPolysChunkIdx;
+  size_t myNumMapPolysChunks = 0;
+  size_t myCurPolysChunkIdx = 0;
   std::vector<stg_model_t*> myMapPolysModels;
 
   // myMapPointsModels is a list of arbitrary-sized groups of points, so they can be loaded without long blocking executions
-  size_t myNumPoints;
-  size_t myPointCount;
+  size_t myNumPoints = 0;
+  size_t myPointCount = 0;
   std::vector<ArPose>::const_iterator myPoint_it;
-  size_t myPointsPerChunk;
+  size_t myPointsPerChunk = 0;
   std::vector<stg_point_t*> myMapPointsChunks;
-  size_t myNumMapPointsChunks;
-  size_t myCurPointsChunkIdx;
+  size_t myNumMapPointsChunks = 0;
+  size_t myCurPointsChunkIdx = 0;
   std::vector<stg_model_t*> myMapPointsModels;
 
   std::map<std::string, ObjectClass> myObjectClasses;
   std::list<ArArgumentBuilder*>::const_iterator myCusType_it;
   std::list<ArMapObject*>::const_iterator myCairnObj_it;
-  bool myLoadedData;
+  bool myLoadedData = false;
 
   bool processTimeCheck(unsigned int maxTime, ArTime mapProcessStart, NewMapProcessState checkProcessState, bool logPrint = false);
 

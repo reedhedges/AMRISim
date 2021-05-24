@@ -385,5 +385,5 @@ public:
 
 
 
-}; // namespace AMRISim
+} // namespace AMRISim
 #endif

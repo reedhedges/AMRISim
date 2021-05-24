@@ -16,6 +16,7 @@
 #include <sys/time.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 
 //#define DEBUG
 
@@ -605,6 +606,10 @@ void position_load( stg_model_t* mod, int wf_id )
       data->integration_error.x = 0;
       data->integration_error.y = 0;
       data->integration_error.a = 0;
+      break;
+    case STG_POSITION_ODOM_ERROR_INVALID:
+      stg_print_error("%s: Invalid odometry error setting!", mod->token);
+      assert(force_odom_error_mode_all_models != STG_POSITION_ODOM_ERROR_INVALID);
       break;
   }
 

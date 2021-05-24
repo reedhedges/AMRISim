@@ -130,7 +130,14 @@ SOURCE_DISTRIBUTED_FILES_EXEC=stage/configure stage/config.guess stage/config.su
 
 SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 
-CFLAGS += -std=c++17 -Wall -Wextra -Wconversion -DAMRISIM
+CFLAGS += -std=c++17 -DAMRISIM
+CFLAGS += -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion \
+-Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op \
+-Wnull-dereference -Woverloaded-virtual \
+-Wcast-align 
+# -Wuseless-cast("useless" casts happen alot with GTK)
+# -Wnon-virtual-dtol -Wlifetime (clang only)
+
 
 
 

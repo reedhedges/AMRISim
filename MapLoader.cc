@@ -52,15 +52,8 @@ const double MapLoader::ReflectorThickness = 0.0200; // meters (=2cm).
 #define PRINT_NUM_POINTS_CREATED 1
 #define PRINT_NUM_LINES_CREATED  1
 
-MapLoader::MapLoader(stg_world_t *_world) :
-    world(_world), map(NULL), created_map(false), loading(false), hostHasEM(false), haveMapOriginLLA(false),
-    myProcessState(MapLoader::NEWMAP_INACTIVE),
-    myMapModel(NULL), myNumLines(0), myNumPolys(0), 
-    myPolysPerChunk(0), myNumMapPolysChunks(0), myCurPolysChunkIdx(0),
-    myNumPoints(0), myPointCount(0), myPointsPerChunk(0), myNumMapPointsChunks(0), myCurPointsChunkIdx(0),
-    lastMapReloadTime(0),
-    myLoadedData(false)
-  { }
+MapLoader::MapLoader(stg_world_t *_world) : world(_world)
+{ }
 
 
 MapLoader::~MapLoader()

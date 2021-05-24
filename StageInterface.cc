@@ -345,7 +345,7 @@ void StageInterface::move(int m)
   stg_model_set_property(positionModel, "position_rel_ctrl_active_X", &active, sizeof(active));
   stg_model_set_property(positionModel, "position_cmd", &positionCmd, sizeof(positionCmd));
   stg_pose_t *progress = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "position_rel_ctrl_progress", sizeof(stg_pose_t));
-  progress->x = 0.0; // reset if a current move is currenly in progress.
+  progress->x = 0.0; // reset if a current move is currently in progress.
   stg_model_property_changed(positionModel, "position_rel_ctrl_progress");
 }
 
@@ -372,7 +372,7 @@ void StageInterface::deltaHeading(int h)
   stg_model_set_property(positionModel, "position_cmd", &positionCmd, sizeof(positionCmd));
   stg_model_set_property(positionModel, "position_rel_ctrl_active_A", &active, sizeof(active));
   stg_pose_t *progress = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "position_rel_ctrl_progress", sizeof(stg_pose_t));
-  progress->a = 0.0; // reset if a current delta heading is currenly in progress.
+  progress->a = 0.0; // reset if a current delta heading is currently in progress.
   stg_model_property_changed(positionModel, "position_rel_ctrl_progress");
 }
 
@@ -1013,7 +1013,7 @@ void StageInterface::warn_s(const char* message)
   //stg_messages_send(messagesModel, robotName.c_str(), STG_MSG_WARNING, message);
   // can't call this from any old thread // if(msg) while(!msg->displayed) stg_world_update(stageWorld, FALSE);
   //if(messagesModel) stg_model_unlock(messagesModel);
-  //ArUtil::sleep(10); // hack to work around messages model habit of clobering old messages with new ones.
+  //ArUtil::sleep(10); // hack to work around messages model habit of clobbering old messages with new ones.
 }
 
 void StageInterface::inform_s(const char* message)

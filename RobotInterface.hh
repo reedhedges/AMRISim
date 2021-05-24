@@ -209,7 +209,7 @@ class RobotInterface : public LogInterface {
     virtual size_t numSonarReadings() = 0;
     virtual unsigned int getSonarRange(size_t i) = 0; ///< mm. any range >= getMaxSonarRange() or < 0 may be invalid.
     [[deprecated]] unsigned int getSonarReading(size_t i) { return getSonarRange(i); }
-    [[deprecated]] unsigned int getSonarReading(int i) { assert(i >= 0); return getSonarReading((size_t)i); }
+    [[deprecated]] unsigned int getSonarReading(int i) { assert(i >= 0); return getSonarRange((size_t)i); }
     virtual unsigned int getMaxSonarRange() = 0;
 
     virtual Pose getSonarSensorPose(size_t i) = 0;

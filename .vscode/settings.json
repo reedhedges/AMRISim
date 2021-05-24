@@ -5,5 +5,8 @@
   "clangtidy.buildPath": "${workspaceFolder}",
   "clangtidy.fileFilter": ".*\\.(h|hpp|cpp|cc)$",
   "clangtidy.outputPath": "${workspaceFolder}/clang_tidy",
-  "clangtidy.sourcePath": "${workspaceFolder}"
+  "clangtidy.sourcePath": "${workspaceFolder}",
+  "cSpell.words": [
+    "odometry"
+  ]
 }

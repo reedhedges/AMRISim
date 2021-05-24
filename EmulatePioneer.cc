@@ -72,7 +72,7 @@
 // avoid sending a SIP larger than 200 bytes. 
 #define MAX_SONAR_READINGS_PER_SIP 16
 
-// Amout of time to sleep after failing to open a listening TCP port before trying the same port again. (Note, will block execution during sleep.)
+// Amount of time to sleep after failing to open a listening TCP port before trying the same port again. (Note, will block execution during sleep.)
 #define TCP_PORT_RETRY_TIME 2000 //ms
 
 // Number of times to try opening the user's desired TCP port to listen for new clients before giving up and trying another port number
@@ -82,7 +82,7 @@
 // If 0, no waiting
 #define RECEIVE_WAIT_TIMEOUT 0 //ms
 
-// Issue a warning if the total time it takes to receive a client packet is more than this amout
+// Issue a warning if the total time it takes to receive a client packet is more than this amount
 #define RECEIVE_TIME_WARNING 200 //ms
 
 // How long to allow packet receiver to wait for SYNC packet during client
@@ -545,7 +545,7 @@ bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt)
   if(pkt->getID() != session->syncSeq)
   {
 #ifdef RESTART_ON_SYNC_ERROR
-    warn("Recieved out of sequence SYNC packet: got %d, expecting %d. Start again from SYNC0...", pkt->getID(), session->syncSeq);
+    warn("Received out of sequence SYNC packet: got %d, expecting %d. Start again from SYNC0...", pkt->getID(), session->syncSeq);
     session->syncSeq = 0;
     return true;
 #elif defined(TOLERATE_SYNC_ERROR)
@@ -554,7 +554,7 @@ bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt)
     return true;
 #elif defined(DISCONNECT_ON_SYNC_ERROR)
     // Drop connection instead
-    warn("Recieved out of sequence SYNC packet: got %d, expecting %d. Closing connection.", pkt->getID(), session->syncSeq);
+    warn("Received out of sequence SYNC packet: got %d, expecting %d. Closing connection.", pkt->getID(), session->syncSeq);
     ++lifetimeFailedConnectionCount;
     return false;
 #else
@@ -571,21 +571,21 @@ bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt)
   if(!pkt->verifyCheckSum())
   {
 #ifdef RESTART_ON_SYNC_ERROR
-    warn("Recieved SYNC%d packet with bad checksum. Start again from SYNC0...", pkt->getID());
+    warn("Received SYNC%d packet with bad checksum. Start again from SYNC0...", pkt->getID());
     session->syncSeq = 0;
     return true;
 #elif defined(TOLERATE_SYNC_ERROR)
-    warn("Recieved SYNC%d packet with bad checksum.  Sending %d again...", pkt->getID(), session->syncSeq);
+    warn("Received SYNC%d packet with bad checksum.  Sending %d again...", pkt->getID(), session->syncSeq);
     session->packetSender.com(session->syncSeq);
     return true;
 #elif defined (DISCONNECT_ON_SYNC_ERROR)
     // Drop connection instead
-    warn("Recieved SYNC%d packet with bad checksum. Closing connection.", pkt->getID());
+    warn("Received SYNC%d packet with bad checksum. Closing connection.", pkt->getID());
     ++lifetimeFailedConnectionCount;
     endSession();
     return false;
 #else
-    warn("Recieved SYNC%d packet with bad checksum (ignored).", pkt->getID());
+    warn("Received SYNC%d packet with bad checksum (ignored).", pkt->getID());
 #endif
   }
 
@@ -602,7 +602,7 @@ bool EmulatePioneer::handleSyncPacket(ArRobotPacket *pkt)
     //print_debug("writing config info to connection...");
     if(session->connection.write(rpkt.getBuf(), rpkt.getLength()) == -1)
     {
-      warn("Error sending robot indentification strings to the client. Closing connection.");
+      warn("Error sending robot identification strings to the client. Closing connection.");
       endSession();
       return false;
     }
@@ -1346,7 +1346,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_ENABLE", pkt->getID(), "SIM_LRF_ENABLE", ArCommands::SIM_LRF_ENABLE);
-          warn("Ignoring old LRF_ENABLE command (enable SRISim laser compatability to accept");
+          warn("Ignoring old LRF_ENABLE command %d (enable SRISim laser compatability to accept", pkt->getID());
           break;
        }             
        WARN_DEPRECATED_QUIETLY("LRF_ENABLE", pkt->getID(), "SIM_LRF_ENABLE", ArCommands::SIM_LRF_ENABLE);
@@ -1386,7 +1386,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_CFG_START", pkt->getID(), "SIM_LRF_SET_FOV_START", ArCommands::SIM_LRF_SET_FOV_START);
-          warn("Ignoring old LRF_CFG_START command (enable SRISim laser compatability to accept");
+          warn("Ignoring old LRF_CFG_START command %d (enable SRISim laser compatability to accept", pkt->getID());
           break;
        }             
        WARN_DEPRECATED_QUIETLY("LRF_CFG_START", pkt->getID(), "SIM_LRF_SET_FOV_START", ArCommands::SIM_LRF_SET_FOV_START);
@@ -1406,7 +1406,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_CFG_END", pkt->getID(), "SIM_LRF_SET_FOV_END", ArCommands::SIM_LRF_SET_FOV_END);
-          warn("Ignoring old LRF_CFG_END command (enable SRISim laser compatability to accept");
+          warn("Ignoring old LRF_CFG_END command %d (enable SRISim laser compatability to accept", pkt->getID());
           break;
        }             
        WARN_DEPRECATED_QUIETLY("LRF_CFG_END", pkt->getID(), "SIM_LRF_SET_FOV_END", ArCommands::SIM_LRF_SET_FOV_END);
@@ -1426,7 +1426,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        if(!SRISimLaserCompat) 
        {
           WARN_DEPRECATED("LRF_CFG_INC", pkt->getID(), "SIM_LRF_SET_FOV_RES", ArCommands::SIM_LRF_SET_RES);
-          warn("Ignoring old LRF_CFG_INC command (enable SRISim laser compatability to accept");
+          warn("Ignoring old LRF_CFG_INC command %d (enable SRISim laser compatability to accept", pkt->getID());
           break;
        }             
        WARN_DEPRECATED_QUIETLY("LRF_CFG_INC", pkt->getID(), "SIM_LRF_SET_RES", ArCommands::SIM_LRF_SET_RES);
@@ -1531,7 +1531,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
         memset(mapfile, 0, 256);
         size_t filenamelen = pkt->bufToUByte2();
         if(filenamelen > 255) filenamelen = 255;
-        pkt->bufToStr((char*)mapfile, (int)filenamelen);
+        pkt->bufToStr((char*)mapfile, filenamelen);
         if(intVal == SIM_CTRL_MASTER_LOAD_MAP)
         {
             mapMasterEnabled = true;
@@ -1884,10 +1884,10 @@ ArRobotPacket* SIPGenerator::getPacket()
 
     assert(params->DistConvFactor > 0.0001);
 
-    xPosAccum += (int32_t)( (double)x/params->DistConvFactor - xPosAccum );
+    xPosAccum += (ArTypes::Byte2) /*(int32_t)*/ ( (double)x/params->DistConvFactor - xPosAccum );
     pkt.byte2ToBuf(xPosAccum);
 
-    yPosAccum += (int32_t)( (double)y/params->DistConvFactor - yPosAccum );
+    yPosAccum += (ArTypes::Byte2) /*(int32_t)*/ ( (double)y/params->DistConvFactor - yPosAccum );
     pkt.byte2ToBuf(yPosAccum);
 
 
