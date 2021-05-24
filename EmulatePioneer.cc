@@ -65,6 +65,7 @@
 //#define DEBUG_CLIENT_CONNECTION 1
 //#define DEBUG_SYNCS 1
 //#define DEBUG_COMMANDS_RECEIVED 1 // TODO replace with check for logCommandsReceived flag
+//#define DEBUG_LASER_PACKETS 1
 
 // Maximum number of sonar readings to include in one SIP. Note, we don't 
 // simulated sonar polling timing.  This number must be small enough to
@@ -2087,6 +2088,12 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
 
   //ArTypes::Byte2 totalReadings = robotInterface->numLaserReadings();
   const size_t totalReadings = robotInterface->numLaserReadings(0);
+
+#ifdef DEBUG_LASER_PACKETS
+  printf("LaserPacketGenerator::getPacket(): totalReadings=%lu currentReading=%lu\n", totalReadings, currentReading);
+#endif
+
+
   if(currentReading >= totalReadings) 
   {
     currentReading = 0;
@@ -2179,36 +2186,43 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
     currentReading += numPacked;
 
   pkt.finalizePacket();
+
+#ifdef DEBUG_LASER_PACKETS
+  printf("Pioneer emulation: ------- sending laser packet: ----\n");
+  printLaserPacket(pkt);
+  printf("-----------------------------------------------------\n");
+#endif 
+
   return &pkt;
 }
   
 /* Debugging tool */
-void LaserPacketGenerator::printLaserPacket(ArRobotPacket* pkt) const
+void LaserPacketGenerator::printLaserPacket(ArRobotPacket& p) const
 {
-  assert(pkt->verifyCheckSum());
-  assert(pkt->getID() == 0x60 || pkt->getID() == 0x61);
-  printf("Laser packet length=%d: ", pkt->getLength());
-  if(pkt->getID() == 0x60)
+  assert(p.verifyCheckSum());
+  assert(p.getID() == 0x60 || p.getID() == 0x61);
+  printf("Laser packet length=%d: ", p.getLength());
+  if(p.getID() == 0x60)
   {
-    pkt->bufToByte2();
-    pkt->bufToByte2();
-    pkt->bufToByte2();
+    p.bufToByte2();
+    p.bufToByte2();
+    p.bufToByte2();
   }
-  int total = pkt->bufToByte2();
-  int first = pkt->bufToByte2();
-  int here = pkt->bufToUByte();
+  const int total = p.bufToByte2();
+  const int first = p.bufToByte2();
+  const int here = p.bufToUByte();
   printf("total=%d this=%d curr=%d  readings: ", total, here, first );
   for(int i = 0; i < here; ++i)
   {
-    printf("%d ", pkt->bufToUByte2());
+    printf("%d ", p.bufToUByte2());
     fflush(stdout);
   }
-  if(pkt->getID() == 0x61)
+  if(p.getID() == 0x61)
   {
-    printf("(R=%d) ", pkt->bufToUByte());
+    printf("(R=%d) ", p.bufToUByte());
     fflush(stdout);
-    pkt->bufToUByte();
-    pkt->bufToUByte();
+    p.bufToUByte();
+    p.bufToUByte();
   }
   if(robotMoved) printf(" Robot moved.\n");
   printf("\n");

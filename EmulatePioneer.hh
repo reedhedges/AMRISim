@@ -382,7 +382,7 @@ public:
   }
 
   /** A debugging tool, assert that this is a laser packet, then print it out */
-  void printLaserPacket(ArRobotPacket* pkt) const;
+  void printLaserPacket(ArRobotPacket& pkt) const;
 
   void setRobotMoved([[maybe_unused]] bool m = true) {
     robotMoved = true;
