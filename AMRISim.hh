@@ -123,7 +123,7 @@ struct Options
   std::string listen_address {""};
   size_t log_file_max_size = 0;
   bool srisim_compat = false;
-  bool srisim_laser_compat = false;
+  bool srisim_laser_compat = true;
   bool nomap = false;
   bool RestartedAfterCrash = false;
   bool EnableCrashDebug = true;
