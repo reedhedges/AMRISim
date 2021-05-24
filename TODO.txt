@@ -1,5 +1,6 @@
 
-* Lasers might be broken?
+* Let user continue without ROS if no ros master running (i.e. buttons should be
+  "No (exit)", "Yes (run roscore)", "No (continue)"
 * Command line options to enable/disable ROS and Pioneer interfaces at runtime.
 * Add options to GUI at startup to enable/disable robot interfaces (Pioneer/ROS). Runtime menu
   items?
