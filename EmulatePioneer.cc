@@ -2117,8 +2117,8 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
     pkt.byte2ToBuf((ArTypes::Byte2)th);
   }
   assert(totalReadings <= std::numeric_limits<ArTypes::Byte2>::max());
-  pkt.byte2ToBuf((ArTypes::Byte2)totalReadings);   // total range reading count the device has
-  pkt.byte2ToBuf((ArTypes::Byte2) currentReading); // which reading is the first one in this packet
+  pkt.uByte2ToBuf((ArTypes::UByte2)totalReadings);   // total range reading count the device has
+  pkt.uByte2ToBuf((ArTypes::UByte2) currentReading); // which reading is the first one in this packet
   const int numReadingsThisPacket = AMRISim::min((int)MaxReadingsPerPacket, (int)(totalReadings - currentReading));  // num. readings that follow
   pkt.uByteToBuf((ArTypes::UByte) numReadingsThisPacket);
 

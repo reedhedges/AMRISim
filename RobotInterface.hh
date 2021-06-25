@@ -106,8 +106,9 @@ class RobotInterface : public LogInterface {
 
 
     struct Pose {
-      int x = 0; ///< mm
-      int y = 0; ///< mm
+      long x = 0; ///< mm
+      long y = 0; ///< mm
+      long z = 0; ///< mm
       int th = 0; ///< deg
     };
 
@@ -134,6 +135,7 @@ class RobotInterface : public LogInterface {
     virtual void setDefaultRotVel(int v) = 0; ///< deg/s for heading() and deltaHeading()
     virtual void setOdom(int x, int y, int theta) = 0;
     virtual void setSimulatorPose(long int x, long int y, long int z, int theta) = 0;
+    virtual void setSimulatorPose(const Pose& pose) = 0;
     virtual void resetSimulatorPose() = 0;
 
     /// Try to open the sonar
@@ -186,6 +188,7 @@ class RobotInterface : public LogInterface {
     virtual int getSimulatorPoseTheta() = 0;  ///< true theta, deg
     virtual long getSimulatorPoseZ() { return 0; }
     virtual void getSimulatorPose(long &x, long &y, long &z, int &theta) = 0;
+	  virtual Pose getSimulatorPose() = 0;
     virtual float getBatteryVoltage() { return batteryVoltage; }
     virtual void setBatteryVoltage(float val) { batteryVoltage = val; }
     virtual bool getTempWarning() { return tempWarning; }

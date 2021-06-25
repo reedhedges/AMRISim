@@ -534,6 +534,15 @@ void StageInterface::setSimulatorPose(long int x, long int y, long int /*z*/, in
   stg_model_property_changed(positionModel, "pose");
 }
 
+void StageInterface::setSimulatorPose(const Pose& pose)
+{
+  stg_pose_t* p = (stg_pose_t*) stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
+  p->x = (stg_meters_t)((double)pose.x / 1000.0);
+  p->y = (stg_meters_t)((double)pose.y / 1000.0);
+  p->a = (stg_meters_t) DTOR((double)pose.th);
+  stg_model_property_changed(positionModel, "pose");
+}
+
 void StageInterface::resetSimulatorPose()
 {
   stg_model_reset_pose(positionModel);
@@ -961,6 +970,12 @@ void StageInterface::getSimulatorPose(long &x, long &y, long &z, int &theta)
   y = (long)(pose->y * 1000.0);
   z = 0;
   theta = (int)ArMath::roundInt(RTOD(pose->a));
+}
+
+RobotInterface::Pose StageInterface::getSimulatorPose()
+{
+  stg_pose_t *pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
+  return Pose{ (pose->x * 1000.0), (pose->y * 1000.0), ArMath::roundInt(RTOD(pose->a)) };
 }
 
 long StageInterface::getSimulatorPoseX() {

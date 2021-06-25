@@ -157,6 +157,7 @@ class StageInterface : public virtual RobotInterface
     virtual void setDefaultRotVel(int v);
     virtual void setOdom(int x, int y, int theta);
     virtual void setSimulatorPose(long int x, long int y, long int z, int theta);
+    virtual void setSimulatorPose(const Pose& pose) override;
     virtual void resetSimulatorPose();
     virtual void stall(bool stalled);
 
@@ -181,6 +182,7 @@ class StageInterface : public virtual RobotInterface
     virtual long getSimulatorPoseY();
     virtual int getSimulatorPoseTheta();
     virtual void getSimulatorPose(long &x, long &y, long &z, int &theta);
+    virtual Pose getSimulatorPose() override;
     virtual bool stalled();
     virtual size_t numSonarReadings();
     virtual unsigned int getSonarRange(size_t i) override;
