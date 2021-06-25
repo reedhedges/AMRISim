@@ -12,7 +12,7 @@
       "args": ["--nomap"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
-      "environment": [],
+      "environment": [ {"name": "AMRISIM", "value": "${workspaceFolder}"} ],
       "externalConsole": true,
       "MIMode": "gdb",
       "setupCommands": [
@@ -22,6 +22,17 @@
           "ignoreFailures": true
         }
       ]
+    },
+
+    {
+      "name": "AMRISim -map columbia.map",
+      "request": "launch",
+      "program": "${workspaceFolder}/AMRISim",
+      "args": ["-map", "columbia.map"],
+      "cwd": "${workspaceFolder}",
+      "environment": [ {"name": "AMRISIM", "value": "${workspaceFolder}"} ],
+      "externalConsole": false,
     }
+
   ]
 }

@@ -69,6 +69,17 @@
         }
       }
       
+    },
+
+    {
+      "label": "run AMRISim ",
+      "command": "${workspaceFolder}/AMRISim",
+      "args": ["-map", "columbia.map"],
+      "type": "shell",
+      "options": {
+        "env": { "AMRISIM": "${workspaceFolder}"},
+        "cwd": "${workspaceFolder}"
+      }
     }
 
 
