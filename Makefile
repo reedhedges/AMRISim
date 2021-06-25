@@ -144,7 +144,7 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion \
 ifdef AMRISIM_DEBUG
 
 $(info Debug build)
-CFLAGS += -g -O0
+CFLAGS += -g -Og
 STAGE_CONFIGURE_ARGS = --disable-optimize --enable-debug 
 datestamp = $(shell date +%Y%m%d)
 -include lastDevReleaseVer
@@ -167,7 +167,7 @@ else
   DEV_RELEASE_VER = $(datestamp)
 endif #ifdef lastDevReleaseVer
 # In debug mode, replace version with special dev tag with timestamp:
-VERSION = $(VERSION)-dev$(DEV_RELEASE_VER)
+VERSION:=$(VERSION)-dev$(DEV_RELEASE_VER)
 
 dist-all:
 	$(warning Re-running make dist-all with AMRISIM_RELEASE=1)

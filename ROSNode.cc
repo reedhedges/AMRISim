@@ -50,7 +50,7 @@
 // TODO:
 // publish simulator pose
 
-ROSNode::ROSNode(RobotInterface *r, AMRISim::Options *opts) :
+ROSNode::ROSNode(RobotInterface *r, [[maybe_unused]] AMRISim::Options *opts) :
   LogInterface(r->getRobotName()+" ROS Client Interface Node"),
   robot(r),
   nodeHandle(std::string("~")), // XXX TODO unique names for multiple robots
@@ -180,23 +180,24 @@ void ROSNode::publish()
     //std::stringstream sonar_debug_info; // Log debugging info
     //sonar_debug_info << "Sonar readings: ";
 
-    cloud.points.reserve(robot->numSonarReadings());
-    for (size_t i = 0; i < robot->numSonarReadings(); ++i) {
+    const size_t n = robot->numSonarReadings();
+    cloud.points.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
 
       assert(i <= INT_MAX);
       const double range = robot->getSonarRange(i); 
       if(range >= robot->getMaxSonarRange())
         continue;
-      RobotInterface::Pose spose = robot->getSonarSensorPose(i);
+      const RobotInterface::Pose spose = robot->getSonarSensorPose(i);
 
       //add sonar readings (robot-local coordinate frame) to cloud
       double sinth, costh;
       sincos(DTOR(spose.th), &sinth, &costh);
       geometry_msgs::Point32 p;
-      p.x = (float)(spose.x + costh*range) / 1000.0f;
-      p.y = (float)(spose.y + sinth*range) / 1000.0f;
+      p.x = (float) (((double) spose.x + costh*range) / 1000.0f);
+      p.y = (float) (((double) spose.y + sinth*range) / 1000.0f);
       p.z = 0.0;
-      cloud.points.push_back(p);
+      cloud.points.emplace_back(p);
     }
     //ROS_DEBUG_STREAM(sonar_debug_info.str());
     
