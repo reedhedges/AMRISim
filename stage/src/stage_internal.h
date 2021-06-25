@@ -95,6 +95,7 @@ extern "C" {
   void gui_window_request_minimize(gui_window_t* win);
   void gui_window_request_maximize(gui_window_t* win);
   void gui_window_request_fullscreen(gui_window_t* win);
+  void gui_window_get_geomemtry(gui_window_t* win, int *x, int *y, int *width, int *height);
 
   void gui_add_view_item( const gchar *name,
 			  const gchar *label,

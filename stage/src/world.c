@@ -1182,6 +1182,16 @@ void stg_world_window_request_fullscreen(stg_world_t* world)
   gui_unlock();
 }
 
+void stg_world_window_get_geometry(stg_world_t* world, int *x, int *y, int *width, int *height)
+{
+  assert(x);
+  assert(y);
+  assert(width);
+  assert(height);
+  gui_lock();
+  gui_window_get_geometry(world->win, x, y, width, height);
+}
+
 void stg_world_pause(stg_world_t* world, int p)
 {
   world->paused = p;

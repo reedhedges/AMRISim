@@ -1355,9 +1355,11 @@ int main(int argc, char** argv)
     else
     {
       print_warning("AMRISim: No ROS Master detected.");
-      GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Did not detect any ROS Master (roscore) running. Would you like to run 'roscore' in a new terminal?");
+      GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, "Did not detect any ROS Master (roscore) running. Would you like to run 'roscore' in a new terminal?\n\n(Note: Terminal will remain open with roscore running after AMRISim exits.)");
+      gtk_dialog_add_buttons(GTK_DIALOG(dialog), "Exit", 1, "Run roscore", 2);
+      gtk_dialog_set_default_response(GTK_DIALOG(dialog), 2); // 2 is dialog return code to run roscore
       gint r = gtk_dialog_run(GTK_DIALOG(dialog));
-      if(r == GTK_RESPONSE_NO)
+      if(r == 1) // 1 is dialog return code for Exit
       {
         exit(ERR_NO_ROSMASTER);
       }
@@ -1367,7 +1369,11 @@ int main(int argc, char** argv)
       // TODO option to choose ROS version, in command line, and config GUI when enabling ROS
       print_msg("Running gnome-terminal. Will import ROS melodic setup environment into shell, then will run roscore.");
       // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
-      int s = system("gnome-terminal -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
+      int x, y, width, height;
+      stg_world_window_get_geometry(world, &x, &y, &width, &height);
+      std::string cmd = std::string("gnome-terminal --geometry=80x20+") + std::to_string(x+width+10) + "+" + std::to_string(y) + " -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"";
+
+      int s = system(cmd.c_str()); //"gnome-terminal --geometry=80x20+500+500 -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
       if(s != 0)
         stg_print_warning("Error running ROS Master (roscore) in gnome-terminal: system returned %d", s);
       AMRISim::sleep(5 * 1000);

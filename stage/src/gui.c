@@ -1045,6 +1045,12 @@ void gui_window_request_fullscreen(gui_window_t* win)
 #endif
 }
 
+void gui_window_get_geometry(gui_window_t* win, int *x, int *y, int *width, int *height)
+{
+  gtk_window_get_position(GTK_WINDOW(win->canvas->frame), x, y);
+  gtk_window_get_size(GTK_WINDOW(win->canvas->frame), width, height);
+}
+
 #ifdef STG_ENABLE_GUI_LOCK
 void gui_enable_lock(gboolean enable)
 {

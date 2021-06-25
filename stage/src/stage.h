@@ -1364,6 +1364,9 @@ For help with libstage, please use the mailing list playerstage_users@lists.sour
 
   void stg_world_window_request_fullscreen(stg_world_t* world);
 
+  /// Note see GTK documentation for GtkWindow functions gtk_window_get_size() and gtk_window_get_position().
+  void stg_world_window_get_geometry(stg_world_t* world, int* x, int *y, int *width, int *height);
+
   void stg_world_set_fill_polygons(stg_world_t* world, gboolean fill);
 
   void stg_world_hide_all_graphics(stg_world_t* world);
