@@ -12,7 +12,7 @@ for debugging and experimentation.
 
 Current software interfaces available are Pioneer protocol
 (for [ARIA](http://robots.mobilerobots.com/wiki/ARIA) or
-[AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS1 1](http://ros.org) (under development, 
+[AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS 1](http://ros.org) (under development, 
 not included on Windows.  ROS1 2 is not yet supported).
 
 AMRISim can be built on Linux, Windows using MinGW (untested currently) and Mac OSX.
@@ -55,7 +55,6 @@ General Public License:
 
 See [the full license](LICENSE.txt) for details.
 
-
 How it Works
 ------------
 
@@ -64,7 +63,7 @@ created by Mapper3;, Mapper3-Basic, or other means) to a Stage
 environment, and places a simulated robot model in that
 environment.
 
-AMRISim then creates a Pioneer control interface and a ROS1 
+AMRISim then creates a Pioneer control interface and a ROS1
 interface for each simulated robot (unless disabled).
 
 *Note*: it is possible for multiple ROS1 clients to connect
@@ -82,7 +81,7 @@ such that only one ROS1 client is sending motion commands
 (`cmd_vel`) or they are carefully coordinated.   (ROS1 clients
 can generally receive published data while a Pioneer client
 is connected, however, for logging, data collection, visualization,
-offline work, etc.) 
+offline work, etc.)
 
 The Pioneer interface is an emulated Pioneer robot but with a
 connection accessible via a TCP port (similar to the real
@@ -93,24 +92,23 @@ automatically tries TCP port 8101 before the serial port).
 See below for description of which parts of the Pioneer protocol
 are implemented, and simulator-specific extensions.
 
-The host running AMRISim is advertised via a simple 
+The host running AMRISim is advertised via a simple
 broadcast discovery protocol, compatible with the Lantronix WiBox
-device used on some Pioneer robots.  (MDNS-SD or another service 
+device used on some Pioneer robots.  (MDNS-SD or another service
 discover protocol can perhaps be added if desired, contact the maintainer(s)).  
-(Aria and AriaCoda include a feature in their Python interfaces to 
+(Aria and AriaCoda include a feature in their Python interfaces to
 discover available AMRISim hosts or WiBox devices via a short network
-broadcast.) For details on this protocol see below. 
+broadcast.) For details on this protocol see below.
 
 The ROS1 interfaces are in-process nodes created for each simulated
-robot.  If no ROS1 master is detected, an option is 
-presented to start roscore. The nodes currently have 
+robot.  If no ROS1 master is detected, an option is
+presented to start roscore. The nodes currently have
 arbitrary names beginning with the prefix "AMRISim-"
 (but better naming may be added in the future, similar to how
 information about robots is logged and reported via Pioneer connection.)
 See below for ROS1 topics.
 
 ![Connection Diagram](connection-diagram.png)
-
 
 Features Summary
 --------
@@ -125,7 +123,7 @@ models.
     PeopleBot&trade;, PatrolBot&reg;, Seekur&reg;, Pioneer 2, Pioneer 1).
 * You can define custom models of differential drive or
     omnidirectional robots, laser and sonar, defined either as
-    a Stage model definition (stored in a configuration file), 
+    a Stage model definition (stored in a configuration file),
     or by loading an Aria parameter (.p) file.
 * Sonar range sensor model, with customizable properties
 * Laser range sensor model, with customizable properties
@@ -137,6 +135,10 @@ models.
 * Environment and obstacles are loaded from a
   MobileRobots/ActivMedia/ARIA map file; use the same map with ARNL/SONARNL or
   your own software.
+* Your software applications can communicate with any simulated robot using either the 
+  Pioneer communications protocol over a TCP port (This is automatic if using the ARIA 
+  or AriaCoda library), or ROS1. (If the desired communications interface was included
+  at compile time.)
 * Interactively move robots and obstacles
 * Objects (robots or obstacles) may be configured to be detectable
     only by some sensors
@@ -157,6 +159,8 @@ models.
     values/visualization, and visualizations for debugging the simulator
     itself.
 * Configurable space and time resolutions.
+* Network broadcast service discovery (compatible with Lantronix wifi interface devices)
+  of simulator or simulated robots.
 * Full source code included under the GPL for understanding
     the simulation implementation, customizing and improving it,
     or even adapting AMRISim's ARIA communication protocol layer for
@@ -180,17 +184,17 @@ GTK+ does not need to be installed on Windows, a local copy is used.
 Detailed build instructions for each platform are available in
 [BUILD.md](BUILD.md).
 
-ROS11 and ARIA or AriaCoda are required to build AMRISim:
+ROS1 and ARIA or AriaCoda are required to build AMRISim:
 
-### ROS11
+### ROS1
 
-ROS11 melodic is expected to be installed in `/opt/ros/melodic`, or ROS1 to be
+ROS1 melodic is expected to be installed in `/opt/ros/melodic`, or ROS1 to be
 installed on the system from Ubuntu repositories using `apt`.
 
-If you will be doing general ROS11 development on the same system, it is
-recommended to install ROS11 in `/opt/ros/...` according to the instructions 
+If you will be doing general ROS1 development on the same system, it is
+recommended to install ROS1 in `/opt/ros/...` according to the instructions 
 found at <http://www.ros.org>. (Note that each version
-of ROS11 is supported on certain versions of Ubuntu only. ROS2 is not yet
+of ROS1 is supported on certain versions of Ubuntu only. ROS2 is not yet
 supported in AMRISim.)
 
 If you just want to more easily build AMRISim with ROS1 support on Ubuntu,
@@ -208,7 +212,7 @@ You could also install `rviz`.
 (Or install `ros-base-dev` or `ros-desktop-dev` to for a collection of many ROS1
 packages.)
 
-To omit ROS11 support from AMRISim, build with `AMRISIM_INCLUDE_ROS1=no`. See
+To omit ROS1 support from AMRISim, build with `AMRISIM_INCLUDE_ROS1=no`. See
 [BUILD.md](BUILD.md) and `make help` for details.
 
 ### AriaCoda
