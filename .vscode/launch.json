@@ -22,16 +22,6 @@
           "ignoreFailures": true
         }
       ]
-    },
-
-    {
-      "name": "AMRISim -map columbia.map",
-      "request": "launch",
-      "program": "${workspaceFolder}/AMRISim",
-      "args": ["-map", "columbia.map"],
-      "cwd": "${workspaceFolder}",
-      "environment": [ {"name": "AMRISIM", "value": "${workspaceFolder}"} ],
-      "externalConsole": false,
     }
 
   ]

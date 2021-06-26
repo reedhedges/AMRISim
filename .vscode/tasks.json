@@ -21,10 +21,10 @@
       "group": { "kind": "build", "isDefault": true }
     },
     {
-      "label": "make AMRISIM_INCLUDE_ROS=no",
+      "label": "make AMRISIM_INCLUDE_ROS1=no",
       "command": "make",
       "type": "shell",
-      "args": [ "-j4", "AMRISIM_INCLUDE_ROS=no" ],
+      "args": [ "-j4", "AMRISIM_INCLUDE_ROS1=no" ],
       "problemMatcher": [ "$gcc" ],
       "presentation": { "reveal": "always" },
       "group": "build"

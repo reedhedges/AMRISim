@@ -18,13 +18,13 @@
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
 #   ARIA         Location of ARIA library, default is ../AriaCoda TODO change to installation dir
-#   ROSRELEASE   Name of ROS release to use if ROS enabled. Default is melodic. 
+#   ROS1RELEASE   Name of ROS1 release to use if ROS1 enabled. Default is melodic. 
 #
 # Some variables that set build options:
 #   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
 #   AMRISIM_RELEASE   If defined, disable DEBUG (default).
 #   AMRISIM_PROFILE   If defined, then profiling will be enabled with -pg for gprof.
-#   AMRISIM_INCLUDE_ROS If set to yes, then include ROS interface. Default is yes on Linux, no on Windows
+#   AMRISIM_INCLUDE_ROS1 If set to yes, then include ROS1 interface. Default is yes on Linux, no on Windows
 #   AMRISIM_INCLUDE_PIONEER if set to yes, then include Pioneer interface.  Default is yes.
 #
 # Used for variations on the tar.gz bindist package:
@@ -82,8 +82,8 @@ DEBIAN_PKG_REV_APPEND =
 # e.g. DEBIAN_PKG_REV_APPEND = "-3"
 RPM_PKG_REV = 0
 
-ifndef ROSRELEASE
-ROSRELEASE = melodic
+ifndef ROS1RELEASE
+ROS1RELEASE = melodic
 endif
 
 ifeq ($(host),Linux)
@@ -250,11 +250,11 @@ else
   AMRISIM_INCLUDE_PIONEER=yes
 endif
 
-ifdef AMRISIM_INCLUDE_ROS
-  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead, and build new make dependencies "make dep all")
+ifdef AMRISIM_INCLUDE_ROS1
+  $(info AMRISIM_INCLUDE_ROS1 was set in environment to $(AMRISIM_INCLUDE_ROS1).  Unset to use default for this platform instead, and build new make dependencies "make dep all")
 else
-  $(info ROS interface WILL NOT be included by default on Windows. Set AMRISIM_INCLUDE_ROS=yes to include and build new make dependencies using "make dep all")
-  AMRISIM_INCLUDE_ROS=no
+  $(info ROS1 interface WILL NOT be included by default on Windows. Set AMRISIM_INCLUDE_ROS1=yes to include and build new make dependencies using "make dep all")
+  AMRISIM_INCLUDE_ROS1=no
 endif
 
 else #else assume Linux or Unix-like (e.g MacOSX):
@@ -298,11 +298,11 @@ else
   AMRISIM_INCLUDE_PIONEER=yes
 endif
 
-ifdef AMRISIM_INCLUDE_ROS
-  $(info AMRISIM_INCLUDE_ROS was set in environment to $(AMRISIM_INCLUDE_ROS).  Unset to use default for this platform instead. Rebuild with new make dependencies using "make dep all".)
+ifdef AMRISIM_INCLUDE_ROS1
+  $(info AMRISIM_INCLUDE_ROS1 was set in environment to $(AMRISIM_INCLUDE_ROS1).  Unset to use default for this platform instead. Rebuild with new make dependencies using "make dep all".)
 else
-  $(info ROS interface WILL be included by default on Linux. ROS must be installed in /opt/$(ROSRELEASE). Set AMRISIM_INCLUDE_ROS=no to omit. Rebuild with new make dependencies using "make dep all".)
-  AMRISIM_INCLUDE_ROS=yes
+  $(info ROS1 interface WILL be included by default on Linux. ROS1 must be installed in /opt/$(ROS1RELEASE). Set AMRISIM_INCLUDE_ROS1=no to omit. Rebuild with new make dependencies using "make dep all".)
+  AMRISIM_INCLUDE_ROS1=yes
 endif
 
 endif #host is MINGW32 or not
@@ -339,9 +339,9 @@ SOURCES += EmulatePioneer.cc
 HEADERS += EmulatePioneer.hh
 endif
 
-ifeq ($(AMRISIM_INCLUDE_ROS),yes)
-SOURCES += ROSNode.cc
-HEADERS += ROSNode.hh
+ifeq ($(AMRISIM_INCLUDE_ROS1),yes)
+SOURCES += ROS1Node.cc
+HEADERS += ROS1Node.hh
 endif
 
 _stage_all_src=$(shell ls stage/src/*.c stage/src/*.h stage/src/*.cc stage/src/*.hh)
@@ -395,18 +395,18 @@ GTK_LINK = $(GTK_LIBS)
 #		-lXi -lX11 -ldl
 
 
-#ROS_CFLAGS= 
-#ROS_LINK= 
-ifeq ($(AMRISIM_INCLUDE_ROS),yes)
+#ROS1_CFLAGS= 
+#ROS1_LINK= 
+ifeq ($(AMRISIM_INCLUDE_ROS1),yes)
 
 
 
-$(info Using ROS "$(ROSRELEASE)" release. Set ROSRELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROSRELEASE or on the system).)
+$(info Using ROS1 "$(ROS1RELEASE)" release. Set ROS1RELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROS1RELEASE or on the system).)
 ros_modules_used = roscpp std_msgs sensor_msgs geometry_msgs tf nav_msgs std_srvs
-ROS_CFLAGS = -DAMRISIM_ROS $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
-ROS_LINK = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROSRELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
+ROS1_CFLAGS = -DAMRISIM_ROS1 $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROS1RELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
+ROS1_LINK = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROS1RELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
 
-# For more info about using ROS from Make or CMake without using catkin etc see https://github.com/gerkey/ros1_external_use
+# For more info about using ROS1 from Make or CMake without using catkin etc see https://github.com/gerkey/ros1_external_use
 
 endif
 
@@ -416,7 +416,7 @@ endif
 
 MSIM_CFLAGS += -DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" \
   -I. $(CFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
-	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS_CFLAGS)
+	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS1_CFLAGS)
 
 MSIM_LFLAGS  =  $(LFLAGS) 
 
@@ -478,10 +478,10 @@ cleandep:
 # to build stage twice in parallel if using parallel jobserver, which causes
 # corrupted output files.
 AMRISim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
 
 mobilesimd: $(STAGE_DIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage_nogui.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
 
 AMRISim_debug$(binary_suffix): AMRISim
 	cp AMRISim$(binary_suffix) AMRISim_debug$(binary_suffix)
@@ -609,7 +609,7 @@ help:
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE to build with profiling information (for use with gprof)'
 	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
-	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS to yes to force inclusion of ROS interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
+	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS1 to yes to force inclusion of ROS1 interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
 
 info:
 	@echo SOURCES=$(SOURCES)
@@ -627,8 +627,8 @@ info:
 	@echo GTK_LIBS=$(GTK_LIBS)
 	@echo GTK_CFLAGS=$(GTK_CFLAGS)
 	@echo
-	@echo ROS_CFLAGS=$(ROS_CFLAGS)
-	@echo ROS_LINK=$(ROS_LINK)
+	@echo ROS1_CFLAGS=$(ROS1_CFLAGS)
+	@echo ROS1_LINK=$(ROS1_LINK)
 	@echo
 	@echo SYSTEM_LINK=$(SYSTEM_LINK)
 	@echo
@@ -641,11 +641,11 @@ info:
 	@echo PATH=$(PATH)
 	@echo 
 	@echo AMRISIM_INCLUDE_PIONEER=$(AMRISIM_INCLUDE_PIONEER)
-	@echo AMRISIM_INCLUDE_ROS=$(AMRISIM_INCLUDE_ROS)
+	@echo AMRISIM_INCLUDE_ROS1=$(AMRISIM_INCLUDE_ROS1)
 
 $(STAGELIBDIR)/libstage.a $(STAGEDIR)/replace/libreplace.a: $(STAGEDIR)/config.status $(STAGEDIR)/src/*.c $(STAGEDIR)/src/*.h Makefile $(STAGEDIR)/Makefile
 	test -d $(STAGEDIR) || { echo "STAGEDIR \"$(STAGEDIR)\" does not exist. Set STAGEDIR in the environment, or check if there is something wrong with your original source archive or VCS checkout..."; false; }
-	$(MAKE) -C $(STAGEDIR) -j1
+	$(MAKE) -C $(STAGEDIR) -j2
 
 clean: cleanStage cleanAMRISim
 

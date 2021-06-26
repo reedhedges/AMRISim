@@ -1,5 +1,5 @@
-#ifndef AMRISIM_ROSNODE_HH
-#define AMRISIM_ROSNODE_HH
+#ifndef AMRISIM_ROS1NODE_HH
+#define AMRISIM_ROS1NODE_HH
 
 
 /*  
@@ -41,7 +41,7 @@
 
 /** @TODO XXX configurable frame IDs */
 
-class ROSNode : public LogInterface {
+class ROS1Node : public LogInterface {
 private:
   RobotInterface *robot;
 
@@ -70,9 +70,9 @@ private:
   std::string frame_id_sonar;
 
   class PublishCallback : public virtual ros::CallbackInterface {
-    ROSNode *target;
+    ROS1Node *target;
   public:
-    PublishCallback(ROSNode *rn) : target(rn) {}
+    PublishCallback(ROS1Node *rn) : target(rn) {}
     virtual ros::CallbackInterface::CallResult call() {
       target->publish();
       return CallResult::TryAgain;
@@ -88,14 +88,14 @@ private:
   void cmdvel_cb(const geometry_msgs::TwistConstPtr &);
 
 public:
-  ROSNode(RobotInterface *r, AMRISim::Options* opts);
-  ~ROSNode();
-  ROSNode(const ROSNode &other) = delete;
-  ROSNode(ROSNode&& old) = delete;
-  ROSNode& operator=(const ROSNode& other) = delete;
-  ROSNode& operator=(ROSNode&& other) = delete;
+  ROS1Node(RobotInterface *r, AMRISim::Options* opts);
+  ~ROS1Node();
+  ROS1Node(const ROS1Node &other) = delete;
+  ROS1Node(ROS1Node&& old) = delete;
+  ROS1Node& operator=(const ROS1Node& other) = delete;
+  ROS1Node& operator=(ROS1Node&& other) = delete;
   bool start();
-  void publish(); ///< Normally called automatically by ROS callback spin loop
+  void publish(); ///< Normally called automatically by ROS1 callback spin loop
 };
 
 #endif

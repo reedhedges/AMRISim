@@ -10,7 +10,7 @@
             ],
             "defines": [
                 "AMRISIM_PIONEER",
-                "AMRISIM_ROS",
+                "AMRISIM_ROS1",
                 "AMRISIM_VERSION=\"version will go here\"",
                 "AMRISIM_BUILDDATE=\"build date will go here\""
             ],

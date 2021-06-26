@@ -44,12 +44,12 @@ do so via a pull request or issue report on the github page
 How to Compile Stage and AMRISim
 ----------------------------------
 
-Both Pioneer and ROS support are included by default.  To omit ROS or Pioneer
+Both Pioneer and ROS1 support are included by default.  To omit ROS1 or Pioneer
 support, see instructions below.
 
 ### Linux
 
-To build AMRISim on Linux, you will need ROS melodic, 
+To build AMRISim on Linux, you will need ROS1 melodic, 
 Aria or AriaCoda, GTK 2.x, including 
 development packages, and the full GNU development tools: 
 G++, make, libtool, automake, and autoconf.  
@@ -68,10 +68,10 @@ On Debian and Ubuntu Linux, you can use apt or apt-get to install the required
 packages as follows:
     apt install libgtk2.0-dev automake autoconf libtool make g++
 
-Follow the instructions from ROS to install ROS melodic.  ROS melodic
+Follow the instructions from ROS1 to install ROS1 melodic.  ROS1 melodic
 is expected to be installed in /opt/ros/melodic.
 
-The ROS environment must be setup before building:
+The ROS1 environment must be setup before building:
   
     . /opt/ros/melodic/setup.bash
 
@@ -224,8 +224,8 @@ For Windows with MinGW:
 Or, if you have unpacked and built the ARIA source code in ~/ARIA-src-2.9.2:
     export ARIA=~/ARIA-src-2.9.2
 
-AMRISim uses `pkg-config` to determine appropriate build flags for ROS.
-To allow `pkg-config` to determine these, the ROS build/run environment 
+AMRISim uses `pkg-config` to determine appropriate build flags for ROS1.
+To allow `pkg-config` to determine these, the ROS1 build/run environment 
 must be imported  before building AMRISim:
 
     . /opt/ros/melodic/setup.bash
@@ -268,11 +268,11 @@ compilation options:
   
     AUTOMAKE                automake command
   
-    ROSRELEASE              ROS release distribution name (default is melodic)
+    ROS1RELEASE              ROS1 release distribution name (default is melodic)
   
     AMRISIM_INCLUDE_PIONEER Include (yes) or omit (no) Pioneer support (see details below)
   
-    AMRISIM_INCLUDE_ROS    Include (yes) or omit (no) ROS support (see details below)
+    AMRISIM_INCLUDE_ROS1    Include (yes) or omit (no) ROS1 support (see details below)
 
 For example, to build with debugging options enabled:
 
@@ -300,33 +300,33 @@ directory ~/AMRISim:
     export AMRISIM=~/AMRISim
     ./AMRISim
 
-### How to omit ROS or Pioneer support
+### How to omit ROS1 or Pioneer support
 
-To omit ROS or Pioneer support, set the `AMRISIM_INCLUDE_PIONEER` or
-`AMRISIM_INCLUDE_ROS` variables to "no" when building. For example:
+To omit ROS1 or Pioneer support, set the `AMRISIM_INCLUDE_PIONEER` or
+`AMRISIM_INCLUDE_ROS1` variables to "no" when building. For example:
 
-    make AMRISIM_INCLUDE_ROS=no
+    make AMRISIM_INCLUDE_ROS1=no
 
 or
 
     make AMRISIM_INCLUDE_PIONEER=no
 
 NOTE: If you want to rebuild AMRISim with different options for
-`AMRISIM_INCLUDE_PIONEER` or `AMRISIM_INCLUDE_ROS` you must also
+`AMRISIM_INCLUDE_PIONEER` or `AMRISIM_INCLUDE_ROS1` you must also
 rebuild the `make` dependencies (`Makefile.dep`) to include or omit 
-source files and headers containing ROS and Pioneer support. Do 
+source files and headers containing ROS1 and Pioneer support. Do 
 so with the `dep` rule and the desired variable value:
 
-    make dep AMRISIM_INCLUDE_ROS=no
-    make AMRISIM_INCLUDEROS=no
+    make dep AMRISIM_INCLUDE_ROS1=no
+    make AMRISIM_INCLUDEROS1=no
 
 Or together:
 
-    make dep all AMRISIM_INCLUDE_ROS=no
+    make dep all AMRISIM_INCLUDE_ROS1=no
 
 You can also set environment variables as well:
 
-    export AMRISIM_INCLUDEROS=no
+    export AMRISIM_INCLUDEROS1=no
     make dep
     make all
 

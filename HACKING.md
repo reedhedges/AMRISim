@@ -4,7 +4,7 @@ How AMRISim Works
 
 AMRISim glues together Stage simulation and multiple client
 interfaces. Current (2019) client interfaces are Pioneer protocol
-(using ARIA) and ROS.
+(using ARIA) and ROS1.
 Various utilities from ARIA are also used to load a map file.
 The source file "main.cc" contains 
 the main() function and brings these three components together, and provides 
@@ -84,12 +84,12 @@ through it's public functional API or by getting and setting
 "properties" (a generic data container) of these models.
 
 
-ROS Interface
+ROS1 Interface
 -------------
 
-The new ROS interface is implemnted in ROSNode.  Each simulaion loop,
+The new ROS1 interface is implemnted in ROS1Node.  Each simulaion loop,
 data from each robot is published to topics, and command and service
-requests are handled.   Like EmulatePioneer, ROSNode interacts
+requests are handled.   Like EmulatePioneer, ROS1Node interacts
 with the Stage simulation through a RobotInterface (the same StageInterface
 object created at startup in main()).
 

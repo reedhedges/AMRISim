@@ -23,7 +23,7 @@
  *
  */
 
-#include "ROSNode.hh"
+#include "ROS1Node.hh"
 #include "RobotInterface.hh"
 
 #include "ros/ros.h"
@@ -50,8 +50,8 @@
 // TODO:
 // publish simulator pose
 
-ROSNode::ROSNode(RobotInterface *r, [[maybe_unused]] AMRISim::Options *opts) :
-  LogInterface(r->getRobotName()+" ROS Client Interface Node"),
+ROS1Node::ROS1Node(RobotInterface *r, [[maybe_unused]] AMRISim::Options *opts) :
+  LogInterface(r->getRobotName()+" ROS1 Client Interface Node"),
   robot(r),
   nodeHandle(std::string("~")), // XXX TODO unique names for multiple robots
   publish_sonar(true), publish_sonar_pointcloud2(true),
@@ -60,7 +60,7 @@ ROSNode::ROSNode(RobotInterface *r, [[maybe_unused]] AMRISim::Options *opts) :
   frame_id_base_link("base_link")
   //frame_id_sonar("sonar")
  //publishCB(this)
- // publishCBPtr(boost::make_shared<PublishCallback, ROSNode>(this))
+ // publishCBPtr(boost::make_shared<PublishCallback, ROS1Node>(this))
 {
   pose_pub = nodeHandle.advertise<nav_msgs::Odometry>("pose",1000);
   sonar_pub = nodeHandle.advertise<sensor_msgs::PointCloud>("sonar", 50, 
@@ -74,38 +74,38 @@ ROSNode::ROSNode(RobotInterface *r, [[maybe_unused]] AMRISim::Options *opts) :
   motors_state.data = false;
   published_motors_state = false;
 
-  enable_srv = nodeHandle.advertiseService("enable_motors", &ROSNode::enable_motors_cb, this);
-  disable_srv = nodeHandle.advertiseService("disable_motors", &ROSNode::disable_motors_cb, this);
+  enable_srv = nodeHandle.advertiseService("enable_motors", &ROS1Node::enable_motors_cb, this);
+  disable_srv = nodeHandle.advertiseService("disable_motors", &ROS1Node::disable_motors_cb, this);
  
   // TODO laser(s)
 
   cmdvel_sub = nodeHandle.subscribe( "cmd_vel", 1, (boost::function <void(const geometry_msgs::TwistConstPtr&)>)
-          boost::bind(&ROSNode::cmdvel_cb, this, _1 ));
+          boost::bind(&ROS1Node::cmdvel_cb, this, _1 ));
 
 
  
 }
 
-ROSNode::~ROSNode()
+ROS1Node::~ROS1Node()
 {
   ros::getGlobalCallbackQueue()->removeByID(42422323); // XXX TODO use correct ID from start()
   robot->disableMotors();
   robot->disconnect();
 }
 
-bool ROSNode::start()
+bool ROS1Node::start()
 {
   robot->enableMotors();
   boost::shared_ptr<PublishCallback> p(new PublishCallback(this));
   ros::getGlobalCallbackQueue()->addCallback(p, 42422323); //XXX TODO use a unique number... how to ask the callback queue for a unique number?
-  robot->inform("ROS node '%s' is ready", nodeHandle.getNamespace().c_str());
+  robot->inform("ROS1 node '%s' is ready", nodeHandle.getNamespace().c_str());
 
   // TODO connect/disconnectt on first/last subscriber instead?
   robot->connect();
   return true;
 }
 
-void ROSNode::publish()
+void ROS1Node::publish()
 {
   // all topics and transforms published will have same timestamp
   ros::Time timestamp =  ros::Time::now();
@@ -135,8 +135,8 @@ void ROSNode::publish()
     // TODO also publish simulator pose (not odom)
 
     //print_debug
-    ROS_DEBUG
-    ("AMRISim ROSNode: publish: (time %f) pose x: %f, pose y: %f, pose angle: %f; linear vel x: %f, vel y: %f; angular vel z: %f", 
+    ROS1_DEBUG
+    ("AMRISim ROS1Node: publish: (time %f) pose x: %f, pose y: %f, pose angle: %f; linear vel x: %f, vel y: %f; angular vel z: %f", 
       position.header.stamp.toSec(), 
       (double)position.pose.pose.position.x,
       (double)position.pose.pose.position.y,
@@ -161,7 +161,7 @@ void ROSNode::publish()
     // publish motors state if changed
     if(motorsEnabled != motors_state.data || !published_motors_state)
     {
-      ROS_INFO("AMRISim ROSNode: publishing new motors state %d.", motorsEnabled);
+      ROS1_INFO("AMRISim ROS1Node: publishing new motors state %d.", motorsEnabled);
       motors_state.data = motorsEnabled;
       motors_state_pub.publish(motors_state);
       published_motors_state = true;
@@ -199,7 +199,7 @@ void ROSNode::publish()
       p.z = 0.0;
       cloud.points.emplace_back(p);
     }
-    //ROS_DEBUG_STREAM(sonar_debug_info.str());
+    //ROS1_DEBUG_STREAM(sonar_debug_info.str());
     
     // publish topic(s)
 
@@ -209,7 +209,7 @@ void ROSNode::publish()
       cloud2.data.reserve(cloud.points.size());
       if (!sensor_msgs::convertPointCloudToPointCloud2(cloud, cloud2))
       {
-        ROS_WARN("Error converting sonar point cloud message to point_cloud2 type before publishing! Not publishing this time.");
+        ROS1_WARN("Error converting sonar point cloud message to point_cloud2 type before publishing! Not publishing this time.");
       }
       else
       {
@@ -230,26 +230,26 @@ void ROSNode::publish()
   // done publishing data
 }
 
-void ROSNode::cmdvel_cb(const geometry_msgs::TwistConstPtr& vel)
+void ROS1Node::cmdvel_cb(const geometry_msgs::TwistConstPtr& vel)
 {
-  ROS_INFO("cmd_vel received %f, %f, %f", vel->linear.x, vel->linear.y, vel->angular.z); 
+  ROS1_INFO("cmd_vel received %f, %f, %f", vel->linear.x, vel->linear.y, vel->angular.z); 
   if(! robot->motorsEnabled() )
-    ROS_WARN("motors not enabled, velocity commands will have no effect. Use enable_motors service, e.g. rosservice call /AMRISim/enable_motors" );
+    ROS1_WARN("motors not enabled, velocity commands will have no effect. Use enable_motors service, e.g. rosservice call /AMRISim/enable_motors" );
   robot->transVel((int)(vel->linear.x * 1000.0));
   robot->latVel((int) (vel->linear.y * 1000.0) );
   robot->rotVel((int) RTOD(vel->angular.z) );
 }
 
-bool ROSNode::enable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+bool ROS1Node::enable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
-  ROS_INFO("enable_motors service called, enabling motors.");
+  ROS1_INFO("enable_motors service called, enabling motors.");
   robot->enableMotors();
   return true;
 }
 
-bool ROSNode::disable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&) 
+bool ROS1Node::disable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&) 
 {
-  ROS_INFO("disable_motors service called, disabling motors.");
+  ROS1_INFO("disable_motors service called, disabling motors.");
   robot->disableMotors();
   return true;
 }

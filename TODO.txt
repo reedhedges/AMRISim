@@ -1,10 +1,10 @@
 
-* Let user continue without ROS if no ros master running (i.e. buttons should be
+* Let user continue without ROS1 if no ros master running (i.e. buttons should be
   "No (exit)", "Yes (run roscore)", "No (continue)"
-* Command line options to enable/disable ROS and Pioneer interfaces at runtime.
-* Add options to GUI at startup to enable/disable robot interfaces (Pioneer/ROS). Runtime menu
+* Command line options to enable/disable ROS1 and Pioneer interfaces at runtime.
+* Add options to GUI at startup to enable/disable robot interfaces (Pioneer/ROS1). Runtime menu
   items?
-* Enable multiple ROS nodes for multiple robots (nodelets)
+* Enable multiple ROS1 nodes for multiple robots (nodelets)
 * Edit (review and improve) README
 * Make sure we are using latest version of GTK on Windows. Update particularly
   old or deprecated GTK API usage and remove support for
@@ -23,17 +23,17 @@
     each model type might need to have rendering functions moved into separate
     .c files and header files.
 * Containers (Docker eg) for GUI with VNC/RemoteDesktop or no-GUI, with and
-  without simple Python examples, ARIA examples, ROS etc.   GitHub Codespaces
+  without simple Python examples, ARIA examples, ROS1 etc.   GitHub Codespaces
   config?
-* Accept other map file formats (bitmap, ROS occupancy grid file)
-  * Also option to subscribe to map data from a ROS map_server.
-* Improve ROS client inerface. 
-  * Bug: a disconnecting Pioneer client causes ROS node to stop publishing sonar.
-  * Maybe separate builds for Pioneer/ARIA and ROS
+* Accept other map file formats (bitmap, ROS1 occupancy grid file)
+  * Also option to subscribe to map data from a ROS1 map_server.
+* Improve ROS1 client inerface. 
+  * Bug: a disconnecting Pioneer client causes ROS1 node to stop publishing sonar.
+  * Maybe separate builds for Pioneer/ARIA and ROS1
   * Enable/disable in GUI
-  * Verify we are creating multiple ROS nodes in one process correcly.
+  * Verify we are creating multiple ROS1 nodes in one process correcly.
   * Fix "XXX" and "TODO" items marked in code
-  * EmulatePioneer and ROSNode interfaces share a RobotInterface. Better to have
+  * EmulatePioneer and ROS1Node interfaces share a RobotInterface. Better to have
     separate interfaces (what state does StageIntetrface have?)
   * StageInterface class still assumes Pioneer robots in some places (eg with
     Pioneer parameters struct provided by EmulatePioneer to be filled in with
@@ -46,7 +46,7 @@
   * Configuration
   * Improve build. (Use CMake? Support system-default-install (/usr), 
     etc.
-  * ROS commands to access more of internal Stage API including adding/modifying
+  * ROS1 commands to access more of internal Stage API including adding/modifying
     objects and sensors.
   * Document
   * Fix or remove sonar publishing of pointcloud1 data (pointcloud2 data works). 

@@ -70,8 +70,8 @@
 #include "EmulatePioneer.hh"
 #endif
 
-#ifdef AMRISIM_ROS
-#include "ROSNode.hh"
+#ifdef AMRISIM_ROS1
+#include "ROS1Node.hh"
 #endif
 
 using namespace AMRISim;
@@ -1339,7 +1339,7 @@ int main(int argc, char** argv)
   }
     
 
-#ifdef AMRISIM_ROS
+#ifdef AMRISIM_ROS1
   ros::init(argc, argv, "AMRISim", ros::init_options::NoSigintHandler); //ros::init_options::AnonymousName);
   // XXX TODO need to do multtiple ros nodes correctly here and below.
   // in particular need better node names (matching pioneer unique names and easier to remember and type)
@@ -1365,17 +1365,17 @@ int main(int argc, char** argv)
       }
       gtk_widget_destroy(dialog);
       // try running gnome-terminal
-      // TODO check evironment. if ROS environment already included, don't.
-      // TODO option to choose ROS version, in command line, and config GUI when enabling ROS
-      print_msg("Running gnome-terminal. Will import ROS melodic setup environment into shell, then will run roscore.");
+      // TODO check evironment. if ROS1 environment already included, don't.
+      // TODO option to choose ROS1 version, in command line, and config GUI when enabling ROS1
+      print_msg("Running gnome-terminal. Will import ROS1 melodic setup environment into shell, then will run roscore.");
       // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
       int x, y, width, height;
       stg_world_window_get_geometry(world, &x, &y, &width, &height);
-      std::string cmd = std::string("gnome-terminal --geometry=80x20+") + std::to_string(x+width+10) + "+" + std::to_string(y) + " -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"";
+      std::string cmd = std::string("gnome-terminal --geometry=80x20+") + std::to_string(x+width+10) + "+" + std::to_string(y) + " -- sh -c \"echo Starting ROS1 melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"";
 
-      int s = system(cmd.c_str()); //"gnome-terminal --geometry=80x20+500+500 -- sh -c \"echo Starting ROS melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
+      int s = system(cmd.c_str()); //"gnome-terminal --geometry=80x20+500+500 -- sh -c \"echo Starting ROS1 melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
       if(s != 0)
-        stg_print_warning("Error running ROS Master (roscore) in gnome-terminal: system returned %d", s);
+        stg_print_warning("Error running ROS1 Master (roscore) in gnome-terminal: system returned %d", s);
       AMRISim::sleep(5 * 1000);
      }
   }
@@ -1404,18 +1404,18 @@ int main(int argc, char** argv)
       delete emulator;
 #endif
 
-#ifdef AMRISIM_ROS
+#ifdef AMRISIM_ROS1
 
-      // note, it may also be possible for ROS and Pioneer interfaces to have
+      // note, it may also be possible for ROS1 and Pioneer interfaces to have
       // separate StageInterface objects?  not sure 
-    stg_print_msg("AMRISim: Creating ROS client connection for robot named \"%s\" (\"%s\")", (*i).first.c_str(), (*i).second.c_str());
-    ROSNode* rosnode = new ROSNode(stageint, &opt);
+    stg_print_msg("AMRISim: Creating ROS1 client connection for robot named \"%s\" (\"%s\")", (*i).first.c_str(), (*i).second.c_str());
+    ROS1Node* rosnode = new ROS1Node(stageint, &opt);
     if(!rosnode->start())
       delete rosnode;
 #endif
 
-#if !defined(AMRISIM_PIONEER) && !defined(AMRISIM_ROS)
-#error Neither AMRISIM_PIONEER nor AMRISIM_ROS are defined. One or both must be defined to include any client interfaces
+#if !defined(AMRISIM_PIONEER) && !defined(AMRISIM_ROS1)
+#error Neither AMRISIM_PIONEER nor AMRISIM_ROS1 are defined. One or both must be defined to include any client interfaces
 #endif
 
   }
@@ -1573,7 +1573,7 @@ int main(int argc, char** argv)
 #ifdef AMRISIM_PIONEER
       EmulatePioneer::processAll();
 #endif
-#ifdef AMRISIM_ROS
+#ifdef AMRISIM_ROS1
       ros::spinOnce();
 #endif
     }
@@ -2505,7 +2505,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
       numentry = GTK_ENTRY(gtk_spin_button_new_with_range(1, ROBOTS_MENU_LIMIT, 1));
       gtk_widget_show(GTK_WIDGET(numentry));
       gtk_box_pack_start(multirobot_row, GTK_WIDGET(numentry), FALSE, FALSE, 5);
-      GtkWidget *label = gtk_label_new(" robot(s) with Pioneer and ROS interfaces.");
+      GtkWidget *label = gtk_label_new(" robot(s) with Pioneer and ROS1 interfaces.");
       gtk_widget_show(label);
       gtk_box_pack_start(multirobot_row, label, FALSE, FALSE, 0);
 
@@ -2513,7 +2513,7 @@ int map_options_dialog(std::string& map, RobotModels *robotInstanceRequests, Rob
       GtkBox *factory_row = GTK_BOX(gtk_hbox_new(FALSE, 0));
       gtk_widget_show(GTK_WIDGET(factory_row));
       gtk_box_pack_start(more_box, GTK_WIDGET(factory_row), FALSE, FALSE, 3);
-      factory_radio = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(multirobot_radio)), "Create a new robot for each Pioneer client connection (ROS interface not available)."));
+      factory_radio = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(multirobot_radio)), "Create a new robot for each Pioneer client connection (ROS1 interface not available)."));
       gtk_widget_show(GTK_WIDGET(factory_radio));
       gtk_box_pack_start(factory_row, GTK_WIDGET(factory_radio), FALSE, FALSE, 5);
     }
