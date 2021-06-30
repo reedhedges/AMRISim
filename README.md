@@ -166,12 +166,14 @@ models.
     or even adapting AMRISim's ARIA communication protocol layer for
     other simulators.
 * And more...
+* See [TODO.txt](TODO.txt) for list of desired future features and changes.
 
 Building
 --------
 
-To build AMRISim, AriaCoda or ARIA, and ROS1 melodic are required (see
-[BUILD.md](BUILD.md) for how to omit ROS1 support).
+To build AMRISim, AriaCoda or ARIA, and ROS1 are required (see
+[BUILD.md](BUILD.md) for how to omit ROS1 support or for more details
+on configuring ROS1 support).
 
 On Linux, GTK+ 2.x development packages are also needed, as well as
 g++, make, libtool, automake and autoconf.
@@ -184,11 +186,9 @@ GTK+ does not need to be installed on Windows, a local copy is used.
 Detailed build instructions for each platform are available in
 [BUILD.md](BUILD.md).
 
-ROS1 and ARIA or AriaCoda are required to build AMRISim:
-
 ### ROS1
 
-ROS1 melodic is expected to be installed in `/opt/ros/melodic`, or ROS1 to be
+ROS1 "melodic" is expected to be installed in `/opt/ros/melodic`, or, ROS1 must be
 installed on the system from Ubuntu repositories using `apt`.
 
 If you will be doing general ROS1 development on the same system, it is
@@ -197,7 +197,9 @@ found at <http://www.ros.org>. (Note that each version
 of ROS1 is supported on certain versions of Ubuntu only. ROS2 is not yet
 supported in AMRISim.)
 
-If you just want to more easily build AMRISim with ROS1 support on Ubuntu,
+If you just want to more easily build AMRISim with ROS1 support on Ubuntu, but
+do not need the latest or a specific release of ROS1, and will not be doing extensive
+ROS development on the same computer using the ROS development tools, simply
 installing ROS1 Ubuntu packages using apt is easier than configuring the custom
 ROS1 installation and build system.  The required Ubuntu packages to build are:
 
@@ -222,6 +224,9 @@ the `ARIA` environment variable before building to change location.)
 
 AriaCoda can be cloned from <http://github.com/reedhedges/AriaCoda>.
 
+(The original ARIA library can alternatively be used instead if desired.
+Set the `ARIA` environment variable to its location.)
+
 How to get started
 ------------------
 
@@ -233,6 +238,10 @@ for the
 `ArMap` class for a full description of the format,
 or refer to `columbia.map` or `AMROffice.map`, distributed with AMRISim,
 for an example.
+
+If you would like to contribute support for other map file formats, or to retrieve
+a map from the ROS map data server, this would be greatly
+appreciated, contact me or post a feature request on github to discuss.
 
 Before running AMRISim, if built with ROS1 support, you must
 set up your ROS1 runtime environment first, e.g.
