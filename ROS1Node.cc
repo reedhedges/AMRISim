@@ -135,7 +135,7 @@ void ROS1Node::publish()
     // TODO also publish simulator pose (not odom)
 
     //print_debug
-    ROS1_DEBUG
+    ROS_DEBUG
     ("AMRISim ROS1Node: publish: (time %f) pose x: %f, pose y: %f, pose angle: %f; linear vel x: %f, vel y: %f; angular vel z: %f", 
       position.header.stamp.toSec(), 
       (double)position.pose.pose.position.x,
@@ -161,7 +161,7 @@ void ROS1Node::publish()
     // publish motors state if changed
     if(motorsEnabled != motors_state.data || !published_motors_state)
     {
-      ROS1_INFO("AMRISim ROS1Node: publishing new motors state %d.", motorsEnabled);
+      ROS_INFO("AMRISim ROS1Node: publishing new motors state %d.", motorsEnabled);
       motors_state.data = motorsEnabled;
       motors_state_pub.publish(motors_state);
       published_motors_state = true;
@@ -199,7 +199,7 @@ void ROS1Node::publish()
       p.z = 0.0;
       cloud.points.emplace_back(p);
     }
-    //ROS1_DEBUG_STREAM(sonar_debug_info.str());
+    //ROS_DEBUG_STREAM(sonar_debug_info.str());
     
     // publish topic(s)
 
@@ -209,7 +209,7 @@ void ROS1Node::publish()
       cloud2.data.reserve(cloud.points.size());
       if (!sensor_msgs::convertPointCloudToPointCloud2(cloud, cloud2))
       {
-        ROS1_WARN("Error converting sonar point cloud message to point_cloud2 type before publishing! Not publishing this time.");
+        ROS_WARN("Error converting sonar point cloud message to point_cloud2 type before publishing! Not publishing this time.");
       }
       else
       {
@@ -232,9 +232,9 @@ void ROS1Node::publish()
 
 void ROS1Node::cmdvel_cb(const geometry_msgs::TwistConstPtr& vel)
 {
-  ROS1_INFO("cmd_vel received %f, %f, %f", vel->linear.x, vel->linear.y, vel->angular.z); 
+  ROS_INFO("cmd_vel received %f, %f, %f", vel->linear.x, vel->linear.y, vel->angular.z); 
   if(! robot->motorsEnabled() )
-    ROS1_WARN("motors not enabled, velocity commands will have no effect. Use enable_motors service, e.g. rosservice call /AMRISim/enable_motors" );
+    ROS_WARN("motors not enabled, velocity commands will have no effect. Use enable_motors service, e.g. rosservice call /AMRISim/enable_motors" );
   robot->transVel((int)(vel->linear.x * 1000.0));
   robot->latVel((int) (vel->linear.y * 1000.0) );
   robot->rotVel((int) RTOD(vel->angular.z) );
@@ -242,14 +242,14 @@ void ROS1Node::cmdvel_cb(const geometry_msgs::TwistConstPtr& vel)
 
 bool ROS1Node::enable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
-  ROS1_INFO("enable_motors service called, enabling motors.");
+  ROS_INFO("enable_motors service called, enabling motors.");
   robot->enableMotors();
   return true;
 }
 
 bool ROS1Node::disable_motors_cb(std_srvs::Empty::Request&, std_srvs::Empty::Response&) 
 {
-  ROS1_INFO("disable_motors service called, disabling motors.");
+  ROS_INFO("disable_motors service called, disabling motors.");
   robot->disableMotors();
   return true;
 }
