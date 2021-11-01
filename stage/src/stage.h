@@ -39,9 +39,6 @@
   library
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // to allow definitions of extra functions we might use (but checked for in configure):
 #ifndef __USE_GNU
@@ -49,6 +46,12 @@ extern "C" {
 #endif
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
+#endif
+
+#include <glib.h> // we use GLib's data structures extensively
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdlib.h>
@@ -67,9 +70,7 @@ extern "C" {
 #include <semaphore.h>
 #endif
 
-#include <glib.h> // we use GLib's data structures extensively
 #include <rtk.h> // and graphics stuff pulled from Andrew Howard's RTK2 library
-
 
 #include "config.h"
 #include "replace.h"
