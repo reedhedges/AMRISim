@@ -1179,26 +1179,26 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        replyPkt.byteToBuf((char)(params.SIPFreq));
        replyPkt.byteToBuf(0);  // host baud, irrelevant for TCP
        replyPkt.byteToBuf(0);  // baud rate for AUX1
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(robotInterface->haveGripper()?1:0)); // have gripper // StageInterface::haveGripper() { return false; }
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(robotInterface->haveFrontSonar()?1:0)); // have front sonar
-       replyPkt.byteToBuf((ArTypes::Byte)(robotInterface->haveRearSonar()?1:0));    // have rear sonar (note byte not byte2, this is correct)
+       replyPkt.byte2ToBuf((int16_t)(robotInterface->haveGripper()?1:0)); // have gripper // StageInterface::haveGripper() { return false; }
+       replyPkt.byte2ToBuf((int16_t)(robotInterface->haveFrontSonar()?1:0)); // have front sonar
+       replyPkt.byteToBuf((int8_t)(robotInterface->haveRearSonar()?1:0));    // have rear sonar (note byte not byte2, this is correct)
        replyPkt.byte2ToBuf(0); // low battery alarm (decivolts)
        replyPkt.byte2ToBuf(0); // revcount const.
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(params.WatchdogTime));
+       replyPkt.byte2ToBuf((int16_t)(params.WatchdogTime));
        replyPkt.byteToBuf((char)0);  // nothing
        replyPkt.byte2ToBuf(0); // stall PWM limit const.
        replyPkt.byte2ToBuf(0); // post-stall idle time, ms
        replyPkt.byte2ToBuf(0); // joyvel const.
        replyPkt.byte2ToBuf(0); // joyrvel const.
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(session->settings.RotVelMax)); // current max rot vel
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(session->settings.TransVelMax)); // current max trans vel
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(session->settings.RotAccel)); // current rot acc
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(session->settings.RotDecel)); // current rot decel
+       replyPkt.byte2ToBuf((int16_t)(session->settings.RotVelMax)); // current max rot vel
+       replyPkt.byte2ToBuf((int16_t)(session->settings.TransVelMax)); // current max trans vel
+       replyPkt.byte2ToBuf((int16_t)(session->settings.RotAccel)); // current rot acc
+       replyPkt.byte2ToBuf((int16_t)(session->settings.RotDecel)); // current rot decel
        replyPkt.byte2ToBuf(0); // current rot kp
        replyPkt.byte2ToBuf(0); // current rot kv
        replyPkt.byte2ToBuf(0); // current rot ki
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(session->settings.TransAccel)); // current trans acc
-       replyPkt.byte2ToBuf((ArTypes::Byte2)(session->settings.TransDecel)); // current trans decel
+       replyPkt.byte2ToBuf((int16_t)(session->settings.TransAccel)); // current trans acc
+       replyPkt.byte2ToBuf((int16_t)(session->settings.TransDecel)); // current trans decel
        replyPkt.byte2ToBuf(0); // current trans kp
        replyPkt.byte2ToBuf(0); // current trans kv
        replyPkt.byte2ToBuf(0); // current trans ki
@@ -1222,9 +1222,9 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
        replyPkt.byteToBuf(0);  // Kinematic delay TODO
        replyPkt.byte2ToBuf(FAKE_LATVELTOP);
        replyPkt.byte2ToBuf(FAKE_LATACCTOP);
-       replyPkt.byte2ToBuf((ArTypes::Byte2)session->settings.LatVelMax);
-       replyPkt.byte2ToBuf((ArTypes::Byte2)session->settings.LatAccel);
-       replyPkt.byte2ToBuf((ArTypes::Byte2)session->settings.LatDecel);
+       replyPkt.byte2ToBuf((int16_t)session->settings.LatVelMax);
+       replyPkt.byte2ToBuf((int16_t)session->settings.LatAccel);
+       replyPkt.byte2ToBuf((int16_t)session->settings.LatDecel);
        replyPkt.byte2ToBuf(0); // charge threshold (powerbot)
 
        replyPkt.finalizePacket();
@@ -1627,7 +1627,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
          replyPkt.strToBuf(myApplicationVersion.c_str());
 
          // feature flags:
-         ArTypes::UByte4 flags = 0;
+         uint32_t flags = 0;
          if(!options.NonInteractive)
           flags |= ArUtil::BIT0; // have GUI
          if(options.RestartedAfterCrash)
@@ -1637,8 +1637,8 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
          // devices:
          std::vector< RobotInterface::DeviceInfo > devs = robotInterface->getDeviceInfo();
          //printf("SIMINFO: %lu devices.\n", devs.size());
-         assert(devs.size() <= std::numeric_limits<ArTypes::UByte4>::max());
-         replyPkt.uByte4ToBuf((ArTypes::UByte4) devs.size());
+         assert(devs.size() <= std::numeric_limits<uint32_t>::max());
+         replyPkt.uByte4ToBuf((uint32_t) devs.size());
          for(std::vector< RobotInterface::DeviceInfo >::const_iterator i = devs.begin(); i != devs.end(); ++i)
          {
            //printf("SIMINFO: adding device %s (%s:%d)\n", i->name.c_str(), i->type.c_str(), i->which);
@@ -1879,22 +1879,22 @@ ArRobotPacket* SIPGenerator::getPacket()
     // the pos returned wraps at the 16 bit limit just like ARIA checks for,
     // with a minimum of fuss.
 
-    // Note: Compilers and analyzers will warn about conversion from int32_t to ArTypes::Byte2 (int16_t). 
+    // Note: Compilers and analyzers will warn about conversion from int32_t to int16_t (int16_t). 
     // We want to force the conversion however. Someday this may be fixed to express this better.
 
     assert(params->DistConvFactor > 0.0001);
 
-    xPosAccum += (ArTypes::Byte2) /*(int32_t)*/ ( (double)x/params->DistConvFactor - xPosAccum );
+    xPosAccum += (int16_t) /*(int32_t)*/ ( (double)x/params->DistConvFactor - xPosAccum );
     pkt.byte2ToBuf(xPosAccum);
 
-    yPosAccum += (ArTypes::Byte2) /*(int32_t)*/ ( (double)y/params->DistConvFactor - yPosAccum );
+    yPosAccum += (int16_t) /*(int32_t)*/ ( (double)y/params->DistConvFactor - yPosAccum );
     pkt.byte2ToBuf(yPosAccum);
 
 
     // theta, just truncated from 32 bits, stage should keep this between
     // -180,180 for us.
     assert(params->AngleConvFactor > 0.0001);
-    const ArTypes::Byte2 siptheta = (ArTypes::Byte2) (ArMath::degToRad(theta) / params->AngleConvFactor);
+    const int16_t siptheta = (int16_t) (ArMath::degToRad(theta) / params->AngleConvFactor);
     pkt.byte2ToBuf(siptheta);  
 
     // wheel velocities (left, right):
@@ -1911,8 +1911,8 @@ ArRobotPacket* SIPGenerator::getPacket()
     }
 
       
-    pkt.byte2ToBuf((ArTypes::Byte2)leftVel);
-    pkt.byte2ToBuf((ArTypes::Byte2)rightVel);
+    pkt.byte2ToBuf((int16_t)leftVel);
+    pkt.byte2ToBuf((int16_t)rightVel);
 
     if(logDataSent)
     {
@@ -1939,14 +1939,14 @@ ArRobotPacket* SIPGenerator::getPacket()
   if(params->BatteryType == 2)
     pkt.byteToBuf(0);  // battery reports state of charge later in sip instead of voltage
   else
-    pkt.byteToBuf( (ArTypes::Byte) (robotInterface->getBatteryVoltage() * 10.0) ); // battery voltage, decivolts, one byte
+    pkt.byteToBuf( (int8_t) (robotInterface->getBatteryVoltage() * 10.0) ); // battery voltage, decivolts, one byte
 
   // Stall and bumper flags. bumpers are not implemented yet.
   // Simulation will stall if we hit something (or are extremely close to
   // hitting.)
   // Stall only if trying to translate, not rotate. This allows software to have
   // some hope of getting out of the stall by itself.
-  ArTypes::UByte2 bumpStallFlags = 0;
+  uint16_t bumpStallFlags = 0;
   if(stalled)
     bumpStallFlags |= ArUtil::BIT0 | ArUtil::BIT8;
   pkt.uByte2ToBuf(bumpStallFlags); 
@@ -1954,7 +1954,7 @@ ArRobotPacket* SIPGenerator::getPacket()
   pkt.byte2ToBuf(0);  // "control", not used anymore.
 
   // Misc status flags:
-  ArTypes::UByte2 flags = 0;
+  uint16_t flags = 0;
   
   // sonar status flags on: 
   if(robotInterface->sonarOpenRequested())
@@ -1976,7 +1976,7 @@ ArRobotPacket* SIPGenerator::getPacket()
 #ifdef DEBUG_SIP_SONAR_DATA
     print_debug("SIP: sonar has %d readings. Max per packet is %d.", n, params->Sim_MaxSonarReadingsPerSIP);
 #endif
-    pkt.byteToBuf((ArTypes::Byte)n);
+    pkt.byteToBuf((int8_t)n);
 
     class PackSonarReadingFunc : public virtual RobotInterface::SonarReadingFunc {
     public:
@@ -1989,8 +1989,8 @@ ArRobotPacket* SIPGenerator::getPacket()
         : pkt(init_pkt), conv(init_conv), max(init_max), i(init_i), count(0)
         {}
       virtual bool operator()(unsigned int r) override {
-        pkt.byteToBuf((ArTypes::Byte)i);
-        const ArTypes::Byte2 convr = (ArTypes::Byte2) ArMath::roundInt(r / conv);
+        pkt.byteToBuf((int8_t)i);
+        const int16_t convr = (int16_t) ArMath::roundInt(r / conv);
         pkt.byte2ToBuf(convr);
 
 #ifdef DEBUG_SIP_SONAR_DATA
@@ -2030,16 +2030,16 @@ ArRobotPacket* SIPGenerator::getPacket()
   pkt.byteToBuf(robotInterface->gripperState()); 
   pkt.byteToBuf(0);   // analog select
   pkt.byteToBuf(0);   // analog data
-  pkt.byteToBuf((ArTypes::Byte) robotInterface->getDiginState()); //(char)0xFF);   // digital in, also used for IR on peoplebot (0 means triggered, 1 means not triggered)
-  pkt.byteToBuf((ArTypes::Byte) robotInterface->getDigoutState()); //(char)0xFF);   // digital out (0 means triggered, 1 means not triggered)
+  pkt.byteToBuf((int8_t) robotInterface->getDiginState()); //(char)0xFF);   // digital in, also used for IR on peoplebot (0 means triggered, 1 means not triggered)
+  pkt.byteToBuf((int8_t) robotInterface->getDigoutState()); //(char)0xFF);   // digital out (0 means triggered, 1 means not triggered)
   if(params->BatteryType == 2)
     pkt.byte2ToBuf(0);  // battery reports state of charge later in sip instead of voltage
   else
-    pkt.byte2ToBuf( (ArTypes::Byte2) (robotInterface->getBatteryVoltage()*10.0) );  // battery decivolts in two bytes, default of 13V 
+    pkt.byte2ToBuf( (int16_t) (robotInterface->getBatteryVoltage()*10.0) );  // battery decivolts in two bytes, default of 13V 
 
   pkt.uByteToBuf(0);  // recharge/dock status (0=not recharging,1=bulk,2=over,3=float)
 
-  pkt.byte2ToBuf( (ArTypes::Byte2) (rotVel*10.0) );  // current rot. vel
+  pkt.byte2ToBuf( (int16_t) (rotVel*10.0) );  // current rot. vel
 
   if(logDataSent)
   {
@@ -2047,24 +2047,24 @@ ArRobotPacket* SIPGenerator::getPacket()
   }
 
   if(robotInterface->getTempWarning())
-    pkt.byte2ToBuf((ArTypes::Byte2)ArUtil::BIT1); // fault flags
+    pkt.byte2ToBuf((int16_t)ArUtil::BIT1); // fault flags
   else
     pkt.byte2ToBuf(0); // fault flags
-  pkt.byte2ToBuf((ArTypes::Byte2) robotInterface->yspeed());
+  pkt.byte2ToBuf((int16_t) robotInterface->yspeed());
   if(robotInterface->haveTemperature())
-    pkt.byteToBuf((ArTypes::Byte) robotInterface->getTemperature());
+    pkt.byteToBuf((int8_t) robotInterface->getTemperature());
   else
-    pkt.byteToBuf((ArTypes::Byte) -127);
+    pkt.byteToBuf((int8_t) -127);
 
   //if(params->BatteryType == 2)  // should provide state of charge with battery type 2
   if(robotInterface->haveStateOfCharge())  // should provide state of charge with battery type 2
   {
     robotInterface->updateStateOfCharge();
     //ArLog::log(ArLog::Normal, "SIPGenerator::getPacket(): Robot: %s, Packing SoC into SIP: %f\n", robotInterface->getRobotName().c_str(), robotInterface->getStateOfCharge());
-    pkt.byteToBuf((ArTypes::Byte) robotInterface->getStateOfCharge());
+    pkt.byteToBuf((int8_t) robotInterface->getStateOfCharge());
   }
   else  // we have no state of charge with other battery types
-    pkt.byteToBuf((ArTypes::Byte) 0);
+    pkt.byteToBuf((int8_t) 0);
   pkt.finalizePacket();
 
 #ifdef DEBUG_SIP_PACKET_CONTENTS
@@ -2086,7 +2086,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
 
   // Figure out how many readings to put in this packet. 
 
-  //ArTypes::Byte2 totalReadings = robotInterface->numLaserReadings();
+  //int16_t totalReadings = robotInterface->numLaserReadings();
   const size_t totalReadings = robotInterface->numLaserReadings(0);
 
 #ifdef DEBUG_LASER_PACKETS
@@ -2112,15 +2112,15 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
     pkt.setID(0x60);
     int x, y, th;
     robotInterface->getPosition(x, y, th);
-    pkt.byte2ToBuf((ArTypes::Byte2)x);
-    pkt.byte2ToBuf((ArTypes::Byte2)y);
-    pkt.byte2ToBuf((ArTypes::Byte2)th);
+    pkt.byte2ToBuf((int16_t)x);
+    pkt.byte2ToBuf((int16_t)y);
+    pkt.byte2ToBuf((int16_t)th);
   }
-  assert(totalReadings <= std::numeric_limits<ArTypes::Byte2>::max());
-  pkt.uByte2ToBuf((ArTypes::UByte2)totalReadings);   // total range reading count the device has
-  pkt.uByte2ToBuf((ArTypes::UByte2) currentReading); // which reading is the first one in this packet
+  assert(totalReadings <= std::numeric_limits<int16_t>::max());
+  pkt.uByte2ToBuf((uint16_t)totalReadings);   // total range reading count the device has
+  pkt.uByte2ToBuf((uint16_t) currentReading); // which reading is the first one in this packet
   const int numReadingsThisPacket = AMRISim::min((int)MaxReadingsPerPacket, (int)(totalReadings - currentReading));  // num. readings that follow
-  pkt.uByteToBuf((ArTypes::UByte) numReadingsThisPacket);
+  pkt.uByteToBuf((uint8_t) numReadingsThisPacket);
 
   class PackLaserReadingFunc_OldFormat : public virtual RobotInterface::LaserReadingFunc {
   protected:
@@ -2134,7 +2134,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
       {}
     virtual ~PackLaserReadingFunc_OldFormat() {}
     virtual bool operator()(unsigned int range, int /*ref*/) override {
-      pkt.uByte2ToBuf((ArTypes::UByte2)range);
+      pkt.uByte2ToBuf((uint16_t)range);
       ++i;
       if(++count >= max) return false;
       return true;
@@ -2149,7 +2149,7 @@ ArRobotPacket* LaserPacketGenerator::getPacket()
     virtual ~PackLaserReadingFunc_ExtFormat() {}
     virtual bool operator()(unsigned int range, int ref) override {
       const bool r = PackLaserReadingFunc_OldFormat::operator()(range, ref);
-      pkt.uByteToBuf((ArTypes::UByte)(ref));
+      pkt.uByteToBuf((uint8_t)(ref));
       pkt.uByteToBuf(0); // reserved for future flags
       pkt.uByteToBuf(0); // reserved for future flags
       //if(!r) printf("PackLaserReadingFunc Hit max readings (count=%d, max=%d)\n", count, max);
@@ -2249,7 +2249,7 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
   replyPkt.strToBuf("");
 
   // status flags
-  ArTypes::UByte4 flags = 0;
+  uint32_t flags = 0;
   if(mapLoader.haveMapOriginLLA)
     flags |= ArUtil::BIT1;
   if(robotInterface->haveSimulatorOdomError())
@@ -2295,7 +2295,7 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
     }
     else
     {
-      replyPkt.byte4ToBuf((ArTypes::Byte4)(robotInterface->getSimGPSDOP() * 100.0));
+      replyPkt.byte4ToBuf((int32_t)(robotInterface->getSimGPSDOP() * 100.0));
       //replyPkt.byte4ToBuf(100);
     }
   }
@@ -2310,9 +2310,9 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
     // odometry error
   if(robotInterface->haveSimulatorOdomError())
   {
-    replyPkt.byte4ToBuf((ArTypes::Byte4)(robotInterface->getSimulatorOdomErrorX() * 10e6));
-    replyPkt.byte4ToBuf((ArTypes::Byte4)(robotInterface->getSimulatorOdomErrorY() * 10e6));
-    replyPkt.byte4ToBuf((ArTypes::Byte4)(robotInterface->getSimulatorOdomErrorTh() * 10e6));
+    replyPkt.byte4ToBuf((int32_t)(robotInterface->getSimulatorOdomErrorX() * 10e6));
+    replyPkt.byte4ToBuf((int32_t)(robotInterface->getSimulatorOdomErrorY() * 10e6));
+    replyPkt.byte4ToBuf((int32_t)(robotInterface->getSimulatorOdomErrorTh() * 10e6));
   }
   else
   {
@@ -2335,7 +2335,7 @@ bool EmulatePioneer::insideBadGPSSector(const ArPose& p)
   return false;
 }
 
-bool EmulatePioneer::sendMapChanged(std::string mapname, bool user, ArTypes::Byte status)
+bool EmulatePioneer::sendMapChanged(std::string mapname, bool user, int8_t status)
 {
   ArRobotPacket pkt;
   pkt.empty();
@@ -2351,7 +2351,7 @@ void EmulatePioneer::newMapLoaded(MapLoadedInfo info)
 {
   //ArLog::log(ArLog::Normal, "EmulatePioneer::newMapLoaded(): %s", robotInterface->getRobotName().c_str());
 
-  if(!sendMapChanged(info.filename, false, (ArTypes::Byte)info.status))
+  if(!sendMapChanged(info.filename, false, (int8_t)info.status))
   {
     warn("Could not send SIM_MAP_CHANGED notification packet!");
   }

@@ -1282,7 +1282,7 @@ SIMSTAT packet. Wrap this function in an `ArFunctor` object and use
        printf("SIMSTAT pkt received:\n"    );
        char a = pkt->bufToByte();  // unused byte
        char b = pkt->bufToByte();  // unused byte
-       ArTypes::UByte4 flags = pkt->bufToUByte4();
+       uint32_t flags = pkt->bufToUByte4();
        printf("\tFlags=0x%x\n", flags);
        int simint = pkt->bufToUByte2();
        int realint = pkt->bufToUByte2();

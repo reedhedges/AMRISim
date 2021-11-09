@@ -312,7 +312,7 @@ public:
 class SIPGenerator  : public virtual PacketGenerator
 {
 protected:
-  ArTypes::Byte2 xPosAccum, yPosAccum;
+  int16_t xPosAccum, yPosAccum;
   int firstSonarReadingToSend;
   bool logDataSent;
   bool robotMoved;
@@ -707,7 +707,7 @@ public:
     bool sendSIMSTAT(ArDeviceConnection *con);
     bool SRISimCompat;
     bool SRISimLaserCompat;
-    bool sendMapChanged(std::string mapname, bool user = false, ArTypes::Byte status=1);
+    bool sendMapChanged(std::string mapname, bool user = false, int8_t status=1);
     void newMapLoaded(MapLoadedInfo info);
     ArFunctor1C<EmulatePioneer, MapLoadedInfo> newMapLoadedCB;
     ArFunctor1C<EmulatePioneer, ArRobotPacket*> handlePacketCB;
@@ -720,16 +720,16 @@ public:
     bool insideBadGPSSector(const ArPose& p);
 
     
-    void changeDigout(ArTypes::UByte mask, ArTypes::UByte states)
+    void changeDigout(uint8_t mask, uint8_t states)
     {
-      const ArTypes::UByte curr = robotInterface->getDigoutState();
+      const uint8_t curr = robotInterface->getDigoutState();
       robotInterface->setDigoutState( (unsigned char) ( (curr & ~mask) | (~curr & mask & states) ) );
       inform("Pioneer digital output changed to %s", AMRISim::byte_as_bitstring(robotInterface->getDigoutState()).c_str());
     }
 
-    void changeDigin(ArTypes::UByte mask, ArTypes::UByte states)
+    void changeDigin(uint8_t mask, uint8_t states)
     {
-      const ArTypes::UByte curr = robotInterface->getDiginState();
+      const uint8_t curr = robotInterface->getDiginState();
       robotInterface->setDiginState( (unsigned char) ( (curr & ~mask) | (~curr & mask & states) ) );
       inform("Pioneer digital input changed to %s", AMRISim::byte_as_bitstring(robotInterface->getDiginState()).c_str());
     }
