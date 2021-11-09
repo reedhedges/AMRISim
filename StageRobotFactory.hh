@@ -29,7 +29,8 @@
 
 #include "AMRISim.hh"
 #include "RobotFactory.hh"
-#include "ariaUtil.h"
+#include "Aria/ariaUtil.h"
+
 #include "stage.h"
 
 class StageRobotFactory : public virtual RobotFactory {

@@ -26,8 +26,8 @@
 #ifndef AMRISIM_SOCKETS_HH
 #define AMRISIM_SOCKETS_HH
 
-#include <ArSocket.h>
-#include <ArFunctor.h>
+#include <Aria/ArSocket.h>
+#include <Aria/ArFunctor.h>
 #include <map>
 #include <string>
 

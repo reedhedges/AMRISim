@@ -17,8 +17,10 @@
 #   LFLAGS       Linker flags (e.g. library directories). This Makefile will also append various options (see below)
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
-#   ARIA         Location of ARIA library, default is ../AriaCoda TODO change to installation dir
-#   ROS1RELEASE   Name of ROS1 release to use if ROS1 enabled. Default is melodic. 
+#   ARIA         Build against ARIA or AriaCoda source repository or isolated
+#                 installation at this location.  (Headers in $(ARIA)/include, libraries in
+#                 $(ARIA)/lib, etc.) 
+#   ROS1RELEASE   Name of ROS1 release to use if ROS1 enabled. Default is noetic. 
 #
 # Some variables that set build options:
 #   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
@@ -65,13 +67,15 @@ default: all
 host = $(shell uname | cut -d _ -f 1)
 
 DATESTAMP=$(shell date +'%Y%m%d')
+GITCOMMIT_ABBREV=$(shell git log --pretty=reference -n 1  | cut -f 1 -d ' ')
+GITCOMMIT_LONG=$(shell git log --pretty=oneline -n 1 | cut -f 1 -d ' ')
 
 ifndef VERSION
 ifeq (dist/version.num,$(wildcard dist/version.num))
 VERSION = $(shell cat dist/version.num)
 VERSION_NUM_FILE=dist/version.num
 else
-VERSION = dev$(DATESTAMP)
+VERSION = dev-$(GITCOMMIT_ABBREV)
 VERSION_NUM_FILE=
 endif
 endif
@@ -83,7 +87,7 @@ DEBIAN_PKG_REV_APPEND =
 RPM_PKG_REV = 0
 
 ifndef ROS1RELEASE
-ROS1RELEASE = melodic
+ROS1RELEASE = noetic
 endif
 
 ifeq ($(host),Linux)
@@ -196,8 +200,16 @@ ifndef TAR_DIRECTORY
 TAR_DIRECTORY = AMRISim-$(VERSION)
 endif
 
-ifndef ARIA
-ARIA = ../AriaCoda
+#ifndef ARIA
+#ARIA = ../AriaCoda
+#endif
+
+ifdef ARIA
+ARIA_LFLAG=-L$(ARIA)/lib
+ARIA_IFLAG=-I$(ARIA)
+else
+ARIA_LFLAG=
+ARIA_IFLAG=
 endif
 
 #### Different options for Windows or Linux:
@@ -232,7 +244,7 @@ ifeq ($(host),MINGW)
 $(LIBNETPBM):
 	$(MAKE) -C libnetpbm
 
-  ARIA_LINK=-L$(ARIA)/lib -Wl,-Bstatic -lAria -Wl,-Bdynamic -lm
+  ARIA_LINK=$(ARIA_LFLAG) -Wl,-Bstatic -lAria -Wl,-Bdynamic -lm
   STAGE_AUTOCONF_ARGS = -I gtk-win/share/aclocal
 
   PKG_CONFIG_PATH = $(PKG_CONFIG_PATH):stage/gtk-win/lib/pkgconfig
@@ -262,7 +274,12 @@ else #else assume Linux or Unix-like (e.g MacOSX):
   CFLAGS += -fPIC
   SYSTEM_LINK = -ldl -lm
   LIBNETPBM = -lnetpbm
+ifdef ARIA
   ARIA_LINK = $(ARIA)/lib/libAria.a
+else
+  ARIA_LINK = -Wl,-Bstatic -lAria -Wl,-Bdynamic -lm
+endif
+
   platformsuffix = _LIN
 
   ifeq ($(host),Darwin)
@@ -307,8 +324,20 @@ endif
 
 endif #host is MINGW32 or not
 
-LIBARIA = $(ARIA)/lib/libAria.a
-ARIA_CFLAGS = -I$(ARIA)/include  -I$(ARIA)/include/Aria
+ifdef ARIA
+# libAria.a file used as make rule dependency. use ARIA_LINK variable for link
+# option in link commands instead..
+LIBARIA=$(ARIA)/lib/libAria.a
+else
+LIBARIA=
+endif
+
+ifdef ARIA
+ARIA_CFLAGS=-I$(ARIA)/include  -I$(ARIA)/include/Aria
+else
+ARIA_CFLAGS=
+endif
+
 
 
 SOURCES = main.cc \

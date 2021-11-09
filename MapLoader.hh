@@ -30,8 +30,9 @@
 #include <string>
 #include <vector>
 #include "stage.h"
-#include "ariaUtil.h"
-#include "ArGPSCoords.h"
+
+#include "Aria/ariaUtil.h"
+#include "Aria/ArGPSCoords.h"
 
 
 class ArMap;

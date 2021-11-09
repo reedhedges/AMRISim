@@ -46,7 +46,7 @@ support, see instructions below.
 
 ### Linux
 
-To build AMRISim on Linux, you will need ROS1 melodic, 
+To build AMRISim on Linux, you will need ROS1 noetic, 
 Aria or AriaCoda, GTK 2.x, including 
 development packages, and the full GNU development tools: 
 G++, make, libtool, automake, and autoconf.  
@@ -65,12 +65,12 @@ On Debian and Ubuntu Linux, you can use apt or apt-get to install the required
 packages as follows:
     apt install libgtk2.0-dev automake autoconf libtool make g++
 
-Follow the instructions from ROS1 to install ROS1 melodic.  ROS1 melodic
-is expected to be installed in /opt/ros/melodic.
+Follow the instructions from ROS1 to install ROS1 noetic.  ROS1 noetic
+is expected to be installed in /opt/ros/noetic.
 
 The ROS1 environment must be setup before building:
   
-    . /opt/ros/melodic/setup.bash
+    . /opt/ros/noetic/setup.bash
 
 Follow the instructions below to build AMRISim.
 
@@ -225,7 +225,7 @@ AMRISim uses `pkg-config` to determine appropriate build flags for ROS1.
 To allow `pkg-config` to determine these, the ROS1 build/run environment
 must be imported  before building AMRISim:
 
-    . /opt/ros/melodic/setup.bash
+    . /opt/ros/noetic/setup.bash
 
 When building AMRISim, you can set environment variables that affect
 compilation options:
@@ -265,7 +265,7 @@ compilation options:
   
     AUTOMAKE                automake command
   
-    ROS1RELEASE             ROS1 release distribution name (default is melodic)
+    ROS1RELEASE             ROS1 release distribution name (default is noetic)
   
     AMRISIM_INCLUDE_PIONEER Include (yes) or omit (no) Pioneer support (see details below)
   

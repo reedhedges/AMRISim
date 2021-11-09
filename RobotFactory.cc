@@ -33,7 +33,7 @@
 #include "AMRISim.hh"
 #include "Socket.hh"
 
-#include "ArASyncTask.h"
+#include "Aria/ArASyncTask.h"
 
 #include "ListeningSocket.hh"
 

@@ -51,10 +51,10 @@
 #include <signal.h>
 
 
-#include "ariaUtil.h"
-#include "ArRobotParams.h"
-#include "ArMap.h"
-#include "ArSocket.h"
+#include "Aria/ariaUtil.h"
+#include "Aria/ArRobotParams.h"
+#include "Aria/ArMap.h"
+#include "Aria/ArSocket.h"
 
 #include "AMRISim.hh"
 #include "Config.hh"

@@ -41,8 +41,8 @@
 #include "stage.h"
 #include "MapLoader.hh"
 #include "RobotInterface.hh"
-#include "ArMap.h"
-#include "ariaUtil.h"
+#include "Aria/ArMap.h"
+#include "Aria/ariaUtil.h"
 
 
 const double MapLoader::ReflectorThickness = 0.0200; // meters (=2cm).

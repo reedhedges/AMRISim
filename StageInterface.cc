@@ -35,7 +35,7 @@
 #include "StageInterface.hh"
 #include "EmulatePioneer.hh"
 
-#include "ariaUtil.h"
+#include "Aria/ariaUtil.h"
 #include <map>
 #include <deque>
 #include <vector>

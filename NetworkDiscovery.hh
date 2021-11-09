@@ -27,9 +27,9 @@
  */
 
 
-#include "ariaUtil.h"
-#include "ArSocket.h"
-#include "ArASyncTask.h"
+#include "Aria/ariaUtil.h"
+#include "Aria/ArSocket.h"
+#include "Aria/ArASyncTask.h"
 
 /**  This object listens for UDP messages on port 30718, and responds
    with some identifiying information to certain requests.  This allows

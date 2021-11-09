@@ -27,9 +27,9 @@
 #ifndef NLNETPACKETRECEIVERTCP_H
 #define NLNETPACKETRECEIVERTCP_H
 
-//#include "Aria.h"
-#include "ArRobotPacket.h"
-#include "ArSocket.h"
+//#include "Aria/Aria.h"
+#include "Aria/ArRobotPacket.h"
+#include "Aria/ArSocket.h"
 
 /**
    This class receives packets from a TCP socket, you need to have an

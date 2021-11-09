@@ -26,7 +26,7 @@
 #ifndef _AMRISIM_HH_
 #define _AMRISIM_HH_
 
-#include "ariaUtil.h"
+#include "Aria/ariaUtil.h"
 #include <set>
 #include <iostream>
 #include <assert.h>

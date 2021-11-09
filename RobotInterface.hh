@@ -39,9 +39,9 @@
 #include <functional>
 #include <assert.h>
 
-#include "ArFunctor.h"
+#include "Aria/ArFunctor.h"
 
-#include "ArRobotPacket.h"
+#include "Aria/ArRobotPacket.h"
 
 
 // MS Visual C++ does not have vsnprintf, but it does have _vsnprintf. Gee.

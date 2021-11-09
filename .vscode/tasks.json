@@ -10,7 +10,7 @@
       "command": "make",
       "type": "shell",
       "args": [
-        "-j4"
+        "-j4", "ARIA=../AriaCoda"
       ],
       "problemMatcher": [
         "$gcc"
@@ -24,7 +24,7 @@
       "label": "make AMRISIM_INCLUDE_ROS1=no",
       "command": "make",
       "type": "shell",
-      "args": [ "-j4", "AMRISIM_INCLUDE_ROS1=no" ],
+      "args": [ "-j4", "AMRISIM_INCLUDE_ROS1=no", "ARIA=../AriaCoda" ],
       "problemMatcher": [ "$gcc" ],
       "presentation": { "reveal": "always" },
       "group": "build"

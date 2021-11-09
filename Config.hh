@@ -26,7 +26,7 @@
 #ifndef AMRISIM_CONFIG_HH
 #define AMRISIM_CONFIG_HH
 
-#include "ArConfig.h"
+#include "Aria/ArConfig.h"
 
 class AMRISimConfig : public virtual ArConfig
 {

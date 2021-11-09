@@ -27,8 +27,8 @@
 #ifndef LISTENING_SOCKET_HH_
 #define LISTENING_SOCKET_HH_
 
-#include "ArASyncTask.h"
-#include "ArSocket.h"
+#include "Aria/ArASyncTask.h"
+#include "Aria/ArSocket.h"
 
 class RobotFactory;  // Forward declare the class, so that it can be linked
 

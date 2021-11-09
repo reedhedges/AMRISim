@@ -37,13 +37,15 @@
 #include <set>
 #include <list>
 
-#include "ariaUtil.h"
-#include "ArSocket.h"
-#include "ArFunctor.h"
-#include "ArRobotPacket.h"
-#include "ArTcpConnection.h"
+#include "Aria/ariaUtil.h"
+#include "Aria/ArSocket.h"
+#include "Aria/ArFunctor.h"
+#include "Aria/ArRobotPacket.h"
+#include "Aria/ArTcpConnection.h"
+#include "Aria/ArRobotPacketSender.h"
+
 #include "ClientPacketReceiver.h"
-#include "ArRobotPacketSender.h"
+
 
 class ArDeviceConnection;
 

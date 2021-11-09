@@ -13,7 +13,7 @@ for debugging and experimentation.
 Current software interfaces available are Pioneer protocol
 (for [ARIA](http://robots.mobilerobots.com/wiki/ARIA) or
 [AriaCoda](http://github.com/reedhedges/AriaCoda)  and [ROS 1](http://ros.org) (under development, 
-not included on Windows.  ROS1 2 is not yet supported).
+not included on Windows.  ROS 2 is not yet supported).
 
 AMRISim can be built on Linux, Windows using MinGW (untested currently) and Mac OSX.
 
@@ -66,19 +66,19 @@ environment.
 AMRISim then creates a Pioneer control interface and a ROS1
 interface for each simulated robot (unless disabled).
 
-*Note*: it is possible for multiple ROS1 clients to connect
+*Note*: it is possible for multiple ROS clients to connect
 to the ROS1 interface, and for one client program to connect
 to the Pioneer interface (using the ARIA library).  However,
-it is not generally possible for any ROS1 clients to control
+it is not generally possible for any ROS clients to control
 a robot through the ROS1 interface while a Pioneer client
 is connected as well, since conflicting motion commands
-will be received through both interfaces.  Multiple ROS1 clients
+will be received through both interfaces.  Multiple ROS clients
 sending continuous or frequent motion commands will also
 conflict.  It is recommended that you use either the
 Pioneer interface or the ROS1 interface at any one time.
-It is also recommended that you design your ROS1 application
-such that only one ROS1 client is sending motion commands
-(`cmd_vel`) or they are carefully coordinated.   (ROS1 clients
+It is also recommended that you design your ROS application
+such that only one ROS client is sending motion commands
+(`cmd_vel`) or they are carefully coordinated.   (ROS clients
 can generally receive published data while a Pioneer client
 is connected, however, for logging, data collection, visualization,
 offline work, etc.)
@@ -101,8 +101,8 @@ discover available AMRISim hosts or WiBox devices via a short network
 broadcast.) For details on this protocol see below.
 
 The ROS1 interfaces are in-process nodes created for each simulated
-robot.  If no ROS1 master is detected, an option is
-presented to start roscore. The nodes currently have
+robot.  If no ROS master (`roscore`) is detected, an option is
+presented to start `roscore` in a new terminal window. The nodes currently have
 arbitrary names beginning with the prefix "AMRISim-"
 (but better naming may be added in the future, similar to how
 information about robots is logged and reported via Pioneer connection.)
@@ -188,7 +188,7 @@ Detailed build instructions for each platform are available in
 
 ### ROS1
 
-ROS1 "melodic" is expected to be installed in `/opt/ros/melodic`, or, ROS1 must be
+ROS1 "noetic" is expected to be installed in `/opt/ros/noetic`, or, ROS1 must be
 installed on the system from Ubuntu repositories using `apt`.
 
 If you will be doing general ROS1 development on the same system, it is
@@ -246,7 +246,7 @@ appreciated, contact me or post a feature request on github to discuss.
 Before running AMRISim, if built with ROS1 support, you must
 set up your ROS1 runtime environment first, e.g.
 
-    . /opt/ros/melodic/setup.bash
+    . /opt/ros/noetic/setup.bash
 
 Run AMRISim from a command line prompt like this:
 
@@ -398,7 +398,7 @@ data will not be received unless the ArRobot connection is active and running
 #### Additional notes:
 
 * See below for details on supported commands and specific known problems
-with the ARCOS/AROS1/P2OS command emulation.
+with the ARCOS/AROS/P2OS command emulation.
 * Sonar reflection is not modeled
 * Several devices are not available yet, including grippers, arms,
 general pan-tilt units, IR sensors, bumpers, analog or digital
@@ -415,8 +415,8 @@ Clients also may not be able to process packets fast
 enough if the simulation runs much faster than real time, resulting in
 buffering of data and possibly loss of data.
 
-Future plans for include better ROS1 support, better infrastructure
-for additional client interface types, more map file format tsupport,
+Future plans for include better ROS support, better infrastructure
+for additional client interface types, more map file format support,
 simulating additional
 devices, and various user interface features for creating new simulated
 robots, loading maps, and tweaking their properties.  See TODO.txt.
@@ -481,7 +481,7 @@ A mobile robot that can move within the world. The robot may be
 differential-drive (two degrees of freedom, capable of translational and rotational motion), or
 omnidirectional (three degrees of freedom, capable of translational, lateral or
 rotational motion).   Motion can be commanded via desired velocities in each
-axis (velocity control, via ROS1 `cmd_vel` topic and `VEL`, `TRANSVEL`, and `RVEL` Pioneer commands),
+axis (velocity control, via ROS `cmd_vel` topic and `VEL`, `TRANSVEL`, and `RVEL` Pioneer commands),
 or discrete changes in position may be commanded
 relative-position control using Pioneer `MOVE` and `DHEAD` commands, or absolute heading
 from `HEAD` command).  In addition, clients can request artificially
@@ -510,11 +510,11 @@ used.  If the robot has already moved the commanded move distance however, then 
 velocity is set to 0.   The desired velocity will later be limited according
 to maximum speed configured.
 
-If a translation velocity command (pioneer `VEL` or x component of ROS1 `cmd_vel`) is active instead, then this
+If a translation velocity command (pioneer `VEL` or x component of ROS `cmd_vel`) is active instead, then this
 value is used as the desired velocity.
 
 If the robot is omnidirectional (not differential drive), then the same is done
-for Y (`LATVEL` Pioneer command, y component of ROS1 `cmd_vel`. )
+for Y (`LATVEL` Pioneer command, y component of ROS `cmd_vel`. )
 
 If an absolute heading command (eg Pioneer `HEAD`) is active, then a rotational
 velocity proportional to the difference from the current heading is used.
@@ -526,7 +526,7 @@ Relative heading commands (eg Pioneer `DHEAD`)
 are converted to absolute heading commands when received
 based on the robot's current heading at the time the command is received.
 
-If a rotational velocity command (Pioneer `RVEL` or in ROS1 `cmd_vel`) is active instead, then this value
+If a rotational velocity command (Pioneer `RVEL` or in ROS `cmd_vel`) is active instead, then this value
 is used as the desired rotational velocity.
 
 Next, all desired speeds as specified or calculated above are limited
@@ -1018,7 +1018,7 @@ The AMRISim process has the following exit codes:
       248 (-8)    Error opening a TCP socket for a robot or factory
       247 (-9)    Error changing directory if given --cwd option
       236 (-20)   AMRISim crashed, but crash handler caught signal and logged information to log file.
-      235 (-21)   Error finding ROS1 Master (roscore)
+      235 (-21)   Error finding ROS Master (roscore)
       234 (-22)   User chose to abort after AMRISim warned about missing model definition file.
       ---------   --------------------------------------------------
 
@@ -1045,7 +1045,7 @@ The following services are available:
 * `enable_motors`
 * `disable_motors`
 
-The following dynamic_reconfigure settings are available:
+The following dynamic\_reconfigure settings are available:
 
 * none
 

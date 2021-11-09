@@ -48,12 +48,12 @@
 
 
 /* Some useful classes from Aria */
-#include "ArCommands.h"
-#include "ArSocket.h"
-#include "ArFunctor.h"
-#include "ArTcpConnection.h"
-#include "ArRobotPacket.h"
-#include "ArRobotPacketSender.h"
+#include "Aria/ArCommands.h"
+#include "Aria/ArSocket.h"
+#include "Aria/ArFunctor.h"
+#include "Aria/ArTcpConnection.h"
+#include "Aria/ArRobotPacket.h"
+#include "Aria/ArRobotPacketSender.h"
 #include "ClientPacketReceiver.h"
 
 #include "Socket.hh"

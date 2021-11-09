@@ -32,8 +32,8 @@
 #include <queue>
 //#include <deque>
 #include "RobotInterface.hh"
-#include "ArSocket.h"
-#include <ArMutex.h>
+#include "Aria/ArSocket.h"
+#include <Aria/ArMutex.h>
 
 class ListeningSocket; // Forward declare the class, so that it can be linked
 
