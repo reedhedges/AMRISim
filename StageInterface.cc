@@ -42,9 +42,7 @@
 
 #include <math.h>
 
-
 #include "stage.h"
-
 
 StageInterface::StageInterface(stg_world_t* _world, const std::string& _robotModel, const std::string& _robotName) :
   RobotInterface(_robotName), params(NULL),
@@ -975,24 +973,21 @@ void StageInterface::getSimulatorPose(long &x, long &y, long &z, int &theta)
 RobotInterface::Pose StageInterface::getSimulatorPose()
 {
   stg_pose_t *pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
-  return Pose{ (pose->x * 1000.0), (pose->y * 1000.0), ArMath::roundInt(RTOD(pose->a)) };
+  return Pose{(long)(pose->x * 1000.0), (long)(pose->y * 1000.0), ArMath::roundInt(RTOD(pose->a))};
 }
 
 long StageInterface::getSimulatorPoseX() {
   stg_pose_t* pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
-  assert(pose);
   return (long)(pose->x * 1000.0);
 }
 
 long StageInterface::getSimulatorPoseY() {
   stg_pose_t* pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
-  assert(pose);
   return (long)(pose->y * 1000.0);
 }
 
 int StageInterface::getSimulatorPoseTheta() {
   stg_pose_t* pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
-  assert(pose);
   return ArMath::roundInt(RTOD(pose->a));
 }
 

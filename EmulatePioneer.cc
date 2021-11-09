@@ -26,8 +26,8 @@
 #include "AMRISim.hh"
 #include "EmulatePioneer.hh"
 #include "MapLoader.hh"
-#include "ArMap.h"
-#include "ArGPSCoords.h"
+#include "Aria/ArMap.h"
+#include "Aria/ArGPSCoords.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -173,7 +173,7 @@ bool EmulatePioneer::mapMasterEnabled = false;
 // Constructor:
 // Retrieve options from the configuration file, and get ready to open
 // TCP socket to listen on. Call openSocket() to start listening for a client; when client is accepted, the listening socket is temporarily closed until client closes connection, then it is reopened.
-EmulatePioneer::EmulatePioneer(RobotInterface* rif, const std::string& robotName, 
+EmulatePioneer::EmulatePioneer(std::shared_ptr<RobotInterface> rif, const std::string& robotName, 
     int port,  bool deleteOnDisconnect, bool trySubsequentPorts, const AMRISim::Options *userOptions) :
       LogInterface(robotName),
       status(0),
@@ -208,7 +208,7 @@ EmulatePioneer::EmulatePioneer(RobotInterface* rif, const std::string& robotName
 
 // Constructor: just set our client socket, assumed to already be connected
 // to a client
-EmulatePioneer::EmulatePioneer(RobotInterface *rif, const std::string& robotName, ArSocket *clientSocket, 
+EmulatePioneer::EmulatePioneer(std::shared_ptr<RobotInterface> rif, const std::string& robotName, ArSocket *clientSocket, 
     bool deleteOnDisconnectOnDisconnect, bool deleteClientSocketOnDisconnect, const AMRISim::Options *userOptions) :
       LogInterface(robotName),
       status(0),
@@ -252,7 +252,7 @@ EmulatePioneer::EmulatePioneer(RobotInterface *rif, const std::string& robotName
 
   // Register the newMapLoadedCB with mapLoader
   //ArLog::log(ArLog::Normal, "EmulatePioneer::EmulatePioneer(): adding callback: %p", (void*)&newMapLoadedCB);
-  mapLoader.addCallback(&newMapLoadedCB);
+  AMRISim::mapLoader.addCallback(&newMapLoadedCB);
 }
 
 
@@ -297,12 +297,13 @@ EmulatePioneer::~EmulatePioneer()
   //   inside mapLoader
   //ArLog::log(ArLog::Normal, "EmulatePioneer::~EmulatePioneer(): removing callback: %p", (void*)&newMapLoadedCB);
   //mapLoader.nullifyCallback(&newMapLoadedCB);
-  mapLoader.removeCallback(&newMapLoadedCB);
+  AMRISim::mapLoader.removeCallback(&newMapLoadedCB);
 
    //std::string name =  robotInterface->getRobotName();
    //printf("*** ~EmulatePioneer %s...\n", name.c_str()); fflush(stdout);
 
   sessionActive = false;
+  /*
   if(myDeleteOnDisconnect && robotInterface)
   {
     //print_debug("Deleting robot interface %p...", robotInterface);
@@ -310,6 +311,7 @@ EmulatePioneer::~EmulatePioneer()
     //robotInterface = NULL;
     //print_debug("Deleted robot interface.");
   }
+  */
 
   if(myClientSocket)
     AMRISim::Sockets::removeSocketCallback(myClientSocket);
@@ -634,7 +636,7 @@ bool EmulatePioneer::beginSession()
 {
   //puts("beginSession()");fflush(stdout);
   ++lifetimeConnectionCount;
-  session->init(robotInterface, &params, logSIPsSent);
+  session->init(robotInterface.get(), &params, logSIPsSent);
   // ARIA assumes sonar are on at start:
   robotInterface->openSonar();
 //  robotInterface->setBatteryVoltage(DEFAULT_BATTERY_CHARGE); // todo make this default value configurable in world file.
@@ -1540,7 +1542,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
             if(myVerbose) inform("Client requested new map file: \"%s\".", mapfile);
         }
         //ArLog::log(ArLog::Normal, "EmulatePioneer::handleCommand(): sending robotInterface (%u) and &newMapLoadedCB (%u) to mapLoader.newMap()", (unsigned int)robotInterface, (unsigned int)&newMapLoadedCB);
-        mapLoader.newMap(mapfile, robotInterface, &newMapLoadedCB);
+        AMRISim::mapLoader.newMap(mapfile, &newMapLoadedCB);
         break;
       }
       else if(intVal == SIM_CTRL_CLEAR_MASTER_MAP)
@@ -1551,7 +1553,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
       }
       else if(intVal == SIM_CTRL_ROTATE_LOGFILES)
       {
-        if(!options.log_file)
+        if(!AMRISim::options.log_file)
         {
           warn("Cannot rotate log files, because we're not logging to a file.");
           break;
@@ -1560,10 +1562,10 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
         {
           if(!mobilesim_reopen_log_file())
           {
-            warn("Error opening new log file \"%s\" after saving old files.", options.log_file);
+            warn("Error opening new log file \"%s\" after saving old files.", AMRISim::options.log_file);
             break;
           }
-          robotInterface->inform("Saved copies of old log files and started a new log in \"%s\".", options.log_file);
+          robotInterface->inform("Saved copies of old log files and started a new log in \"%s\".", AMRISim::options.log_file);
         }
         else
         {
@@ -1598,7 +1600,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
             session->inWatchdogState?"yes":"no", session->eStopInProgress?"yes":"no");
         if(mapMasterEnabled)
           log("Map master mode is enabled in AMRISim.");
-        log("Currently have %d RobotInterface objects and %d EmulatePioneer objects.", robotInterfaces.size(), ourActiveInstances.size());
+        log("Currently have %d RobotInterface objects and %d EmulatePioneer objects.", AMRISim::robotInterfaces.size(), ourActiveInstances.size());
         std::string commandsIgnoredStr;
         char s[4];
         for(std::set<int>::const_iterator ig = myCommandsToIgnore.begin(); ig != myCommandsToIgnore.end(); ++ig)
@@ -1628,9 +1630,9 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
 
          // feature flags:
          uint32_t flags = 0;
-         if(!options.NonInteractive)
+         if(!AMRISim::options.NonInteractive)
           flags |= ArUtil::BIT0; // have GUI
-         if(options.RestartedAfterCrash)
+         if(AMRISim::options.RestartedAfterCrash)
           flags |= ArUtil::BIT1;
          replyPkt.uByte4ToBuf(flags);
 
@@ -1764,7 +1766,7 @@ bool EmulatePioneer::handleCommand(ArRobotPacket *pkt)
     case 253:
     case 255:
         // intentionally raise a SIGABRT signal to trigger crash handler
-        if(options.NonInteractive)
+        if(AMRISim::options.NonInteractive)
             log_error("Received maintainence command 255, aborting program. ABORT signal may trigger crash/debug handler if supported in this platform and installation (in noninteractive mode).");
         else
             log_error("Received maintainence command 255, triggering ABORT signal.");
@@ -2249,8 +2251,13 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
   replyPkt.strToBuf("");
 
   // status flags
+<<<<<<< HEAD
   uint32_t flags = 0;
   if(mapLoader.haveMapOriginLLA)
+=======
+  ArTypes::UByte4 flags = 0;
+  if(AMRISim::mapLoader.haveMapOriginLLA)
+>>>>>>> 20706a1 (Move global variables into AMRISim namespace. Start changing RobotInterface pointers to std::shared_ptr.)
     flags |= ArUtil::BIT1;
   if(robotInterface->haveSimulatorOdomError())
     flags |= ArUtil::BIT2;
@@ -2271,9 +2278,9 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
   replyPkt.byte4ToBuf(th);
 
   // true pose, converted into latitude and longitude
-  if(mapLoader.haveMapOriginLLA)
+  if(AMRISim::mapLoader.haveMapOriginLLA)
   {
-    ArLLACoords mapOrigin = mapLoader.getMapOriginLLA();
+    ArLLACoords mapOrigin = AMRISim::mapLoader.getMapOriginLLA();
     //double mapOriginAlt = map->getOriginAltitude();
     ArMapGPSCoords mapCoords(mapOrigin); //ArLLACoords(mapOrigin.getX(), mapOrigin.getY(), mapOriginAlt));
     const float gpspx = (float) params.GPSPosX;
@@ -2341,7 +2348,7 @@ bool EmulatePioneer::sendMapChanged(std::string mapname, bool user, int8_t statu
   pkt.empty();
   pkt.setID(102);
   pkt.uByteToBuf(user);
-  pkt.byteToBuf(status);
+  pkt.byteToBuf(mapstatus);
   pkt.strToBuf(mapname.c_str());
   pkt.finalizePacket();
   return session->connection.write(pkt.getBuf(), pkt.getLength());
@@ -2359,16 +2366,17 @@ void EmulatePioneer::newMapLoaded(MapLoadedInfo info)
   // If we have map data, and the map has actually changed (status != 0), 
   // then get info about new map objects.
   if(info.status != 0 && info.map)
-    loadMapObjects(info.map);
+    loadMapObjects(*(info.map));
 }
 
-void EmulatePioneer::loadMapObjects(ArMap *map)
+
+void EmulatePioneer::loadMapObjects(const ArMap& map)
 {
   // Copy locations of BadGPSSector objects:
   badGPSSectorVertices.clear(); 
-  if(!map) return;
-  std::list<ArMapObject*> badGPSSectors = map->findMapObjectsOfType("BadGPSSector", true);
-  std::list<ArMapObject*> simBadGPSSectors = map->findMapObjectsOfType("SimBadGPSSector", true);
+  //if(!map) return;
+  std::list<ArMapObject*> badGPSSectors = map.findMapObjectsOfType("BadGPSSector", true);
+  std::list<ArMapObject*> simBadGPSSectors = map.findMapObjectsOfType("SimBadGPSSector", true);
   badGPSSectors.splice(badGPSSectors.end(), simBadGPSSectors);
   log("Found %d BadGPSSector and SimBadGPSSector objects while loading new map.", badGPSSectors.size());
   for(std::list<ArMapObject*>::const_iterator i = badGPSSectors.begin(); i != badGPSSectors.end(); ++i)

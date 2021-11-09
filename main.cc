@@ -23,7 +23,7 @@
  *
  */
 
-//#define _BSD_SOURCE 1	// to get getcwd() from LiOnux's <unistd.h> 
+//#define _BSD_SOURCE 1	// to get getcwd() from Linux's <unistd.h> 
 #define _DEFAULT_SOURCE // new version of _BSD_SOURCE define since GLibC 2.19
 
 #include <stage.h>
@@ -49,6 +49,7 @@
 #include <limits>
 #include <unistd.h>
 #include <signal.h>
+#include <memory>
 
 
 #include "Aria/ariaUtil.h"
@@ -176,18 +177,47 @@ typedef std::map<std::string, std::string> RobotModels;
 /* Type to store what factories to create.*/
 typedef  std::list<std::string> RobotFactoryRequests;
 
-/* Used to load maps */
-MapLoader mapLoader;
 
-ArMap *map = nullptr;
+/* Globals */
+namespace AMRISim {
 
-unsigned long AMRISim::log_stats_freq = 0;
+  /* Used to load maps */
+  MapLoader mapLoader;
+
+  /* Global map, either loaded with mapLoader or other means */
+  std::shared_ptr<ArMap> map;
+
+  unsigned long log_stats_freq = 0;
+
+
+  // Command line arguments
+  AMRISim::Options options;
+
+
+  /* Global storage of RobotInterface and RobotFactory objects*/
+
+  std::set< std::shared_ptr<RobotInterface> > robotInterfaces;
+  std::set<RobotFactory*> robotFactories;
+
+    
+  /* Remember some info about the map we loaded so that other objects can use it. */
+  static AMRISim::start_place_t startplace = AMRISim::start_home;
+  static double map_min_x = 0;
+  static double map_min_y = 0;
+  static double map_max_x = 0;
+  static double map_max_y = 0;
+  static double map_home_x = 0;
+  static double map_home_y = 0;
+  static double map_home_th = 0;
+
+}
+
 
 /* Create a temporary world file and load it. Return NULL on error */
 stg_world_t* create_stage_world(const char* mapfile, 
   /*std::map<std::string, std::string>& robotInstanceRequests, std::list<std::string>& robotFactoryRequests,*/ 
     const char* libdir, 
-    //mobilesim_start_place_t start, 
+    //AMRISim::start_place_t start, 
     //double start_override_x, double start_override_y, double start_override_th, 
     double world_res = 0.0,  
     void (*loop_callback)() = NULL);
@@ -439,15 +469,7 @@ const char* user_docs_dir()
 }
 
 
-/* Remember some info about the map we loaded so that other objects can use it. */
-static mobilesim_start_place_t mobilesim_startplace = mobilesim_start_home;
-static double map_min_x = 0;
-static double map_min_y = 0;
-static double map_max_x = 0;
-static double map_max_y = 0;
-static double map_home_x = 0;
-static double map_home_y = 0;
-static double map_home_th = 0;
+
 
 void load_map_done(MapLoadedInfo info)
 //StageMapLoader::Request *loadReq, double min_x, double min_y, double max_x, double max_y, double home_x, double home_y, double home_th)
@@ -470,14 +492,11 @@ int stage_load_file_cb(stg_world_t* /*world*/, char* filename, void* userdata)
  MapLoader *loader = (MapLoader*)userdata;
  //print_debug("AMRISim load file callback for filename %s!\n", filename);
  stg_print_msg("AMRISim load file callback for filename %s!\n", filename);
- loader->newMap(filename, NULL, &load_map_done_cb);
+ loader->newMap(filename,  &load_map_done_cb);
  return 0;
 }
 
 
-
-std::set<RobotInterface*> robotInterfaces;
-std::set<RobotFactory*> robotFactories;
 
 void log_file_full_cb(FILE* /*fp*/, size_t /*sz*/, size_t max)
 {
@@ -486,20 +505,18 @@ void log_file_full_cb(FILE* /*fp*/, size_t /*sz*/, size_t max)
 }
 
 
-// Command line arguments
-AMRISim::Options options;
 
 
 void do_gtk_iteration()
 {
-  if(!options.NonInteractive) 
+  if(!AMRISim::options.NonInteractive) 
     gtk_main_iteration_do(FALSE);
 }
 
 int main(int argc, char** argv) 
 {
 
-  AMRISim::Options& opt = options; // shortcut
+  AMRISim::Options& opt = AMRISim::options; // shortcut
 
   // save command-line arguments 
   opt.argc = argc;
@@ -560,13 +577,13 @@ int main(int argc, char** argv)
           model = arg.substr(0, sep);
           name = model;
 
-          int i = 2;
-          for (; robotInstanceRequests.find(name) != robotInstanceRequests.end() && i <= 999; ++i)
+          int reqCount = 2;
+          for (; robotInstanceRequests.find(name) != robotInstanceRequests.end() && reqCount <= 999; ++reqCount)
           {}
 
           char buf[4];
-          assert(i <= 999);
-          int r = snprintf(buf, 4, "%03d", i);
+          assert(reqCount <= 999);
+          int r = snprintf(buf, 4, "%03d", reqCount);
           assert(r >= 4);
           name = model + "_" + buf;
         } else {
@@ -734,11 +751,11 @@ int main(int argc, char** argv)
       {
         if(strcmp(argv[i], "outside") == 0)
         {
-          mobilesim_startplace = mobilesim_start_outside;
+          AMRISim::startplace = AMRISim::start_outside;
         }
         else if(strcmp(argv[i], "random") == 0)
         {
-          mobilesim_startplace = mobilesim_start_random;
+          AMRISim::startplace = AMRISim::start_random;
         }
         else
         {
@@ -747,7 +764,7 @@ int main(int argc, char** argv)
             fputs("Error: --start must be used either with the form <x>,<y>,<th> (e.g. 200,4650,90) (mm and deg), or the keyword \"random\" or \"outside\".", stderr);
             exit(ERR_USAGE);
           }
-          mobilesim_startplace = mobilesim_start_fixedpos;
+          AMRISim::startplace = AMRISim::start_fixedpos;
         }
       }
       else
@@ -1180,7 +1197,7 @@ int main(int argc, char** argv)
   world = create_stage_world(opt.map.c_str(), 
     //robotInstanceRequests, robotFactoryRequests,
     libdir, 
-    //mobilesim_startplace, opt.start_pos_override_pose_x, opt.start_pos_override_pose_y, opt.start_pos_override_pose_th, 
+    //AMRISim::startplace, opt.start_pos_override_pose_x, opt.start_pos_override_pose_y, opt.start_pos_override_pose_th, 
     opt.world_res/1000.0, &do_gtk_iteration);
 
 
@@ -1188,15 +1205,15 @@ int main(int argc, char** argv)
     exit(ERR_STAGELOAD);
   }
 
-  mapLoader.setWorld(world);
-  mapLoader.setMapLoadChunkSizes(opt.mapLoadLinesPerChunk, opt.mapLoadPointsPerChunk);
+  AMRISim::mapLoader.setWorld(world);
+  AMRISim::mapLoader.setMapLoadChunkSizes(opt.mapLoadLinesPerChunk, opt.mapLoadPointsPerChunk);
 
 
   // load map 
   if(opt.map != "")
   {
-    mapLoader.newMap(opt.map, NULL, NULL);
-    mapLoader.processUntilDone();
+    AMRISim::mapLoader.newMap(opt.map);
+    AMRISim::mapLoader.processUntilDone();
   }
   // save list of map files for use in startup GUI.
   //config.updateRecentMaps(map);
@@ -1204,7 +1221,7 @@ int main(int argc, char** argv)
   
 
   // add callback for loading a new map file from GUI menus
-  stg_world_add_file_loader(world, &stage_load_file_cb, "*.map", "MobileRobots/ActivMedia Map Files", &mapLoader);
+  stg_world_add_file_loader(world, &stage_load_file_cb, "*.map", "MobileRobots/ActivMedia Map Files", &AMRISim::mapLoader);
 
   stg_world_set_quiet(world, !opt.verbose);
 
@@ -1220,9 +1237,9 @@ int main(int argc, char** argv)
   startPose.x = 0.0; //m
   startPose.y = 0.0; //m
   startPose.a = 0.0; //deg
-  switch(mobilesim_startplace)
+  switch(AMRISim::startplace)
   {
-    case mobilesim_start_fixedpos:
+    case AMRISim::start_fixedpos:
     {
         stg_print_msg("AMRISim: Starting robots at position given by --start option: %f, %f, %f.", (double)opt.start_pos_override_pose_x/1000.0, (double)opt.start_pos_override_pose_y/1000.0, (double) opt.start_pos_override_pose_th);
       map_home_x = (double) opt.start_pos_override_pose_x;
@@ -1231,7 +1248,7 @@ int main(int argc, char** argv)
     }
 
     break;
-    case mobilesim_start_outside:
+    case AMRISim::start_outside:
     {
       map_home_x = map_min_x - 2000.0;
       map_home_y = map_max_y;
@@ -1240,7 +1257,7 @@ int main(int argc, char** argv)
     }
     break;
 
-    case mobilesim_start_random:
+    case AMRISim::start_random:
     {
       /* Nothing, will be randomly generated below */
       stg_print_msg("AMRISim: Starting robots at random positions in map.");
@@ -1282,10 +1299,10 @@ int main(int argc, char** argv)
     const char *modelname = (*i).c_str();
     stg_print_msg("AMRISim: Creating new robot factory for \"%s\"...", modelname);
     RobotFactory *stagefac;
-    if(mobilesim_startplace == mobilesim_start_fixedpos) 
+    if(AMRISim::startplace == AMRISim::start_fixedpos) 
       stagefac = new StageRobotFactory(world, modelname, (double) opt.start_pos_override_pose_x, (double) opt.start_pos_override_pose_y, (double) opt.start_pos_override_pose_th, &opt);
     else
-      stagefac = new StageRobotFactory(world, modelname, &mobilesim_get_map_home, &mobilesim_get_map_bounds, (mobilesim_startplace==mobilesim_start_outside), &opt );
+      stagefac = new StageRobotFactory(world, modelname, &mobilesim_get_map_home, &mobilesim_get_map_bounds, (AMRISim::startplace==AMRISim::start_outside), &opt );
     //stagefac->setCommandsToIgnore(opt.ignore_commands);
     //stagefac->setVerbose(opt.verbose)
     //stagefac->setSRISimCompat(opt.srisim_compat, opt.srisim_laser_compat);
@@ -1316,7 +1333,7 @@ int main(int argc, char** argv)
     std::string modelname = (*i).second.c_str();
     std::string robotname = (*i).first.c_str();
     
-    if(mobilesim_startplace == mobilesim_start_random)
+    if(AMRISim::startplace == AMRISim::start_random)
     {
       startPose.x = STG_RANDOM_RANGE(map_min_x, map_max_x) / 1000.0;
       startPose.y = STG_RANDOM_RANGE(map_min_y, map_max_y) / 1000.0;
@@ -1367,13 +1384,13 @@ int main(int argc, char** argv)
       // try running gnome-terminal
       // TODO check evironment. if ROS1 environment already included, don't.
       // TODO option to choose ROS1 version, in command line, and config GUI when enabling ROS1
-      print_msg("Running gnome-terminal. Will import ROS1 melodic setup environment into shell, then will run roscore.");
+      print_msg("Running gnome-terminal. Will import ROS1 noetic setup environment into shell, then will run roscore.");
       // TODO first try withtout sourcing from opt, from system-default install from ubuntu 
       int x, y, width, height;
       stg_world_window_get_geometry(world, &x, &y, &width, &height);
-      std::string cmd = std::string("gnome-terminal --geometry=80x20+") + std::to_string(x+width+10) + "+" + std::to_string(y) + " -- sh -c \"echo Starting ROS1 melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"";
+      std::string cmd = std::string("gnome-terminal --geometry=80x20+") + std::to_string(x+width+10) + "+" + std::to_string(y) + " -- sh -c \"echo Starting ROS1 noetic environment and roscore...; if test -f /opt/ros/noetic/setup.sh; then .  /opt/ros/noetic/setup.sh; else echo Warning: /opt/ros/noetic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"";
 
-      int s = system(cmd.c_str()); //"gnome-terminal --geometry=80x20+500+500 -- sh -c \"echo Starting ROS1 melodic environment and roscore...; if test -f /opt/ros/melodic/setup.sh; then .  /opt/ros/melodic/setup.sh; else echo Warning: /opt/ros/melodic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
+      int s = system(cmd.c_str()); //"gnome-terminal --geometry=80x20+500+500 -- sh -c \"echo Starting ROS1 noetic environment and roscore...; if test -f /opt/ros/noetic/setup.sh; then .  /opt/ros/noetic/setup.sh; else echo Warning: /opt/ros/noetic/setup.sh not found but continuing... ; fi; roscore; read -p \\\"\\n\\nroscore exited. press any key or close this window to continue\\n\\n\\\" FOO\"");
       if(s != 0)
         stg_print_warning("Error running ROS1 Master (roscore) in gnome-terminal: system returned %d", s);
       AMRISim::sleep(5 * 1000);
@@ -1389,14 +1406,14 @@ int main(int argc, char** argv)
     const std::string& name = (*i).first;
     const std::string& model = (*i).second;
 
-    StageInterface* stageint = new StageInterface(world, model, name); 
-    robotInterfaces.insert(stageint);
+    std::shared_ptr<StageInterface> stageint = std::make_shared<StageInterface>(world, model, name); 
+    robotInterfaces.insert( std::dynamic_pointer_cast<RobotInterface>(stageint) );
 
 #ifdef AMRISIM_PIONEER
     stg_print_msg("AMRISim: Creating emulated Pioneer client connection for robot named \"%s\" (\"%s\") on TCP port %d.", (*i).first.c_str(), (*i).second.c_str(), opt.port);
     EmulatePioneer* emulator = new EmulatePioneer(stageint, model, opt.port++, false, true, &opt);
     if(map)
-	    emulator->loadMapObjects(map);
+	    emulator->loadMapObjects(*map);
     emulator->setSimulatorIdentification("AMRISim", AMRISIM_VERSION);
     if(opt.listen_address != "")
       emulator->setListenAddress(opt.listen_address);
@@ -1618,7 +1635,7 @@ int main(int argc, char** argv)
 
     /* Map loader */
     if( (stageUpdateDue.mSecTo() > mapProcessWindow && clientOutputDue.mSecTo() > mapProcessWindow) ||
-        (lastMapProcess.mSecSince() > mapProcessMaxFreq && !mapLoader.shouldWaitForOthers()))
+        (lastMapProcess.mSecSince() > mapProcessMaxFreq && !AMRISim::mapLoader.shouldWaitForOthers()))
     {
       long processTimeWindow;
       if (stageUpdateDue.mSecTo() > mapProcessWindow && clientOutputDue.mSecTo() > mapProcessWindow)
@@ -1627,7 +1644,7 @@ int main(int argc, char** argv)
         processTimeWindow = mapProcessWindow;
 
       lastMapProcess.setToNow();
-      mapLoader.process((unsigned int) processTimeWindow);
+      AMRISim::mapLoader.process((unsigned int) processTimeWindow);
     }
    
     /* Robot Factory */
@@ -1740,6 +1757,8 @@ int main(int argc, char** argv)
   /* Cleanup and return */
 
 
+/* No longer needed since we are using shared_ptr wrappers
+
 #ifdef DELETE_EMULATORS
   puts("Stage exited. deleting emulators...");
   EmulatePioneer::deleteAllInstances();
@@ -1753,6 +1772,7 @@ int main(int argc, char** argv)
     delete(*i);
   }
 #endif
+*/
 
   //stg_world_destroy( world );// crashes
   cleanup_temp_files();
@@ -1790,7 +1810,7 @@ void mobilesim_get_map_bounds(double *min_x, double *min_y, double *max_x, doubl
 
 void mobilesim_get_map_home(double *home_x, double *home_y, double *home_th)
 {
-  if(mobilesim_startplace == mobilesim_start_random)
+  if(AMRISim::startplace == AMRISim::start_random)
   {
 
     if(home_x) {
@@ -1844,7 +1864,7 @@ void mobilesim_set_map_home(double home_x, double home_y, double home_th)
 stg_world_t* create_stage_world(const char* mapfile, 
   /*std::map<std::string, std::string>& robotInstanceRequests, * std::list<std::string>& robotFactoryRequests, */
   const char* libdir, 
-  //mobilesim_start_place_t startplace, 
+  //AMRISim::start_place_t startplace, 
   //double start_override_x, double start_override_y, double start_override_th, 
   double world_res, 
   void (*loop_callback)())
@@ -1874,7 +1894,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   FILE* world_fp = ArUtil::fopen(worldfile, "w");
   if(!world_fp)
   {
-    if(options.NonInteractive)
+    if(AMRISim::options.NonInteractive)
     {
       stg_print_error("AMRISim: could not create temporary file \"%s\" (%s). Is the system temporary directory \"%s\" accessible?", worldfile, strerror(errno), tempdir);
       exit(ERR_TEMPFILE);
@@ -2003,12 +2023,12 @@ stg_world_t* create_stage_world(const char* mapfile,
   /* Load the ActivMedia map file to get the size, dock/home points, etc. */
   // TODO use MapLoader object... 
   // objects?
-  map = new ArMap();
+  map = std::make_shared<ArMap>();
   if(mapfile && strlen(mapfile) > 0)
   {
     if(!map->readFile(mapfile))
     {
-      if(options.NonInteractive) {
+      if(AMRISim::options.NonInteractive) {
         stg_print_error("AMRISim: Could not load map \"%s\".", mapfile);
         exit(ERR_MAPCONV);
       }
@@ -2042,7 +2062,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   double startPose.a = 0.0; //deg
   switch(startplace)
   {
-    case mobilesim_start_fixedpos:
+    case AMRISim::start_fixedpos:
       {
         stg_print_msg("AMRISim: Starting robots at position given by --start option: %f, %f, %f.", start_override_x/1000.0, start_override_y/1000.0, start_override_th);
       map_home_x = start_override_x;
@@ -2051,7 +2071,7 @@ stg_world_t* create_stage_world(const char* mapfile,
     }
     break;
 
-    case mobilesim_start_outside:
+    case AMRISim::start_outside:
     {
       map_home_x = map_min_x - 2000.0;
       map_home_y = map_max_y;
@@ -2060,7 +2080,7 @@ stg_world_t* create_stage_world(const char* mapfile,
     }
     break;
 
-    case mobilesim_start_random:
+    case AMRISim::start_random:
     {
       /* Nothing, will be randomly generated below */
       stg_print_msg("AMRISim: Starting robots at random positions in map.");
@@ -2114,7 +2134,7 @@ stg_world_t* create_stage_world(const char* mapfile,
     // TODO: remove the old entry in the robotInstanceRequests map and add this new one.
     // Can't do it while we're iterating it though...
     
-    if(startplace == mobilesim_start_random)
+    if(startplace == AMRISim::start_random)
     {
       startPose.x = STG_RANDOM_RANGE(map_min_x, map_max_x) / 1000.0;
       startPose.y = STG_RANDOM_RANGE(map_min_y, map_max_y) / 1000.0;
@@ -2144,10 +2164,10 @@ stg_world_t* create_stage_world(const char* mapfile,
   
   if(loop_callback) (*loop_callback)();
   
-  stg_world_t* world = stg_world_create_from_file(worldfile, options.echo_stage_worldfile, loop_callback); 
+  stg_world_t* world = stg_world_create_from_file(worldfile, AMRISim::options.echo_stage_worldfile, loop_callback); 
   if(!world)
   {
-    if(options.NonInteractive)
+    if(AMRISim::options.NonInteractive)
     {
       stg_print_error("AMRISim: Error creating and initializing the world environment. %s", stg_last_error_message);
       cleanup_temp_files();
@@ -2155,24 +2175,28 @@ stg_world_t* create_stage_world(const char* mapfile,
     }
     else
     {
-      const char *errormsg = "AMRISim: Error creating and initializing world environment";
-      const char *prefixtext = " (worldfile saved as";
-      const char *postfixtext = ")";
-      const size_t maxlen = strlen(errormsg) + strlen(prefixtext) + MAX_PATH_LEN + strlen(postfixtext);
-      char message[maxlen];
-      char renamed_worldfile[MAX_PATH_LEN];
-      snprintf(renamed_worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world_ERROR.world", tempdir, PATHSEPCH);
-      if(rename(worldfile, renamed_worldfile) != -1)
+      const std::string errormsg { "AMRISim: Error creating and initializing world environment" };
+      const std::string prefixtext { " (worldfile saved as" };
+      const std::string postfixtext { ")" };
+      //const size_t maxlen = strlen(errormsg) + strlen(prefixtext) + MAX_PATH_LEN + strlen(postfixtext);
+      //char message[maxlen];
+      //char renamed_worldfile[MAX_PATH_LEN];
+      //snprintf(renamed_worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world_ERROR.world", tempdir, PATHSEPCH);
+      const std::string renamed_worldfile = std::string(tempdir) + PATHSEPCH + "AMRISim-stage_world_ERROR.world";
+      std::string message;
+      if(rename(worldfile, renamed_worldfile.c_str()) != -1)
       {
-        const auto r = snprintf(message, maxlen-1, "%s%s%s%s", errormsg, prefixtext, renamed_worldfile, postfixtext);
-        assert((size_t)r < maxlen - 1);
+        message = errormsg + prefixtext + renamed_worldfile + postfixtext;
+        //const auto r = snprintf(message, maxlen-1, "%s%s%s%s", errormsg, prefixtext, renamed_worldfile, postfixtext);
+        //assert((size_t)r < maxlen - 1);
       }
       else
       {
-        strncpy(message, errormsg, maxlen-1);
+        //strncpy(message, errormsg, maxlen-1);
+        message = errormsg;
       }
       cleanup_temp_files();
-      stg_gui_fatal_error_dialog(message, stg_last_error_message, ERR_STAGEINIT, FALSE); 
+      stg_gui_fatal_error_dialog(message.c_str(), stg_last_error_message, ERR_STAGEINIT, FALSE); 
           // this function exits the program when user clicks OK
     }
     return NULL;
@@ -2185,8 +2209,8 @@ stg_world_t* create_stage_world(const char* mapfile,
   {
     stg_print_msg("AMRISim: Loading map data from \"%s\"...", mapfile);
     //StageMapLoader loader(&map, world, NULL);
-    mapLoader.setWorld(world);
-    if(!mapLoader.newMap(map) && !mapLoader.process(0))
+    AMRISim::mapLoader.setWorld(world);
+    if(!AMRISim::mapLoader.newMap(map) && !mapLoader.process(0))
     {
       stg_print_error("AMRISim: Error loading map \"%s\"!", mapfile);
       exit(ERR_MAPCONV);
@@ -2737,9 +2761,9 @@ void print_warning(const char *m, ...)
   va_end(args);
 }
 
-std::string getMapName()
+std::string AMRISim::getMapName()
 {
-  return mapLoader.getMapName();
+  return AMRISim::mapLoader.getMapName();
 }
 
 void AMRISim::Options::log_argv()

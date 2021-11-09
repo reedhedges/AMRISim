@@ -58,7 +58,7 @@ StageRobotFactory::StageRobotFactory(stg_world_t *world, const std::string& mode
 {
 }
 
-RobotInterface* StageRobotFactory::createRobot(const std::string& modelName, const std::string& requestedRobotName)
+std::shared_ptr<RobotInterface> StageRobotFactory::createRobot(const std::string& modelName, const std::string& requestedRobotName)
 {
   //stg_world_lock(myWorld);
   stg_model_t* model;
@@ -120,13 +120,12 @@ RobotInterface* StageRobotFactory::createRobot(const std::string& modelName, con
 
   //stg_model_unlock(model);
   //stg_world_unlock(myWorld);
-  StageInterface *retInterface = new StageInterface(myWorld, model, modelName, name);
 
-  return retInterface;
+  return std::make_shared<StageInterface>(myWorld, model, modelName, name);
 }
 
 
-RobotInterface* StageRobotFactory::createStubRobot(const std::string& modelName, const std::string& requestedRobotName)
+std::shared_ptr<RobotInterface> StageRobotFactory::createStubRobot(const std::string& modelName, const std::string& requestedRobotName)
 {
   //stg_world_lock(myWorld);
   print_debug("StageRobotInterface::createStubRobot(%s, %s)", modelName.c_str(), requestedRobotName.c_str());
@@ -189,7 +188,6 @@ RobotInterface* StageRobotFactory::createStubRobot(const std::string& modelName,
 
   //stg_model_unlock(model);
   //stg_world_unlock(myWorld);
-  StageInterface *retInterface = new StageInterface(myWorld, model, "position", name);
 
-  return retInterface;
+  return std::make_shared<StageInterface>(myWorld, model, "position", name);
 }

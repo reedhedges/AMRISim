@@ -30,7 +30,7 @@
 #include <string>
 #include <set>
 #include <queue>
-//#include <deque>
+#include <memory>
 #include "RobotInterface.hh"
 #include "Aria/ArSocket.h"
 #include <Aria/ArMutex.h>
@@ -67,8 +67,8 @@ public:
 //    myWarnUnsupportedCommands = w;
 //  }
 protected:
-  virtual RobotInterface *createRobot(const std::string& modelName, const std::string& requestedRobotName = "") = 0;
-  virtual RobotInterface *createStubRobot(const std::string& modelName, const std::string& requestedRobotName = "") = 0;
+  virtual std::shared_ptr<RobotInterface> createRobot(const std::string& modelName, const std::string& requestedRobotName = "") = 0;
+  virtual std::shared_ptr<RobotInterface> createStubRobot(const std::string& modelName, const std::string& requestedRobotName = "") = 0;
   virtual void log_s(const char *msg) { fputs(msg, stderr); }
   virtual void log(const char *fmt, ...)
   {

@@ -1,17 +1,26 @@
 
-* Let user continue without ROS1 if no ros master running (i.e. buttons should be
-  "No (exit)", "Yes (run roscore)", "No (continue)"
-* Command line options to enable/disable ROS1 and Pioneer interfaces at runtime.
+* Clean up main.cc.  Better organize globals.  Move some gui code in main.cc
+  into functions in another file (e.g. appgui.cc).  Should MapLoader "own" the map
+  rather than have a separate global?   [IN PROGRESS]
+* Fix build to explicitly choose between getting ARIA from $ARIA source
+  directory vs. system, and separately choose static library link vs. dynamic 
+  library link.   
+* Command line options to enable/disable ROS1 and Pioneer interfaces at runtime
+  from the command line.
 * Add options to GUI at startup to enable/disable robot interfaces (Pioneer/ROS1). Runtime menu
   items?
 * Enable multiple ROS1 nodes for multiple robots (nodelets)
 * Edit (review and improve) README
+* Update to using GTK 3 or 4?
+  * <https://docs.gtk.org/gtk3/migrating-2to3.html>
+  * <https://docs.gtk.org/gtk4/migrating-3to4.html>
 * Make sure we are using latest version of GTK on Windows. Update particularly
   old or deprecated GTK API usage and remove support for
   old GTK versions. 
 * Fix all warnings, fix all c++ code to correct usage for c++17.
 * Update stage build for newer versions of autotools
-* Debian/Ubuntu Packaging
+* Debian/Ubuntu Packaging (note, need to make sure to choose dynamic linking to
+  libAria when building deb packages)
 * Remove unused stuff 
 * Remove use of temp file
 * Clearly document exact dependencies

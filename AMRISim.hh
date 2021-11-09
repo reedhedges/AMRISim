@@ -30,12 +30,16 @@
 #include <set>
 #include <iostream>
 #include <assert.h>
-//#include <sys/select.h>
 #include <string>
 #include <stdexcept>
+#include <memory>
 
 class ArFunctor;
 class ArSocket;
+
+
+// TODO change all of these these to const globals in AMRISim namespace:
+
 
 #define PATHSEPCH '/'
 #define OTHER_PATHSEPCH '\\'
@@ -81,6 +85,58 @@ class ArSocket;
 #ifndef DEFAULT_MPPC_STR
 #define DEFAULT_MPPC_STR "100,000"
 #endif
+
+
+/* Attributes added in C++ 17 and C++ 20: */
+
+#if defined(__GNUC__) && (__GNUC__ < 7)
+
+#define NODISCARD
+
+#if __has_attribute(__unused__)
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED  
+#endif
+
+#if __has_attribute(__fallthrough__)
+#define FALLTHROUGH __attribute__((fallthrough))
+#else
+#define FALLTHROUGH  
+#endif
+
+#else
+
+// On G++ version 7 and later, on on all other platforms including Windows, use standard C++ attributes:
+
+#define NODISCARD [[nodiscard]]
+#define UNUSED [[maybe_unused]]
+#define FALLTHROUGH [[fallthrough]]
+
+#endif
+
+
+#if defined (__GNUC__)  && (__GNUC__ >= 9)
+
+#define LIKELY [[likely]]
+#define UNLIKELY [[unlikely]]
+
+#elif defined (_MSC_VER) && (_MSC_VER >= 1926)
+
+#define LIKELY [[likely]]
+#define UNLIKELY [[unlikely]]
+
+#else
+
+#define LIKELY
+#define UNLIKELY
+
+#endif
+
+class RobotFactory;
+class RobotInterface;
+class EmulatePioneer;
+class MapLoader;
 
 namespace AMRISim
 {
@@ -151,9 +207,33 @@ struct Options
 };
 
 
+  extern Options options;
+
+  extern std::set< std::shared_ptr<RobotInterface> > robotInterfaces;
+  extern std::set<EmulatePioneer*> emulators;
+  extern std::set<RobotFactory*> factories;
+
+
+  extern MapLoader mapLoader;
+
+  std::string getMapName();
+
+
+
+/* How to decide where robots start */
+  typedef enum {
+    start_fixedpos,
+    start_home,
+    start_outside,
+    start_random
+  } start_place_t;
+
+
 }// namespace AMRISim
 
-extern AMRISim::Options options;
+
+// TODO move these global functions into namespace:
+
 
 /* Figure out what directory to use for our external resources */
 extern const char* find_libdir();
@@ -167,25 +247,11 @@ extern void mobilesim_get_map_home(double *home_x, double *home_y, double *home_
 extern mobilesim_get_pose_cb_t mobilesim_set_map_home;
 extern void mobilesim_set_map_bounds(double min_x, double min_y, double max_x, double max_y);
 
-/* How to decide where robots start */
-typedef enum {
-  mobilesim_start_fixedpos,
-  mobilesim_start_home,
-  mobilesim_start_outside,
-  mobilesim_start_random
-} mobilesim_start_place_t;
-
 extern void mobilesim_crash_handler(int signal);
 extern int mobilesim_rotate_log_files(const char *tag);
 extern FILE* mobilesim_reopen_log_file();
 
-class RobotFactory;
-class RobotInterface;
-class EmulatePioneer;
 
-extern std::set<RobotInterface*> robotInterfaces;
-extern std::set<EmulatePioneer*> emulators;
-extern std::set<RobotFactory*> factories;
 
 //void storeEmulator(EmulatePioneer *em);
 //void removeStoredEmulator(EmulatePioneer *em);
@@ -199,11 +265,6 @@ void print_warning(const char* m, ...);
 /// Same as print_msg but prefixes output with DEBUG and function calls are easily searched for removal
 void print_debug(const char *m, ...);
 
-class MapLoader;
-
-extern MapLoader mapLoader;
-
-std::string getMapName();
 
 class LogInterface {
   std::string name;

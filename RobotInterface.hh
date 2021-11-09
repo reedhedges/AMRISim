@@ -332,7 +332,7 @@ class RobotInterface : public LogInterface {
           i, laserName(i).c_str(), laserType(i).c_str(), numLaserReadings(i), getLaserResolution(i), getLaserFOV(i), getLaserStartAngle(i), getLaserEndAngle(i));
       }
       log(" battery=%0.2f, tempWarning=%d, haveTemp=%d, temperature=%0.2f", getBatteryVoltage(), getTempWarning(), haveTemperature(), getTemperature());
-      log(" map=%s", getMapName().c_str());
+      log(" map=%s", AMRISim::getMapName().c_str());
     }
 
 

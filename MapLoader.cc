@@ -56,11 +56,13 @@ MapLoader::MapLoader(stg_world_t *_world) : world(_world)
 { }
 
 
+/*
 MapLoader::~MapLoader()
 {
-  if(map && created_map)
-    delete map;
+  //if(map && created_map)
+  //  delete map; // not needed any more since map is shared_ptr
 }
+*/
 
 
 void MapLoader::cancelLoad() {
@@ -91,7 +93,7 @@ void MapLoader::removeCallback(MapLoadedCallback cb)
 
 }
 
-bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInterface *requestor, MapLoadedCallback cb, std::string *errorMsg)
+bool MapLoader::newMap(const std::string& newmapfile, MapLoadedCallback cb, std::string *errorMsg)
 {
 #ifdef DEBUG
   ArLog::log(ArLog::Normal, "MapLoader::newMap: newmapfile=%s", newmapfile.c_str());
@@ -103,7 +105,7 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
     if(myProcessState == NEWMAP_INACTIVE) // If the current map has already been processed...
     {
       //ArLog::log(ArLog::Normal, "MapLoader::newMap(): !shouldReloadMap: myProcessState == NEWMAP_INACTIVE: invoking the requesting robot's callback: %p", (void*)cb);
-      invokeMapLoadedCallback(cb, false, newmapfile, NULL); // ... tell the robot the map is loaded, and let its EmulatePioneer load the new map data
+      invokeMapLoadedCallback(cb, false, newmapfile); // ... tell the robot the map is loaded, and let its EmulatePioneer load the new map data
     }
     //else
     //{
@@ -124,8 +126,8 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
   ArTime timer;
 
   if(!map) {
-    map = new ArMap();
-    created_map = true;
+    map = std::make_shared<ArMap>();
+    //created_map = true;
   }
 
   char errbuf[128];
@@ -161,7 +163,7 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
     }
     //print_debug("Took %d msec to read map file", timer.mSecSince());
     //ArLog::log(ArLog::Normal, "MapLoader::newMap(str, RI, MLCb, str): using requestor (%p) and sending cb (%p) to mapLoader.newMap(MLCb)", (void*)requestor, (void*)cb);
-    return newMap(cb);
+    return newMap();
   }
   else
   {
@@ -189,20 +191,20 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
     }
     //print_debug("Took %d msec to read map file", timer.mSecSince());
     //ArLog::log(ArLog::Normal, "MapLoader::newMap(str, RI, MLCb, str): using requestor (%p) and sending cb (%p) to mapLoader.newMap(MLCb)", (void*)requestor, (void*)cb);
-    return newMap(cb);
+    return newMap();
   }
 }
 
-bool MapLoader::newMap(ArMap *newmap, MapLoadedCallback cb)
+bool MapLoader::newMap(std::shared_ptr<ArMap> newmap)
 {
   //ArLog::log(ArLog::Normal, "MapLoader::newMap(ArMap, MLCb) enter");
 
   reset();
   map = newmap;
-  return newMap(cb);
+  return newMap();
 }
 
-bool MapLoader::newMap(MapLoadedCallback cb)
+bool MapLoader::newMap()
 {
 #ifdef DEBUG
   ArLog::log(ArLog::Normal, "MapLoader::newMap(MLCb): cb: %p", (void*)cb);
@@ -211,7 +213,7 @@ bool MapLoader::newMap(MapLoadedCallback cb)
 
 
   // Prepare class member variables for use from MapLoader::process()
-  //callback = cb;  // obsolete // TODO: remove cb from all function argument lists
+  //callback = cb;  // obsolete
   mapfile = map->getFileName();
   myLoadedData = false;
   myProcessState = MapLoader::NEWMAP_STARTPROCESS;
@@ -1404,31 +1406,46 @@ bool MapLoader::shouldReloadMap(const std::string& newmapfile)
 }
 
 
-void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename, ArMap* map) const
+void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename, const std::shared_ptr<ArMap>& newmap) const
+{
+    // map argument should be const but some of its members aren't const?
+
+  if(!cb) return;
+
+  MapLoadedInfo info {
+    newmap->getLineMinPose().getX(),
+    newmap->getLineMinPose().getY(),
+    newmap->getLineMaxPose().getX(),
+    newmap->getLineMaxPose().getY(),
+    0, 0, 0, false,
+    filename,
+    status,
+    newmap
+  };
+
+  ArMapObject *home = map->findFirstMapObject(NULL, "RobotHome");
+  if(!home)
+  {
+    home = map->findFirstMapObject(NULL, "Dock");
+  }
+  if(home)
+  {
+    info.have_home = true;
+    info.home_x = home->getPose().getX();
+    info.home_y = home->getPose().getY();
+    info.home_th = home->getPose().getTh();
+  }
+
+  //ArLog::log(ArLog::Normal, "MapLoader::invokeMapLoadedCallback(): calling cb: %p", (void*)cb);
+  cb->invoke(info);
+  //ArLog::log(ArLog::Normal, "MapLoader::invokeMapLoadedCallback(): successful callback");
+}
+
+void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename) const
 {
   if(!cb) return;
   MapLoadedInfo info;
   //ArLog::log(ArLog::Normal, "MapLoader::invokeMapLoadedCallback(): DEBUG 03");
-  if(map)
-  {
-    info.map = map;
-    ArMapObject *home = map->findFirstMapObject(NULL, "RobotHome");
-    if(!home)
-    {
-      home = map->findFirstMapObject(NULL, "Dock");
-    }
-    if(home)
-    {
-      info.have_home = true;
-      info.home_x = home->getPose().getX();
-      info.home_y = home->getPose().getY();
-      info.home_th = home->getPose().getTh();
-    }
-    info.min_x = map->getLineMinPose().getX();
-    info.min_y = map->getLineMinPose().getY();
-    info.max_x = map->getLineMaxPose().getX();
-    info.max_y = map->getLineMaxPose().getY();
-  }
   info.filename = filename;
   info.status = status;
   //ArLog::log(ArLog::Normal, "MapLoader::invokeMapLoadedCallback(): calling cb: %p", (void*)cb);
@@ -1437,23 +1454,22 @@ void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const 
 }
 
 
+/*
 void MapLoader::invokeMapLoadedCallbacks(int status, const std::string& filename, ArMap* map) const // JPL - experimental
 {
   if (callbacks.empty())
     return;
 
 }
+*/
 
 void MapLoader::reset()
 {
   //ArLog::log(ArLog::Normal, "MapLoader::reset()");
 
   loading = false;
-  if(map && created_map)
-  {
-    delete map;
-  }
-  map = nullptr;
+  map.reset();
+  //map = nullptr;
 
 
   myNumPolys = myNumLines = myNumPoints = 0;

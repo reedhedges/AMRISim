@@ -36,6 +36,7 @@
 #include <string>
 #include <set>
 #include <list>
+#include <memory>
 
 #include "Aria/ariaUtil.h"
 #include "Aria/ArSocket.h"
@@ -296,7 +297,7 @@ public:
    */
   virtual ArRobotPacket* getPacket() = 0;
 
-  RobotInterface* getRobotInterface() const { return robotInterface; }
+  //RobotInterface* getRobotInterface() const { return robotInterface; }
 
   unsigned short getDeviceIndex() const { return deviceIndex; }
 };
@@ -347,8 +348,8 @@ protected:
   bool extendedInfoFormat;
   bool robotMoved;
 public:
-  LaserPacketGenerator(RobotInterface* _interface = 0, RobotParams* _params = 0, unsigned short deviceIndex = 0) :
-    PacketGenerator(_interface, _params, deviceIndex),
+  LaserPacketGenerator(RobotInterface* _interface = 0, RobotParams* _params = 0, unsigned short _deviceIndex = 0) :
+    PacketGenerator(_interface, _params, _deviceIndex),
     currentReading(0), extendedInfoFormat(false), robotMoved(false)
   {}
 
@@ -503,13 +504,13 @@ class EmulatePioneer : public ClientInterface, public LogInterface
      *  The socket must already be connected to the client. EmulatePioneer will
      *  not reopen it.
      */
-    EmulatePioneer(RobotInterface *rif, const std::string& robotModel, ArSocket *clientSocket, bool deleteRobotInterfaceOnDisconnect = false, bool deleteClientSocketOnDisconnect = true, const AMRISim::Options *userOptions = NULL);
+    EmulatePioneer(std::shared_ptr<RobotInterface> rif, const std::string& robotModel, ArSocket *clientSocket, bool deleteRobotInterfaceOnDisconnect = false, bool deleteClientSocketOnDisconnect = true, const AMRISim::Options *userOptions = NULL);
 
     /** Create a new EmulatePioneer using the given RobotInterface for the given
      *  robot model. Use @a port as the default when opening a new listening
      *  socket
      */
-    EmulatePioneer(RobotInterface *rif, const std::string& robotModel, int port =
+    EmulatePioneer(std::shared_ptr<RobotInterface> rif, const std::string& robotModel, int port =
 DEFAULT_PIONEER_SIM_PORT, bool deleteRobotInterface = false, bool
 trySubsequentPorts = true, const AMRISim::Options *userOptions = NULL);
 
@@ -583,11 +584,13 @@ public:
         @throws DeletionRequest
         @throws Disconnected
       */
+    __attribute__((flatten))
     static int processAll(int maxTime = 0);
 
     int status; // could be moved into session
 
-    void loadMapObjects(ArMap *newmap);
+    
+    void loadMapObjects(const ArMap& newmap);
 
 protected:    
 
@@ -642,8 +645,8 @@ public:
     /** Get reference to robot's permanent parameters. You should not modify them. */
     const RobotParams* getParams() const { return &params; }
 
-    /** Get robot interface. */
-    RobotInterface* getRobotInterface() const { return robotInterface; }
+    /* Get robot interface. */
+    //RobotInterface* getRobotInterface() const { return &robotInterface; }
 
    // static void deleteAllInstances();
 
@@ -659,10 +662,10 @@ public:
   private:
     friend class EmulatePioneer::DeletionRequest;
 
-    static std::list<EmulatePioneer*> ourActiveInstances; ///< @todo change to "our connected instances"
+    static std::list<EmulatePioneer*> ourActiveInstances; ///< @todo change to "our connected instances". 
     static std::list<EmulatePioneer*>::iterator ourNextActiveInstance; ///< the next EmulatePioneer* to process in ourActiveInstances list
 
-    RobotInterface* robotInterface;
+    std::shared_ptr<RobotInterface> robotInterface;
     RobotParams params;
     
     int myTCPPort, myRequestedTCPPort;

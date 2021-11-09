@@ -29,6 +29,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <memory>
+
 #include "stage.h"
 
 #include "Aria/ariaUtil.h"
@@ -40,21 +42,18 @@ class ArMapObject;
 class RobotInterface;
 class ArFunctor;
 
-class MapLoadedInfo {
-public:
-  double min_x;
-  double min_y;
-  double max_x;
-  double max_y;
-  double home_x;
-  double home_y;
-  double home_th;
-  bool have_home;
+struct MapLoadedInfo {
+  double min_x = 0;
+  double min_y = 0;
+  double max_x = 0;
+  double max_y = 0;
+  double home_x = 0;
+  double home_y = 0;
+  double home_th = 0;
+  bool have_home = false;
   std::string filename;
-  int status; ///< 0=not reloaded, already loaded; 1=loaded; 2=error, file not found
-  ArMap *map;
-  MapLoadedInfo() : min_x(0), min_y(0), max_x(0), max_y(0), home_x(0), home_y(0), home_th(0), have_home(false), status(1), map(0)
-  {}
+  int status = 1; ///< 0=not reloaded, already loaded; 1=loaded; 2=error, file not found
+  std::shared_ptr<ArMap> map;
 };
 
 typedef ArFunctor1<MapLoadedInfo>* MapLoadedCallback;
@@ -76,8 +75,8 @@ private:
   std::set<MapLoadedCallback> callbacks;
   static const double ReflectorThickness; ///< meters
   std::set<stg_model_t*> mapModels; ///< all models created by loading maps
-  ArMap *map = NULL; ///< points to an ArMap object while we are using it to load a map
-  bool created_map = false; ///< we created map, and can delete it.
+  std::shared_ptr<ArMap> map; ///< points to an ArMap object while we are using it to load a map
+  //bool created_map = false; ///< we created map, and can delete it.
   bool loading = false; ///< true while we are in the process of loading a map, false when done.
   bool hostHasEM = false; // If this AMRISim is on the same VM as the EM, then shouldReloadMap can simply check the file mod timestamp directly from the source file
   time_t lastMapReloadTime  = 0;
@@ -106,7 +105,7 @@ public:
     myPointsPerChunk = numPointsPerChunk;
   }
 
-  virtual ~MapLoader();
+  //virtual ~MapLoader();
     
   std::string getMapName() { return mapfile; }
 
@@ -122,13 +121,13 @@ public:
       @param errormsg if not NULL, place any error messages in this string
       @return true if ready to load, false on error (error opening file or preparing to read)
     */
-  bool newMap(const std::string& newmapfile, RobotInterface *requestor, MapLoadedCallback callback = NULL, std::string *errormsg = NULL);
+  bool newMap(const std::string& newmapfile, MapLoadedCallback callback = NULL, std::string *errormsg = NULL);
 
-  bool newMap(ArMap *newmap, MapLoadedCallback callback = NULL);
+  bool newMap(std::shared_ptr<ArMap> newmap);
 
-  ArMap *getMap() { return map; }
+  //std::shared_ptr<ArMap>& getMap() { return map; }
 private:
-  bool newMap(MapLoadedCallback cb);
+  bool newMap();
 
 
 public:
@@ -136,7 +135,7 @@ public:
   /// @param maxTime if not 0, stop loading when this amount of time has passed. Loading will resume on next call to process(). If 0, no time limit.
   bool process(unsigned int maxTime = 0);
 
-  virtual void cancelLoad();
+  void cancelLoad();
 
   void addCallback(MapLoadedCallback cb);
   void removeCallback(MapLoadedCallback cb);
@@ -169,8 +168,10 @@ private:
   stg_model_t* loadReflector(ArMapObject* cairnObj, stg_model_t* map_model, stg_laser_return_t laser_return);
   stg_model_t* loadBoxObstacle(ArMapObject* cairnObj, stg_model_t* map_model, ObjectClass objclass);
 
-  void invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename, ArMap* map) const;
-  void invokeMapLoadedCallbacks(int status, const std::string& filename, ArMap* map) const; // JPL - experimental
+  void invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename, const std::shared_ptr<ArMap>& map) const;
+
+  void invokeMapLoadedCallback(MapLoadedCallback cb, int status, const std::string& filename) const;
+  //void invokeMapLoadedCallbacks(int status, const std::string& filename, ArMap* map) const; // JPL - experimental
   void reset();
 
   typedef enum

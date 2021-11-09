@@ -135,7 +135,7 @@ void RobotFactory::acceptNewClient(unsigned int /*maxTime*/)
 
   log("Accepted client. Creating robot...");
 
-  RobotInterface *ri = createRobot(myModelName, clientSocket->getIPString());
+  std::shared_ptr<RobotInterface> ri = createRobot(myModelName, clientSocket->getIPString());
   if(!ri)
   {
     log("Robot factory: Error creating new robot. Closing client socket.");
@@ -194,7 +194,7 @@ void RobotFactory::createNewRobotsFromClientsList()
     myClientSocketsMutex.unlock();
 
     //ArLog::log(ArLog::Normal, "RobotFactory::createNewRobotsFromClientsList(): %s factory. Creating one robot...", myModelName.c_str());
-    RobotInterface *ri = createRobot(myModelName, clientSocket->getIPString());
+    std::shared_ptr<RobotInterface> ri = createRobot(myModelName, clientSocket->getIPString());
     if(!ri)
     {
       log("Robot factory: Error creating new robot. Closing client socket.");

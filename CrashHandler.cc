@@ -57,20 +57,20 @@ void mobilesim_crash_handler(int signum)
     stg_print_error("AMRISim: Received fatal signal %d (%s)!", signum, signame);
 
 
-    const char *progname = options.argv[0];
-    if(options.EnableCrashDebug || options.EnableCrashRestart)
+    const char *progname = AMRISim::options.argv[0];
+    if(AMRISim::options.EnableCrashDebug || AMRISim::options.EnableCrashRestart)
     {
       struct stat statbuf;
       if(stat(progname, &statbuf) != 0) {
           progname = "/usr/local/AMRISim/AMRISim";
           if(stat(progname, &statbuf) != 0) {
-              stg_print_error("AMRISim: Can't find AMRISim program (tried %s and %s), Can't save debugging information or restart program.", options.argv[0], progname);
+              stg_print_error("AMRISim: Can't find AMRISim program (tried %s and %s), Can't save debugging information or restart program.", AMRISim::options.argv[0], progname);
               return;
           }
       }
     }
 
-    if(options.EnableCrashDebug)
+    if(AMRISim::options.EnableCrashDebug)
     {
       const char *gdbhelper = "gdbhelper";
       struct stat statbuf;
@@ -83,18 +83,18 @@ void mobilesim_crash_handler(int signum)
       }
       if(gdbhelper != NULL && progname != NULL) { 
           char cmd[4096];
-          snprintf(cmd, 4096, "gdb -batch -x %s %s %d %s%s", gdbhelper, progname, getpid(), (options.log_file==NULL)?"":">>", (options.log_file==NULL)?"":options.log_file);
+          snprintf(cmd, 4096, "gdb -batch -x %s %s %d %s%s", gdbhelper, progname, getpid(), (AMRISim::options.log_file==NULL)?"":">>", (AMRISim::options.log_file==NULL)?"":AMRISim::options.log_file);
           stg_print_error("AMRISim: Running gdb to get debugging information: %s", cmd);
           stg_print_error("AMRISim: --- Begin gdb ---");
-          if(options.log_file) stg_close_log_file();
+          if(AMRISim::options.log_file) stg_close_log_file();
           if(system(cmd) != 0)
             stg_print_error("Warning: error running gdb!");
-          if(options.log_file) stg_open_log_file(options.log_file, "a");
+          if(AMRISim::options.log_file) stg_open_log_file(AMRISim::options.log_file, "a");
           stg_print_error("AMRISim: --- End gdb ---");
       }
     }
 
-    if(options.NonInteractive && options.EnableCrashRestart && progname) {
+    if(AMRISim::options.NonInteractive && AMRISim::options.EnableCrashRestart && progname) {
 
         // Restart amrisim with same arguments, plus --restarting-after-crash
 
@@ -134,7 +134,7 @@ void mobilesim_crash_handler(int signum)
 
         // Allocate argv: program name + options.argc + --restarting-after-crash:
         // It will not be freed, we go right into exec().
-        char **argv = (char**) malloc(1 + (size_t)options.argc + 1 * sizeof(char*));
+        char **argv = (char**) malloc(1 + (size_t)AMRISim::options.argc + 1 * sizeof(char*));
         argv[0] = (char*) progname;
 
         // Also build up a single string with arguments to print out.
@@ -158,16 +158,16 @@ void mobilesim_crash_handler(int signum)
         argstr = a;
         strncat(argstr, " --restarting-after-crash", argstr_len);
 
-        for(int i = 2; i <= options.argc; ++i)
+        for(int i = 2; i <= AMRISim::options.argc; ++i)
         {
-            argv[i] = options.argv[i-1];
+            argv[i] = AMRISim::options.argv[i-1];
             argstr_len += strlen(argv[i]) + 1; // + 1 for " "
             argstr = (char*) realloc(argstr, argstr_len);
             assert(argstr);
             strncat(argstr, " ", 1);
             strncat(argstr, argv[i], argstr_len-1);
         }
-        argv[options.argc+1] = NULL;
+        argv[AMRISim::options.argc+1] = NULL;
         stg_print_error("AMRISim: Restarting AMRISim : %s", argstr);
         free(argstr);
 
@@ -189,11 +189,11 @@ void mobilesim_crash_handler(int signum)
 
 int mobilesim_rotate_log_files(const char *suffix)
 {
-    if(!options.log_file) return 0;
+    if(!AMRISim::options.log_file) return 0;
 
     stg_print_msg("AMRISim: Rotating log files...");
 
-    if(options.log_file && !(stg_output_file == NULL || stg_output_file == stdout || stg_output_file == stderr))
+    if(AMRISim::options.log_file && !(stg_output_file == NULL || stg_output_file == stdout || stg_output_file == stderr))
     {
       stg_print_msg("AMRISim: Closing this log file...");
       fclose(stg_output_file);
@@ -216,9 +216,9 @@ int mobilesim_rotate_log_files(const char *suffix)
     newfile = buf2;
     oldfile_s = buf1s;
     newfile_s = buf2s;
-    snprintf(newfile, MAX_PATH_LEN, "%s-5", options.log_file);
+    snprintf(newfile, MAX_PATH_LEN, "%s-5", AMRISim::options.log_file);
     if(suffix)
-      snprintf(newfile_s, MAX_PATH_LEN, "%s%s-5", options.log_file, suffix);
+      snprintf(newfile_s, MAX_PATH_LEN, "%s%s-5", AMRISim::options.log_file, suffix);
     char cwdbuf[MAX_PATH_LEN];
     if(getcwd(cwdbuf, MAX_PATH_LEN) == NULL)
     {
@@ -229,14 +229,14 @@ int mobilesim_rotate_log_files(const char *suffix)
     printf("(rotating log files... cwd is %s)\n", cwdbuf);  // helpful because 'mv -v' will print out mysterious messages 
     for(int i = 4; i >= 1; --i)
     {
-      snprintf(oldfile, MAX_PATH_LEN, "%s-%d", options.log_file, i);
+      snprintf(oldfile, MAX_PATH_LEN, "%s-%d", AMRISim::options.log_file, i);
       snprintf(cmd, (MAX_PATH_LEN*2)+14, "mv -f -v '%s' '%s'", oldfile, newfile);
       if(system(cmd) != 0)
         stg_print_error("Warning: error rotating log file!");
 
       if(suffix)
       {
-        snprintf(oldfile_s, MAX_PATH_LEN, "%s%s-%d", options.log_file, suffix, i);
+        snprintf(oldfile_s, MAX_PATH_LEN, "%s%s-%d", AMRISim::options.log_file, suffix, i);
         snprintf(cmd, (MAX_PATH_LEN*2)+14, "mv -f -v '%s' '%s'", oldfile_s, newfile_s);
         if(system(cmd) != 0)
           stg_print_error("Warning: error rotating log file!");
@@ -255,22 +255,22 @@ int mobilesim_rotate_log_files(const char *suffix)
       }
     }
     if(suffix)
-      snprintf(cmd, (MAX_PATH_LEN*2)+4, "mv -f -v '%s' '%s%s'-1", options.log_file, options.log_file, suffix);
+      snprintf(cmd, (MAX_PATH_LEN*2)+4, "mv -f -v '%s' '%s%s'-1", AMRISim::options.log_file, AMRISim::options.log_file, suffix);
     else
-      snprintf(cmd, (MAX_PATH_LEN*2)+4, "mv -f -v '%s' '%s'-1", options.log_file, options.log_file);
+      snprintf(cmd, (MAX_PATH_LEN*2)+4, "mv -f -v '%s' '%s'-1", AMRISim::options.log_file, AMRISim::options.log_file);
     if(system(cmd) != 0)
       stg_print_error("Warning: error rotating log file!");
 
-    FILE *newfp = ArUtil::fopen(options.log_file, "w");
+    FILE *newfp = ArUtil::fopen(AMRISim::options.log_file, "w");
     if(newfp)
     {
       stg_set_log_file(newfp);
-      stg_print_msg("AMRISim: Start of new log file at %s after rotating log files.", options.log_file);
+      stg_print_msg("AMRISim: Start of new log file at %s after rotating log files.", AMRISim::options.log_file);
     }
     else
     {
       stg_set_log_file(NULL);
-      stg_print_error("AMRISim: Error opening new log file %s after rotating log files!", options.log_file);
+      stg_print_error("AMRISim: Error opening new log file %s after rotating log files!", AMRISim::options.log_file);
       return 0;
     }
     
@@ -282,7 +282,7 @@ FILE* mobilesim_reopen_log_file()
 {
   if(stg_output_file)
     fclose(stg_output_file);
-  stg_output_file = ArUtil::fopen(options.log_file, "w");
+  stg_output_file = ArUtil::fopen(AMRISim::options.log_file, "w");
   return stg_output_file;
 }
 
