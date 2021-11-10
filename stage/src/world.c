@@ -335,7 +335,6 @@ stg_model_t* stg_world_new_model_ex(stg_world_t* world, const char* typestr, con
   if(override_token == NULL) token = tokenbuf;
   else token = override_token;
   
-
   //PRINT_WARN2( "loading model name %s for type %s", namebuf, typestr );
   
   // determine a worldfile identifier if not given
@@ -423,25 +422,26 @@ stg_model_t* stg_world_new_model_ex(stg_world_t* world, const char* typestr, con
 stg_model_t* stg_world_new_model(stg_world_t* world, const char* type, stg_model_t* parent, const char *requestedName)
 {
   STG_F()
-  // if requestedName already exists and if so, append a number
+  // if requestedName given, make sure its unique by appending a number if already exists
   if(requestedName)
   {
-    char buf[256];
+    assert(strlen(requestedName) < STG_TOKEN_MAX - 3);
+    char namebuf[STG_TOKEN_MAX]; // note, need to keep this alive until after call to stg_world_model_ex which copies the name
     unsigned long i = 1;
     char *name = requestedName;
     while(stg_world_model_name_lookup(world, name) != NULL)
     {
-      snprintf(buf, 256, "%s-%lu", requestedName, ++i);
+      snprintf(namebuf, STG_TOKEN_MAX, "%s-%lu", requestedName, ++i);
       assert(i < ULONG_MAX);
-      name = buf;
+      name = namebuf;
     }
-    requestedName = name;
-//    printf("XXXXXXX decided on %s for new model name based on requestedName\n", requestedName);
+    return stg_world_new_model_ex(world, type, name, parent, -1, FALSE); // TODO: DON'T PASS A -1 FOR THE world_id IF WE'VE ALREADY CREATED A CEntity FOR THIS type!!!!!
   }
-
-  stg_model_t* return_model = stg_world_new_model_ex(world, type, requestedName, parent, -1, FALSE);  // TODO: DON'T PASS A -1 FOR THE world_id IF WE'VE ALREADY CREATED A CEntity FOR THIS type!!!!!
-
-  return return_model;
+  else
+  {
+    // pass NULL as override name
+    return stg_world_new_model_ex(world, type, NULL, parent, -1, FALSE);  // TODO: DON'T PASS A -1 FOR THE world_id IF WE'VE ALREADY CREATED A CEntity FOR THIS type!!!!!
+  }
 }
     
 
