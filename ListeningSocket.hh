@@ -38,8 +38,15 @@ class RobotFactory;  // Forward declare the class, so that it can be linked
 class ListeningSocket : public ArASyncTask
 {
 public:
-  //ListeningSocket();
-  //~ListeningSocket();
+  ListeningSocket() = default;
+
+  // disallow  copying 
+  ListeningSocket(const ListeningSocket& other) = delete;
+  ListeningSocket& operator=(const ListeningSocket& other) = delete;
+
+  // TODO move could be ok if ArSocket and ArASyncTask components can be moved
+  ListeningSocket(ListeningSocket &&old) = delete;
+  ListeningSocket &operator=(ListeningSocket &&old) = delete;
 
   virtual ArSocket *init(int port, RobotFactory *parentFactory, const char *listenAddress = NULL);
   virtual void * runThread(void *arg);

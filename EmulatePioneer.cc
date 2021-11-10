@@ -281,7 +281,7 @@ void EmulatePioneer::init(const std::string& robotName, const AMRISim::Options *
 // object to handle deletion of EmulatePioneer instances from outside an EmulatePioneer object:
 void EmulatePioneer::DeletionRequest::doDelete()
 {
-  //print_debug("EmulatePioneer deletion request: removing from active list and deleting");
+  //print_debug("EmulatePioneer 0x%x deletion request: removing from active list and deleting", instance);
   if(instance) {
     EmulatePioneer::ourActiveInstances.remove(instance);
     delete instance;
@@ -290,7 +290,7 @@ void EmulatePioneer::DeletionRequest::doDelete()
 
 EmulatePioneer::~EmulatePioneer()
 {
-  //ArLog::log(ArLog::Normal, "EmulatePioneer::~EmulatePioneer(): deleting robotInterface (%u) and &newMapLoadedCB (%u)", (unsigned int)robotInterface, (unsigned int)&newMapLoadedCB);
+  //ArLog::log(ArLog::Normal, "EmulatePioneer::~EmulatePioneer().\n\tremoving map callback (0x%x)", &newMapLoadedCB);
 
   // Trying to NULLify the MapLoader's callback. MapLoader will heed this
   //   request ONLY IF this instance's newMapLoadedCB matches the one saved
@@ -318,6 +318,7 @@ EmulatePioneer::~EmulatePioneer()
 
   if(myDeleteClientSocketOnDisconnect && myClientSocket)
   {
+    //printf("\tdeleting client socket 0x%x\n", myClientSocket);
     delete myClientSocket;
     //myClientSocket = NULL;
   }
@@ -2251,13 +2252,8 @@ bool EmulatePioneer::sendSIMSTAT(ArDeviceConnection *con)
   replyPkt.strToBuf("");
 
   // status flags
-<<<<<<< HEAD
   uint32_t flags = 0;
-  if(mapLoader.haveMapOriginLLA)
-=======
-  ArTypes::UByte4 flags = 0;
   if(AMRISim::mapLoader.haveMapOriginLLA)
->>>>>>> 20706a1 (Move global variables into AMRISim namespace. Start changing RobotInterface pointers to std::shared_ptr.)
     flags |= ArUtil::BIT1;
   if(robotInterface->haveSimulatorOdomError())
     flags |= ArUtil::BIT2;
@@ -2342,7 +2338,7 @@ bool EmulatePioneer::insideBadGPSSector(const ArPose& p)
   return false;
 }
 
-bool EmulatePioneer::sendMapChanged(std::string mapname, bool user, int8_t status)
+bool EmulatePioneer::sendMapChanged(std::string mapname, bool user, int8_t mapstatus)
 {
   ArRobotPacket pkt;
   pkt.empty();

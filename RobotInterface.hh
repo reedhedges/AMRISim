@@ -82,6 +82,8 @@ class RobotInterface : public LogInterface {
 
  
     virtual ~RobotInterface() = default;
+    //{ printf("RobotInterface 0x%x being deleted.\n", this); }
+    
     RobotInterface(const RobotInterface& other) = delete;
     RobotInterface(RobotInterface&& old) = delete; // TODO perhaps subclasses could implement
     RobotInterface& operator=(const RobotInterface& other) = delete;

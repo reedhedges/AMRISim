@@ -83,7 +83,7 @@ StageInterface::~StageInterface()
   //  stg_model_destroy(messagesModel);
   //}
 
-  //printf("StageInterface destructor\n");
+  //printf("StageRobotInterface 0x%x being deleted.\n", this);
 
   for(std::vector<Laser>::iterator i = lasers.begin(); i != lasers.end(); ++i)
   {

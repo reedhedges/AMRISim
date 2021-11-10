@@ -514,6 +514,13 @@ class EmulatePioneer : public ClientInterface, public LogInterface
 DEFAULT_PIONEER_SIM_PORT, bool deleteRobotInterface = false, bool
 trySubsequentPorts = true, const AMRISim::Options *userOptions = NULL);
 
+    // Copying and moving is disabled for this class
+    // TODO implement move?
+    EmulatePioneer(const EmulatePioneer& other) = delete;
+    EmulatePioneer(EmulatePioneer&& old) = delete;
+    EmulatePioneer& operator=(const EmulatePioneer& other) = delete;
+    EmulatePioneer& operator=(EmulatePioneer&& other) = delete;
+
 private:
     void init(const std::string& robotName, const AMRISim::Options *userOptions);   // helper for the above constructors
 

@@ -47,6 +47,14 @@ class StageInterface : public virtual RobotInterface
   public:
     StageInterface(stg_world_t* _world, const std::string& _robotModel, const std::string& _robotName);
     StageInterface(stg_world_t* _world, stg_model_t* _model, const std::string& _robotModel, const std::string& _robotName);
+  
+    // Copying and moving is disabled.
+    // TODO implement move?
+    StageInterface(const StageInterface& other) = delete;
+    StageInterface(StageInterface&& old) = delete;
+    StageInterface& operator=(const StageInterface& other) = delete;
+    StageInterface& operator=(StageInterface&& other) = delete;
+  
     virtual void connect(RobotParams* params) override;
     virtual void disconnect() override;
     void lockStageWorld() {

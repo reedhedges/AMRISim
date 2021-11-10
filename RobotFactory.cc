@@ -51,8 +51,7 @@ RobotFactory::RobotFactory(const std::string& modelName, const AMRISim::Options 
   //myLogPacketsReceived(false),
   acceptClientCB(this, &RobotFactory::acceptNewClient),
   //myWarnUnsupportedCommands(false)
-  myUserOptions(userOpts),
-  myListeningSocket(nullptr)
+  myUserOptions(userOpts)
 {
   //ArLog::log(ArLog::Normal, "RobotFactory::ctor: modelName = %s, verbose = %d, listenAddress = %s, userOpts = %d\n", modelName.c_str(), (int)verbose, listenAddress, (int)userOpts);
 
@@ -73,11 +72,11 @@ ArSocket* RobotFactory::open(int port, const char *listenAddress)
     log("RobotFactory: opening port %d for new connections", port);
 
   // Launch ListeningSocket async task
-  myListeningSocket = new ListeningSocket;
+  myListeningSocket = std::make_unique<ListeningSocket>();
   ArSocket *facsock = myListeningSocket->init(port, this, listenAddress?listenAddress:myListenAddress);
   if(!facsock)
   {
-    delete myListeningSocket;
+    myListeningSocket = nullptr;
     return NULL;
   }
   else

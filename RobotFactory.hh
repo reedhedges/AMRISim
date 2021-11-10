@@ -32,10 +32,9 @@
 #include <queue>
 #include <memory>
 #include "RobotInterface.hh"
+#include "ListeningSocket.hh"
 #include "Aria/ArSocket.h"
 #include <Aria/ArMutex.h>
-
-class ListeningSocket; // Forward declare the class, so that it can be linked
 
 /** Interface for a class to listen on a port, creating a new robot in the simulator with an attached
  *  EmulatePioneer object for each client that connects.
@@ -47,7 +46,15 @@ public:
   //*listenAddress = NULL, const AMRISim::Options *userOpts = NULL);
   RobotFactory(const std::string& modelName, const AMRISim::Options *userOpts = NULL,
                const char *listenAddress = NULL);
-  //virtual ~RobotFactory();
+
+  // Copying and moving is disabled for this class.
+  // TODO implement? implement move?
+  RobotFactory(const RobotFactory& other) = delete;
+  RobotFactory(RobotFactory&& old) = delete;
+  RobotFactory& operator=(const RobotFactory& other) = delete;
+  RobotFactory& operator=(RobotFactory&& other) = delete;
+
+
   ArSocket *open(int port, const char *listenAddress = NULL); ///< Open port and return socket, or NULL on error.
   inline std::string getModelName() const { return myModelName; }
 //  void setCommandsToIgnore(std::set<int> ig) {
@@ -99,7 +106,7 @@ private:
   //unsigned int myCreatedRobotLastXToTrack;
 
   // A listening socket that is its own ArASyncTask, so it doesn't have to reside on the sockets list with the other clients in the main() thread
-  ListeningSocket *myListeningSocket;
+  std::unique_ptr<ListeningSocket> myListeningSocket;
   std::queue<ArSocket *> myNewClientSockets;
   static ArMutex myClientSocketsMutex;
 

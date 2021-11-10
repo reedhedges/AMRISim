@@ -197,7 +197,7 @@ namespace AMRISim {
   /* Global storage of RobotInterface and RobotFactory objects*/
 
   std::set< std::shared_ptr<RobotInterface> > robotInterfaces;
-  std::set<RobotFactory*> robotFactories;
+  std::set< std::shared_ptr<RobotFactory> > robotFactories;
 
     
   /* Remember some info about the map we loaded so that other objects can use it. */
@@ -1298,11 +1298,11 @@ int main(int argc, char** argv)
   {
     const char *modelname = (*i).c_str();
     stg_print_msg("AMRISim: Creating new robot factory for \"%s\"...", modelname);
-    RobotFactory *stagefac;
+    std::shared_ptr<RobotFactory> stagefac;
     if(AMRISim::startplace == AMRISim::start_fixedpos) 
-      stagefac = new StageRobotFactory(world, modelname, (double) opt.start_pos_override_pose_x, (double) opt.start_pos_override_pose_y, (double) opt.start_pos_override_pose_th, &opt);
+      stagefac = std::make_shared<StageRobotFactory>(world, modelname, (double) opt.start_pos_override_pose_x, (double) opt.start_pos_override_pose_y, (double) opt.start_pos_override_pose_th, &opt);
     else
-      stagefac = new StageRobotFactory(world, modelname, &mobilesim_get_map_home, &mobilesim_get_map_bounds, (AMRISim::startplace==AMRISim::start_outside), &opt );
+      stagefac = std::make_shared<StageRobotFactory>(world, modelname, &mobilesim_get_map_home, &mobilesim_get_map_bounds, (AMRISim::startplace==AMRISim::start_outside), &opt );
     //stagefac->setCommandsToIgnore(opt.ignore_commands);
     //stagefac->setVerbose(opt.verbose)
     //stagefac->setSRISimCompat(opt.srisim_compat, opt.srisim_laser_compat);
@@ -1652,7 +1652,7 @@ int main(int argc, char** argv)
         lastRobotFactory.mSecSince() > RobotFactoryMaxFreq)
     {
      lastRobotFactory.setToNow();
-      for (std::set<RobotFactory *>::iterator robotFac_it = robotFactories.begin(); robotFac_it != robotFactories.end(); robotFac_it++)
+      for (auto robotFac_it = robotFactories.begin(); robotFac_it != robotFactories.end(); robotFac_it++)
       {
         (*robotFac_it)->createNewRobotsFromClientsList();
       }
@@ -2050,6 +2050,7 @@ stg_world_t* create_stage_world(const char* mapfile,
   if(loop_callback) (*loop_callback)();
   
   /* Remember map bounds for future use */
+  // TODO also check points
   map_min_x = map->getLineMinPose().getX();
   map_min_y = map->getLineMinPose().getY();
   map_max_x = map->getLineMaxPose().getX();
