@@ -552,6 +552,8 @@ bool MapLoader::process(unsigned int maxTime)
     double minX_mm = 0;
     double maxY_mm = 0;
     double minY_mm = 0;
+    map->getDataBounds(minX_mm, minY_mm, maxX_mm, maxY_mm);
+    /*
     if(myNumPoints > 0 && myNumLines > 0)
     {
       maxX_mm = fmax(map->getLineMaxPose().getX(), map->getMaxPose().getX());
@@ -573,6 +575,7 @@ bool MapLoader::process(unsigned int maxTime)
       maxY_mm = map->getLineMaxPose().getY();
       minY_mm = map->getLineMinPose().getY();
     }
+    */
     stg_size_t size;
     size.x = maxX_mm/1000.0 - minX_mm/1000.0; //mm to m
     size.y = maxY_mm/1000.0 - minY_mm/1000.0; //mm to m
@@ -1409,6 +1412,7 @@ void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const 
   if(!cb) return;
   MapLoadedInfo info;
   //ArLog::log(ArLog::Normal, "MapLoader::invokeMapLoadedCallback(): DEBUG 03");
+
   if(map)
   {
     info.map = map;
@@ -1424,10 +1428,13 @@ void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const 
       info.home_y = home->getPose().getY();
       info.home_th = home->getPose().getTh();
     }
+    map->getDataBounds(info.min_x, info.min_y, info.max_x, info.max_y);
+    /*
     info.min_x = map->getLineMinPose().getX();
     info.min_y = map->getLineMinPose().getY();
     info.max_x = map->getLineMaxPose().getX();
     info.max_y = map->getLineMaxPose().getY();
+    */
   }
   info.filename = filename;
   info.status = status;

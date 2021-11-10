@@ -975,7 +975,7 @@ void StageInterface::getSimulatorPose(long &x, long &y, long &z, int &theta)
 RobotInterface::Pose StageInterface::getSimulatorPose()
 {
   stg_pose_t *pose = (stg_pose_t*)stg_model_get_property_fixed(positionModel, "pose", sizeof(stg_pose_t));
-  return Pose{ (pose->x * 1000.0), (pose->y * 1000.0), ArMath::roundInt(RTOD(pose->a)) };
+  return Pose{ (long)(pose->x * 1000.0), (long)(pose->y * 1000.0), ArMath::roundInt(RTOD(pose->a)) };
 }
 
 long StageInterface::getSimulatorPoseX() {

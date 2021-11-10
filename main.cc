@@ -2030,10 +2030,13 @@ stg_world_t* create_stage_world(const char* mapfile,
   if(loop_callback) (*loop_callback)();
   
   /* Remember map bounds for future use */
+  map->getDataBounds(map_min_x, map_min_y, map_max_x, map_max_y);
+  /*
   map_min_x = map->getLineMinPose().getX();
   map_min_y = map->getLineMinPose().getY();
   map_max_x = map->getLineMaxPose().getX();
   map_max_y = map->getLineMaxPose().getY();
+  */
 
 #if 0
   /* Find place to start robot at */
