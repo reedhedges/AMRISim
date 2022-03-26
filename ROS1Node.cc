@@ -80,7 +80,7 @@ ROS1Node::ROS1Node(RobotInterface *r, [[maybe_unused]] AMRISim::Options *opts) :
   // TODO laser(s)
 
   cmdvel_sub = nodeHandle.subscribe( "cmd_vel", 1, (boost::function <void(const geometry_msgs::TwistConstPtr&)>)
-          boost::bind(&ROS1Node::cmdvel_cb, this, _1 ));
+          boost::bind(&ROS1Node::cmdvel_cb, this, boost::placeholders::_1 ));
 
 
  
