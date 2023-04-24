@@ -1874,7 +1874,7 @@ ArRobotPacket* SIPGenerator::getPacket()
   bool stalled, motorsEnabled;
   robotInterface->getMotionState(x, y, theta, transVel, rotVel, stalled, motorsEnabled);
 
-  if(robotInterface->havePositionData())
+  if(havedata) [[likely]]
   {
 
     // different packet ID if robot is moving or stopped: (or should it be for
