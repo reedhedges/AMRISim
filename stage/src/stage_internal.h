@@ -863,12 +863,14 @@ extern "C" {
 #define PRINT_ERR4(m,a,b,c,d) stg_print_error(m, a, b, c, d);
 #define PRINT_ERR5(m,a,b,c,d,e) stg_print_error(m, a, b, c, d, e);
 
+/* Not used:
 #define PRINT_ERR_SRCFILE(m) fprintf( stderr, "\033[41mError\033[0m: "m" (%s %s)\n", __FILE__, __FUNCTION__)
 #define PRINT_ERR1_SRCFILE(m,a) fprintf( stderr, "\033[41mError\033[0m: "m" (%s %s)\n", a, __FILE__, __FUNCTION__)    
 #define PRINT_ERR2_SRCFILE(m,a,b) fprintf( stderr, "\033[41mError\033[0m: "m" (%s %s)\n", a, b, __FILE__, __FUNCTION__) 
 #define PRINT_ERR3_SRCFILE(m,a,b,c) fprintf( stderr, "\033[41mError\033[0m: "m" (%s %s)\n", a, b, c, __FILE__, __FUNCTION__)
 #define PRINT_ERR4_SRCFILE(m,a,b,c,d) fprintf( stderr, "\033[41mError\033[0m: "m" (%s %s)\n", a, b, c, d, __FILE__, __FUNCTION__)
 #define PRINT_ERR5_SRCFILE(m,a,b,c,d,e) fprintf( stderr, "\033[41mError\033[0m: "m" (%s %s)\n", a, b, c, d, e, __FILE__, __FUNCTION__)
+*/
 
   // Warning macros
 #define PRINT_WARN(m) stg_print_warning(m); 
@@ -878,12 +880,14 @@ extern "C" {
 #define PRINT_WARN4(m,a,b,c,d) stg_print_warning(m, a, b, c, d);
 #define PRINT_WARN5(m,a,b,c,d,e) stg_print_warning(m, a, b, c, d, e);
 
+/* Not used:
 #define PRINT_WARN_SRCFILE(m) printf( "\033[44mWarning\033[0m: "m" (%s %s)\n", __FILE__, __FUNCTION__)
 #define PRINT_WARN1_SRCFILE(m,a) printf( "\033[44mWarning\033[0m: "m" (%s %s)\n", a, __FILE__, __FUNCTION__)    
 #define PRINT_WARN2_SRCFILE(m,a,b) printf( "\033[44mWarning\033[0m: "m" (%s %s)\n", a, b, __FILE__, __FUNCTION__) 
 #define PRINT_WARN3_SRCFILE(m,a,b,c) printf( "\033[44mWarning\033[0m: "m" (%s %s)\n", a, b, c, __FILE__, __FUNCTION__)
 #define PRINT_WARN4_SRCFILE(m,a,b,c,d) printf( "\033[44mWarning\033[0m: "m" (%s %s)\n", a, b, c, d, __FILE__, __FUNCTION__)
 #define PRINT_WARN5_SRCFILE(m,a,b,c,d,e) printf( "\033[44mWarning\033[0m: "m" (%s %s)\n", a, b, c, d, e, __FILE__, __FUNCTION__)
+*/
 
   // Message macros
 #ifdef DEBUG
