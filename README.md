@@ -198,7 +198,7 @@ of ROS1 is supported on certain versions of Ubuntu only. ROS2 is not yet
 supported in AMRISim.)
 
 If you just want to more easily build AMRISim with ROS1 support on Ubuntu, but
-do not need the latest or a specific release of ROS1, and will not be doing extensive
+do not need a specific release of ROS1, and will not be doing extensive
 ROS development on the same computer using the ROS development tools, simply
 installing ROS1 Ubuntu packages using apt is easier than configuring the custom
 ROS1 installation and build system.  The required Ubuntu packages to build are:
@@ -211,8 +211,8 @@ Additionally to run AMRISim and use `rostopic` to test you will also need:
 
 You could also install `rviz`. 
 
-(Or install `ros-base-dev` or `ros-desktop-dev` to for a collection of many ROS1
-packages.)
+Or install `ros-base-dev` or `ros-desktop-dev` for a collection of many ROS1
+packages. (You will also need to install `libtf-dev` as well.)
 
 To omit ROS1 support from AMRISim, build with `AMRISIM_INCLUDE_ROS1=no`. See
 [BUILD.md](BUILD.md) and `make help` for details.

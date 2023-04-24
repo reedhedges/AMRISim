@@ -324,7 +324,7 @@ endif
 ifdef AMRISIM_INCLUDE_ROS1
   $(info AMRISIM_INCLUDE_ROS1 was set in environment to $(AMRISIM_INCLUDE_ROS1).  Unset to use default for this platform instead. Rebuild with new make dependencies using "make dep all".)
 else
-  $(info ROS1 interface WILL be included by default on Linux. ROS1 must be installed in /opt/$(ROS1RELEASE). Set AMRISIM_INCLUDE_ROS1=no to omit. Rebuild with new make dependencies using "make dep all".)
+  $(info ROS1 interface WILL be included by default on Linux. ROS1 must be installed in /opt/ros/$(ROS1RELEASE). Set AMRISIM_INCLUDE_ROS1=no to omit. Rebuild with new make dependencies using "make dep all".)
   AMRISIM_INCLUDE_ROS1=yes
 endif
 
@@ -396,6 +396,8 @@ _stage_unused_src=$(shell ls stage/src/zoo_* stage/src/p_* stage/src/ptest.c sta
 STAGE_SRC=$(filter-out $(_stage_unused_src),$(_stage_all_src))
   
 
+# XXX TODO strip leading directories from source file names (i.e all object
+# files in current dir or obj dir)
 OBJS = $(patsubst %.cc,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
 
 
@@ -448,7 +450,7 @@ ifeq ($(AMRISIM_INCLUDE_ROS1),yes)
 
 
 
-$(info Using ROS1 "$(ROS1RELEASE)" release. Set ROS1RELEASE environment variable to change. Expecting it to be installed in /opt/oos/$(ROS1RELEASE or on the system).)
+$(info Using ROS1 "$(ROS1RELEASE)" release. Set ROS1RELEASE environment variable to change. Expecting it to be installed in /opt/ros/$(ROS1RELEASE) or on the system)
 ros_modules_used = roscpp std_msgs sensor_msgs geometry_msgs tf nav_msgs std_srvs
 ROS1_CFLAGS = -DAMRISIM_ROS1 $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROS1RELEASE)/lib/pkgconfig" $(PKG_CONFIG) --cflags $(ros_modules_used))
 ROS1_LINK = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROS1RELEASE)/lib/pkgconfig" $(PKG_CONFIG) --libs $(ros_modules_used))
