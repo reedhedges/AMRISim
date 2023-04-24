@@ -13,8 +13,9 @@
 #   installed_bindir Overrides desired 'bin' directory (normally $(DESTDIR)/$(INSTALL_DIR))
 #   CXX	         C++ compiler (default is make's default, usually 'c++')
 #   CC           C compiler (default is make's default, usually 'cc')
-#   CFLAGS       Compilation flags.  This Makefile will also append various options (see below)
-#   LFLAGS       Linker flags (e.g. library directories). This Makefile will also append various options (see below)
+#   EXTRA_CXXFLAGS       Compilation flags.  This Makefile will also append various options (see below)
+#   EXTRA_CFLAGS       Compilation flags.  This Makefile will also append various options (see below)
+#   EXTRA_LFLAGS       Linker flags (e.g. library directories). This Makefile will also append various options (see below)
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
 #   ARIA         Build against ARIA or AriaCoda source repository or isolated
@@ -137,12 +138,16 @@ SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 
 CFLAGS += -std=c++17 -DAMRISIM
 CFLAGS += -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion \
--Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op \
+-Wmisleading-indentation \
 -Wnull-dereference -Woverloaded-virtual \
 -Wcast-align 
+# -Wduplicated-cond -Wduplicated-barnches -Wlogical-op # not on clang, todo only add if CXX is gcc
 # -Wuseless-cast("useless" casts happen alot with GTK)
 # -Wnon-virtual-dtol -Wlifetime (clang only)
 
+CXXFLAGS = $(CFLAGS)
+CFLAGS += $(EXTRA_CFLAGS)
+CXXFLAGS += $(EXTRA_CXXFLAGS)
 
 
 
@@ -183,7 +188,7 @@ else
 CFLAGS += -O2
 STAGE_CONFIGURE_ARGS = --enable-debug --enable-optimize=2 
 
-LFLAGS += $(RELEASE_EXTRA_LFLAGS)
+LFLAGS += $(EXTRA_LFLAGS) $(RELEASE_EXTRA_LFLAGS)
 
 dist-all: all
 
@@ -606,7 +611,7 @@ $(STAGEDIR)/config.status $(STAGEDIR)/Makefile $(STAGEDIR)/src/config.h: $(STAGE
     fi; \
     export PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/usr/local/lib/pkgconfig"; \
     echo PKG_CONFIG_PATH="$$PKG_CONFIG_PATH" ;\
-    ./configure --disable-shared --enable-static \
+    CC="$(CC)" CXX="$(CXX)" CFLAGS="$(EXTRA_CFLAGS)" CXXFLAGS="$(EXTRA_CXXFLAGS)" ./configure --disable-shared --enable-static \
       --disable-fiducial-model --disable-blobfinder-model --disable-gripper-model \
       --disable-save-world --disable-grid-labels --disable-reload-world \
 	  	$(STAGE_CONFIGURE_ARGS)
@@ -648,11 +653,13 @@ help:
 	@echo '       make dev-rpm'
 	@echo '       make deb'
 	@echo '       make dev-deb'
+	@echo 'Set environment variable ARIA to specify location of AriaCoda or ARIA library directory. (Will assume ARIA header files in include subdirectory and library in lib subdirectory.)'
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE_GPROF to build with profiling information for use with gprof'
 	@echo 'Set environment variable AMRISIM_PROFILE_TRACY to build with profiling support with the Tracy profiling/analysis tool. Set TRACY to tracy source directory.'
 	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
 	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS1 to yes to force inclusion of ROS1 interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
+	@echo 'Set CC, CXX, EXTRA_CFLAGS, EXTRA_CXXFLAGS, EXTRA_LFLAGS variables to customize compilation of both AMRISim and stage internal library.'
 
 info:
 	@echo SOURCES=$(SOURCES)
