@@ -6,10 +6,10 @@
   items?
 * Enable multiple ROS1 nodes for multiple robots (nodelets)
 * Edit (review and improve) README
-* Make sure we are using latest version of GTK on Windows. Update particularly
-  old or deprecated GTK API usage and remove support for
-  old GTK versions. 
+* Update to GTK 4 (see https://docs.gtk.org/gtk4/migrating-3to4.html).  Remove deprecated use, GTK 2.x support.
+* Update Windows MSYS build procedure and documentation (use GTK4) (see https://www.gtk.org/docs/installations/windows/)
 * Fix all warnings, fix all c++ code to correct usage for c++17.
+* Still some constants defined with #define in EmulatePioneer.cpp, MapLoader.cpp, etc.
 * Update stage build for newer versions of autotools
 * Debian/Ubuntu Packaging
 * Remove unused stuff 
@@ -51,6 +51,7 @@
   * Document
   * Fix or remove sonar publishing of pointcloud1 data (pointcloud2 data works). 
 * ROS2 interface.
+
 * Use more modern portable C++/stdlib features
   * Use std::chrono etc.
   * smart pointers
@@ -59,7 +60,8 @@
   README), etc.
 * Extend command line flags to also accept config file? (Or hook into system standard config
   frameworks; systemd?)
-* Finish adding multiple lasers
+* Finish adding multiple lasers?
+* Add generic "beacon" or "bearing/range" or sensor(s), with opional customizable function to generate a "power" value derived from range and properties of target object(s).  Provide info about all sensed objects, plus a combined or averaged single bearing/range/power result.  Example: approximate a magnetometer or similar sensor.  Add version in which target object has an orientation and range of view.  This can approxmate something light a light sensor.
 * Add more tests (unit and demos, internal and external clients)
   * Artificially move the robot a bit, then use something like ApprovalTestsCPP
     to verify that the state of the simuator is correct?
@@ -70,7 +72,7 @@
 * Replace GUI? Qt? Remote Web Frontend UI? Or just upgrade to newer GTK versions?
 * Maybe a remotely acessible web view (or start with simple
   status/control/config web interface)? Especially useful for GUI-less versions
-* Internal client interface to embedded scripting language?
+* Internal client interface to embedded scripting language (to simulate a robot control system running a script or plugin, rather than communicating with separate software client.) 
 * LogInterface needs to include multiple identifiers in messages (robot name, interface name, etc.)
 * Modular, configurable position and sensor error implementations. Selectable in configuration, easily implemented in plugin or embedded script (eg callback functions, and easy interface for stage config parameters specific to that module, and interface to robot parameters)
 * Interface for client programs to log and/or plot data on the simulation GUI
