@@ -58,6 +58,10 @@
 
 #include "Socket.hh"
 
+#ifdef TRACY_ENABLE
+#include "Tracy.hpp"
+#endif
+
 /* Turn these on to get debugging messages: */
 //#define DEBUG_SIP_VALUES 1  // Every SIP! Very frequent!
 //#define DEBUG_SIP_PACKET_CONTENTS 1 // Every SIP! Very frequent, lots of data!
@@ -477,6 +481,9 @@ void EmulatePioneer::newSession()
 
 void EmulatePioneer::readClientInput(unsigned int maxTime)
 {
+#ifdef TRACY_ENABLE
+  TracyZoneScoped;
+#endif
   if(!session || !myClientSocket || !sessionActive)
     return;
   try {
@@ -492,6 +499,9 @@ void EmulatePioneer::readClientInput(unsigned int maxTime)
 
 void EmulatePioneer::handlePacket(ArRobotPacket *pkt) 
 {
+#ifdef TRACY_ENABLE
+  TracyZoneScoped;
+#endif
 
   if(!session)
   {
@@ -885,6 +895,9 @@ bool EmulatePioneer::processSession()
 // Command implementations:
 bool EmulatePioneer::handleCommand(ArRobotPacket *pkt) 
 {
+#ifdef TRACY_ENABLE
+  TracyZoneScoped;
+#endif
   //printf("handling command packet with ID %d", pkt->getID());fflush(stdout);
 
   if(logCommandsReceived)

@@ -74,6 +74,10 @@
 #include "ROS1Node.hh"
 #endif
 
+#ifdef TRACY_ENABLE
+#include "Tracy.hpp"
+#endif
+
 using namespace AMRISim;
 
 #include <stdio.h>
@@ -498,6 +502,9 @@ void do_gtk_iteration()
 
 int main(int argc, char** argv) 
 {
+#ifdef TRACY_ENABLE
+  TracyZoneScoped;
+#endif
 
   AMRISim::Options& opt = options; // shortcut
 
@@ -1539,6 +1546,9 @@ int main(int argc, char** argv)
 
   while(stageStat == 0)
   {
+#ifdef TRACY_ENABLE
+    TracyZoneScoped;
+#endif
     long untilStageUpdate = stageUpdateDue.mSecTo();
     if(untilStageUpdate < 0) untilStageUpdate = 0;
     assert(untilStageUpdate <= std::numeric_limits<unsigned int>::max());

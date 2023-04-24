@@ -42,8 +42,11 @@
 
 #include <math.h>
 
-
 #include "stage.h"
+
+#ifdef TRACY_ENABLE
+#include "Tracy.hpp"
+#endif
 
 
 StageInterface::StageInterface(stg_world_t* _world, const std::string& _robotModel, const std::string& _robotName) :
@@ -704,6 +707,9 @@ unsigned int StageInterface::getMaxSonarRange() {
 }
 
 size_t StageInterface::forEachSonarReading(SonarReadingFunc &func, const size_t &start) {
+#ifdef TRACY_ENABLE
+  TracyZoneScoped;
+#endif
   size_t len = 0;
   stg_ranger_sample_t *data = (stg_ranger_sample_t*)stg_model_get_property(sonarModel, "ranger_data", &len);
   if(!data) {

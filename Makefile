@@ -25,7 +25,8 @@
 # Some variables that set build options:
 #   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
 #   AMRISIM_RELEASE   If defined, disable DEBUG (default).
-#   AMRISIM_PROFILE   If defined, then profiling will be enabled with -pg for gprof.
+#   AMRISIM_PROFILE_GPROF   If defined, then gprof profiling will be enabled with -pg.
+#   AMRISIM_PROFILE_TRACY   If defined, then Tracy profiling will be enabled by compiling in the Tracy client stub from $(TRACY)
 #   AMRISIM_INCLUDE_ROS1 If set to yes, then include ROS1 interface. Default is yes on Linux, no on Windows
 #   AMRISIM_INCLUDE_PIONEER if set to yes, then include Pioneer interface.  Default is yes.
 #
@@ -189,7 +190,7 @@ dist-all: all
 endif	 #ifdef AMRISIM_RELEASE
 
 
-ifdef AMRISIM_PROFILE
+ifdef AMRISIM_PROFILE_GPROF
 CXX += -pg -g -O0
 CC += -pg -g -O0
 STAGE_CONFIGURE_ARGS += --enable-profile --enable-debug --disable-optimize
@@ -371,6 +372,18 @@ endif
 ifeq ($(AMRISIM_INCLUDE_ROS1),yes)
 SOURCES += ROS1Node.cc
 HEADERS += ROS1Node.hh
+endif
+
+
+ifdef AMRISIM_PROFILE_TRACY
+ifndef TRACY
+TRACY := ../tracy
+endif
+SOURCES += $(TRACY)/TracyClient.cpp
+HEADERS += $(TRACY)/Tracy.hpp
+CFLAGS += -DTRACY_ENABLE -I$(TRACY) -DTracyZoneScoped=ZoneScoped #-D"TracyZoneScopedN(n)=ZoneScopedN(n)"
+else
+CFLAGS += -DTracyZoneScoped=
 endif
 
 _stage_all_src=$(shell ls stage/src/*.c stage/src/*.h stage/src/*.cc stage/src/*.hh)
@@ -636,7 +649,8 @@ help:
 	@echo '       make deb'
 	@echo '       make dev-deb'
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
-	@echo 'Set environment variable AMRISIM_PROFILE to build with profiling information (for use with gprof)'
+	@echo 'Set environment variable AMRISIM_PROFILE_GPROF to build with profiling information for use with gprof'
+	@echo 'Set environment variable AMRISIM_PROFILE_TRACY to build with profiling support with the Tracy profiling/analysis tool. Set TRACY to tracy source directory.'
 	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
 	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS1 to yes to force inclusion of ROS1 interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
 
