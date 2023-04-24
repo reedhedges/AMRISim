@@ -1950,7 +1950,7 @@ ArRobotPacket* SIPGenerator::getPacket()
 
   }
   if(params->BatteryType == 2)
-    pkt.byteToBuf(0);  // battery reports state of charge later in sip instead of voltage
+    pkt.byteToBuf(0);  // battery state of charge should be reported later in sip instead of voltage
   else
     pkt.byteToBuf( (int8_t) (robotInterface->getBatteryVoltage() * 10.0) ); // battery voltage, decivolts, one byte
 
