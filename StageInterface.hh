@@ -174,7 +174,7 @@ class StageInterface final : public virtual RobotInterface
     virtual int xspeed();
     virtual int yspeed();
     virtual int rotspeed();
-    virtual void getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &enabled);
+    virtual bool getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &enabled);
     virtual void getPosition(int &x, int &y, int &theta);
     virtual void getVelocity(int &x, int &y, int &theta);
     virtual bool motorsEnabled() const override { return areMotorsEnabled; }

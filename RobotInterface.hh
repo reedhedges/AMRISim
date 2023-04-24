@@ -166,7 +166,7 @@ class RobotInterface : public LogInterface {
 
 
     // data:
-    virtual void getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &motorsEnabled) = 0;
+    virtual bool getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &motorsEnabled) = 0;
     virtual void getPosition(int &x, int &y, int &theta) = 0;
     virtual void getVelocity(int &x, int &y, int &theta) = 0;
     virtual bool motorsEnabled() const = 0;

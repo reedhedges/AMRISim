@@ -1872,7 +1872,7 @@ ArRobotPacket* SIPGenerator::getPacket()
   // might lock:
   int x, y, theta, transVel, rotVel;
   bool stalled, motorsEnabled;
-  robotInterface->getMotionState(x, y, theta, transVel, rotVel, stalled, motorsEnabled);
+  const bool havedata = robotInterface->getMotionState(x, y, theta, transVel, rotVel, stalled, motorsEnabled);
 
   if(havedata) [[likely]]
   {
