@@ -28,7 +28,7 @@
 
 #include "Aria/ArConfig.h"
 
-class AMRISimConfig : public virtual ArConfig
+class AMRISimConfig final : public virtual ArConfig
 {
 public:
   void updateRecentMaps(const std::string& newmapfile);

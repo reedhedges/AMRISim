@@ -48,7 +48,7 @@
 */
 
 
-class NetworkDiscoveryResponder : public virtual ArASyncTask
+class NetworkDiscoveryResponder final : public virtual ArASyncTask
 {
 public:
   NetworkDiscoveryResponder(int _port = 30718) : port (_port)

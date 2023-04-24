@@ -35,7 +35,7 @@ class RobotFactory;  // Forward declare the class, so that it can be linked
 /** Interface for a class to listen on a port, creating a new robot in the simulator with an attached
  *  EmulatePioneer object for each client that connects.
  */
-class ListeningSocket : public ArASyncTask
+class ListeningSocket final : public ArASyncTask
 {
 public:
   //ListeningSocket();

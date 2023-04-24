@@ -41,7 +41,7 @@
 
 /** @TODO XXX configurable frame IDs */
 
-class ROS1Node : public LogInterface {
+class ROS1Node final : public ClientInterface, LogInterface {
 private:
   RobotInterface *robot;
 

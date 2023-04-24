@@ -42,7 +42,7 @@
 
 /** Provides access to Stage commands and data
  */
-class StageInterface : public virtual RobotInterface
+class StageInterface final : public virtual RobotInterface
 {
   public:
     StageInterface(stg_world_t* _world, const std::string& _robotModel, const std::string& _robotName);

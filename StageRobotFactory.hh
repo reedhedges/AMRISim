@@ -33,7 +33,7 @@
 
 #include "stage.h"
 
-class StageRobotFactory : public virtual RobotFactory {
+class StageRobotFactory final : public virtual RobotFactory {
 public:
   StageRobotFactory(stg_world_t *world, const std::string& modelName, double
 start_x, double start_y, double start_th, const AMRISim::Options *userOpts);

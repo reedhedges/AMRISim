@@ -309,7 +309,7 @@ public:
  *  you could change (However, you will still need to truncate it back and add
  *  the sonar data in each time, then add the stuff that comes after it).
  */
-class SIPGenerator  : public virtual PacketGenerator
+class SIPGenerator final : public virtual PacketGenerator
 {
 protected:
   int16_t xPosAccum, yPosAccum;
@@ -340,7 +340,7 @@ public:
 
 
 /** Generate laser data packets */
-class LaserPacketGenerator  : public virtual PacketGenerator
+class LaserPacketGenerator final : public virtual PacketGenerator
 {
 protected:
   size_t currentReading;
@@ -476,7 +476,7 @@ public:
  *  @todo eliminate some of the useless accessors
  * 
  */
-class EmulatePioneer : public ClientInterface, public LogInterface
+class EmulatePioneer final : public ClientInterface, public LogInterface
 {
   public:
 
