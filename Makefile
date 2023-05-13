@@ -136,7 +136,7 @@ SOURCE_DISTRIBUTED_FILES_EXEC=stage/configure stage/config.guess stage/config.su
 
 SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 
-CFLAGS += -std=c++17 -DAMRISIM
+CFLAGS += -DAMRISIM
 CFLAGS += -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion \
 -Wmisleading-indentation \
 -Wnull-dereference -Woverloaded-virtual \
@@ -494,16 +494,16 @@ all: AMRISim$(binary_suffix) $(EXTRA_TARGETS) columbia.map
 altdebug:  AMRISim_debug$(binary_suffix)
 
 %.o: %.cc
-	$(CXX) -c $(MSIM_CFLAGS) -o $@ $<
+	$(CXX) -c $(MSIM_CFLAGS) $(CXXFLAGS) -o $@ $<
 
 # Make sure main.o gets rebuilt if dist/version.num changes, unless its missing (e.g. in source distribution package)
 ifneq ($(VERSION_NUM_FILE),)
 main.o: main.cc $(VERSION_NUM_FILE)
-	$(CXX) -c $(MSIM_CFLAGS) -o $@ $<
+	$(CXX) -c $(MSIM_CFLAGS) $(CXXFLAGS) -o $@ $<
 endif
 
 %.o: %.cpp
-	$(CXX) -c $(MSIM_CFLAGS) -o $@ $<
+	$(CXX) -c $(MSIM_CFLAGS) $(CXXFLAGS) -o $@ $<
 
 %.o: %.c
 	$(CC) -c $(MSIM_CFLAGS) -o $@ $<
@@ -527,10 +527,10 @@ cleandep:
 # to build stage twice in parallel if using parallel jobserver, which causes
 # corrupted output files.
 AMRISim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
 
 mobilesimd: $(STAGE_DIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage_nogui.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
 
 AMRISim_debug$(binary_suffix): AMRISim
 	cp AMRISim$(binary_suffix) AMRISim_debug$(binary_suffix)
@@ -577,16 +577,16 @@ $(ARIA)/lib/libAria.a: FORCE
 	$(MAKE) -C $(ARIA) lib/libAria.a
 
 #test_mainloop: test_mainloop.cc $(ARIA_OBJS)
-#	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
+#	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
 #
 #test_sleep_time: test_sleep_time.cc $(ARIA_OBJS)
-#	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
+#	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
 
 test_mainloop: test_mainloop.cc $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
+	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
 
 test_sleep_time: test_sleep_time.cc $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
+	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
 
 
 ifndef AUTOCONF
@@ -634,7 +634,7 @@ stageconf: $(STAGEDIR)/config.status
 
 
 convertBitmapToArMap: convertBitmapToArMap.cc $(LIBARIA)
-	$(CXX) $(CFLAGS) $(ARIA_CFLAGS) -o $@ $< $(ARIA_LINK) $(LIBNETPBM) $(SYSTEM_LINK) -lpthread
+	$(CXX) $(CFLAGS) $(ARIA_CFLAGS) $(CXXFLAGS) -o $@ $< $(ARIA_LINK) $(LIBNETPBM) $(SYSTEM_LINK) -lpthread
 
 
 help:
@@ -655,6 +655,7 @@ help:
 	@echo '       make dev-rpm'
 	@echo '       make deb'
 	@echo '       make dev-deb'
+	@echo '       make clang-tidy or clang-tidy-headers - Run clang-tidy. Set CLANG_TIDY_OPTS variable to add additional command-line options.'
 	@echo 'Set environment variable ARIA to specify location of AriaCoda or ARIA library directory. (Will assume ARIA header files in include subdirectory and library in lib subdirectory.)'
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE_GPROF to build with profiling information for use with gprof'
@@ -671,6 +672,7 @@ info:
 	@echo OBJS=$(OBJS)
 	@echo
 	@echo MSIM_CFLAGS=$(MSIM_CFLAGS)
+	@echo CXXFLAGS=$(CXXFLAGS)
 	@echo
 	@echo MSIM_LFLAGS=$(MSIM_LFLAGS)
 	@echo
@@ -827,16 +829,21 @@ tags: $(SOURCES) $(HEADERS) $(STAGE_SRC)
 
 
 tidy: compile_flags.txt
-	clang-tidy  -header-filter=".*\.hh"   $(SOURCES) $(HEADERS) -- -x c++ -std=c++17 $(MSIM_CFLAGS)
+	clang-tidy $(CLANG_TIDY_OPTS) -header-filter=".*\.hh"   $(SOURCES) $(HEADERS) -- -x c++ $(MSIM_CFLAGS) $(CXXFLAGS)
+
+tidy-headers: compile_flags.txt
+	clang-tidy $(CLANG_TIDY_OPTS) -header-filter=".*\.hh"   $(HEADERS) -- -x c++ $(MSIM_CFLAGS) $(CXXFLAGS)
 
 clang-tidy: tidy
 
+clang-tidy-headers: tidy-headers
+
 compile_flags.txt: FORCE
 	-rm $@
-	for f in $(MSIM_CFLAGS); do echo "$$f" >> $@; done
+	for f in $(MSIM_CFLAGS) $(CXXFLAGS); do echo "$$f" >> $@; done
 
 cppcheck: FORCE
-	cppcheck --enable=all --language=c++ --std=c++17 --relative-paths=./ -I . -j 4 -DAMRISIM -DARIA_STATIC -DAMRISIM_VERSION="$(VERSION)" -DAMRISIM_BUILDDATE="$(DATESTR)" $(SOURCES) $(HEADERS)
+	cppcheck --enable=all --language=c++ --relative-paths=./ -I . -j 4 -DAMRISIM -DARIA_STATIC -DAMRISIM_VERSION="$(VERSION)" -DAMRISIM_BUILDDATE="$(DATESTR)" -DAMRISIM_PIONEER=1 -DAMRISIM_ROS1=1 $(SOURCES) $(HEADERS)
 	
 #| sed 's/^.*\.(cc|cpp|hh|h):.*:.*:/.\/&'
 
@@ -844,6 +851,6 @@ cppclean: FORCE
 	cppclean --include-path=. --include-path=stage/src --include-path=$(ARIA)/include --include-path=$(ARIA)/include/Aria $(SOURCES) $(HEADERS)
   
 
-.PHONY: all clean distclean dep cleandep debug opt optimize install uninstall deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf bindistbase srcdistbase debian-dev srcdist-dev bindist-dev srcdist-release bindist-release ctags AMRISimAppBundle tidy
+.PHONY: all clean distclean dep cleandep debug opt optimize install uninstall deb debian dist srcdist bindist test-dist undo-dist opt optimize  stageconf bindistbase srcdistbase debian-dev srcdist-dev bindist-dev srcdist-release bindist-release ctags AMRISimAppBundle clang-tidy clang-tidy-headers
 
 FORCE:

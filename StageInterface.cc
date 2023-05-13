@@ -34,6 +34,7 @@
 
 #include "StageInterface.hh"
 #include "EmulatePioneer.hh"
+#include "util.h"
 
 #include "Aria/ariaUtil.h"
 #include <map>
@@ -576,12 +577,12 @@ void StageInterface::getVelocity(int &x, int &y, int &theta) {
 
 bool StageInterface::getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stalled, bool &enabled) {
   stg_position_data_t* posdata = stagePositionData();
-  if(posdata) return false;
+  if(!posdata) return false;
   x = (int) ArMath::roundInt(posdata->pose.x * 1000.0);
   y = (int) ArMath::roundInt(posdata->pose.y * 1000.0);
   theta = (int) ArMath::roundInt(RTOD(posdata->pose.a));
   stg_velocity_t* veldata = stageVelocityData();
-  if(veldata) [[likely]]
+  if(veldata) LIKELY
   {
     transVel = (int) ArMath::roundInt(veldata->x * 1000.0);
     rotVel = (int) ArMath::roundInt(RTOD(veldata->a));
@@ -600,7 +601,7 @@ bool StageInterface::getMotionState(int &x, int &y, int &theta, int &transVel, i
 int StageInterface::xpos() {
   int x;
   stg_position_data_t* data = stagePositionData();
-  if(data) [[likely]]
+  if(data) LIKELY
     x = (int) ArMath::roundInt(data->pose.x * 1000.0);
   else
     x = 0;
@@ -610,7 +611,7 @@ int StageInterface::xpos() {
 int StageInterface::ypos() {
   int y;
   stg_position_data_t* data = stagePositionData();
-  if (data)  [[likely]]
+  if (data)  LIKELY
     y = (int) ArMath::roundInt(data->pose.y * 1000.0);
   else
     y = 0;
@@ -621,7 +622,7 @@ int StageInterface::ypos() {
 int StageInterface::theta() {
   int th;
   stg_position_data_t* data = stagePositionData();
-  if(data) [[likely]]
+  if(data) LIKELY
     th = (int) ArMath::roundInt(RTOD(data->pose.a));
   else
     th = 0;
@@ -631,7 +632,7 @@ int StageInterface::theta() {
 int StageInterface::xspeed() {
   stg_velocity_t* data = stageVelocityData();
   int x;
-  if(data) [[likely]]
+  if(data) LIKELY
     x = (int) ArMath::roundInt(data->x * 1000.0);
   else
     x = 0;
@@ -641,7 +642,7 @@ int StageInterface::xspeed() {
 int StageInterface::yspeed() {
   stg_velocity_t* data = stageVelocityData();
   int y;
-  if(data) [[likely]]
+  if(data) LIKELY
     y = (int) ArMath::roundInt(data->y * 1000.0);
   else 
     y = 0;
@@ -722,7 +723,7 @@ size_t StageInterface::forEachSonarReading(SonarReadingFunc &func, const size_t 
 #endif
   size_t len = 0;
   stg_ranger_sample_t *data = (stg_ranger_sample_t*)stg_model_get_property(sonarModel, "ranger_data", &len);
-  if(!data) [[unlikely]] {
+  if(!data) UNLIKELY {
     //puts(">> sonar data is null.");
     return 0;
   }
@@ -770,7 +771,7 @@ int StageInterface::Laser::getReflectance(int i) {
 }
 
 size_t StageInterface::forEachLaserReading(size_t lasernum, LaserReadingFunc &func, const size_t &start) {
-  if(lasernum >= lasers.size()) [[unlikely]]
+  if(lasernum >= lasers.size()) UNLIKELY
     return 0;
   return lasers[lasernum].forEachReading(func, start);
 }
@@ -780,7 +781,7 @@ size_t StageInterface::Laser::forEachReading(LaserReadingFunc &func, const size_
     return 0;
   size_t len = 0;
   stg_laser_sample_t *data = (stg_laser_sample_t*)stg_model_get_property(stageModel, "laser_data", &len);
-  if(!data) [[unlikely]]
+  if(!data) UNLIKELY
   {
     return 0;
   }
@@ -843,7 +844,7 @@ void StageInterface::Laser::open() {
 }
 
 void StageInterface::openLaser(size_t i) {
-  if(i >= lasers.size()) [[unlikely]]
+  if(i >= lasers.size()) UNLIKELY
     return;
   lasers[i].open();
 }
@@ -879,7 +880,7 @@ void StageInterface::setLaserResolution(size_t i, double inc) {
 }
 
 void StageInterface::Laser::setResolution(double inc) {
-  if(!stageModel) [[unlikely]]{
+  if(!stageModel) UNLIKELY{
     return;
   }
   stg_laser_config_t* lasercfg = (stg_laser_config_t*)stg_model_get_property_fixed(stageModel, "laser_cfg", sizeof(stg_laser_config_t));
@@ -892,7 +893,7 @@ void StageInterface::Laser::setResolution(double inc) {
 }
 
 double StageInterface::getLaserResolution(size_t i) {
-  if(i >= lasers.size()) [[unlikely]] {
+  if(i >= lasers.size()) UNLIKELY {
     warn("this robot has no laser %d, can't get its resolution.", i);
     return 0.0;
   }
@@ -912,7 +913,7 @@ double StageInterface::Laser::getResolution() {
 }
 
 void StageInterface::setLaserFOV(size_t i, double deg) {
-  if(i >= lasers.size()) [[unlikely]] return;
+  if(i >= lasers.size()) UNLIKELY return;
   lasers[i].setFOV(deg);
 }
 
@@ -932,7 +933,7 @@ double StageInterface::getLaserFOV(size_t i) {
 }
 
 double StageInterface::Laser::getFOV() {
-  if(!stageModel) [[unlikely]] return 0.0;
+  if(!stageModel) UNLIKELY return 0.0;
   stg_laser_config_t* lasercfg = (stg_laser_config_t*)stg_model_get_property_fixed(stageModel, "laser_cfg", sizeof(stg_laser_config_t));
   assert(lasercfg);
   double fov = RTOD(lasercfg->fov);
@@ -940,22 +941,22 @@ double StageInterface::Laser::getFOV() {
 }
 
 double StageInterface::getLaserStartAngle(size_t i) {
-  if(i >= lasers.size()) [[unlikely]] return 0.0;
+  if(i >= lasers.size()) UNLIKELY return 0.0;
   return lasers[i].startAngle;
 }
 
 double StageInterface::getLaserEndAngle(size_t i) {
-  if(i >= lasers.size()) [[unlikely]] return 0.0;
+  if(i >= lasers.size()) UNLIKELY return 0.0;
   return lasers[i].endAngle;
 }
 
 void StageInterface::setLaserAngles(size_t i, double start, double end) {
-  if(i >= lasers.size()) [[unlikely]] return;
+  if(i >= lasers.size()) UNLIKELY return;
   lasers[i].setAngles(start, end);
 }
 
 void StageInterface::Laser::setAngles(double start, double end) {
-  if(!stageModel) [[unlikely]] return;
+  if(!stageModel) UNLIKELY return;
   // stage only has symmetrical laser at some fov angle
   stg_laser_config_t* lasercfg = (stg_laser_config_t*)stg_model_get_property_fixed(stageModel, "laser_cfg", sizeof(stg_laser_config_t));
   assert(lasercfg);
@@ -1122,7 +1123,7 @@ void StageInterface::logState()
 
 bool StageInterface::haveStateOfCharge()
 {
-  if(!params) [[unlikely]] return false;
+  if(!params) UNLIKELY return false;
   return (params->BatteryType == 2);
 }
 

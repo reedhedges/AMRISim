@@ -1,5 +1,5 @@
-#ifndef _NETWORK_DISCOVERY_HH_
-#define _NETWORK_DISCOVERY_HH_
+#ifndef NETWORK_DISCOVERY_HH_
+#define NETWORK_DISCOVERY_HH_
 
 
 /*  

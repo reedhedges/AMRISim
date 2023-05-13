@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef _AMRISIM_HH_
-#define _AMRISIM_HH_
+#ifndef AMRISIM_HH_
+#define AMRISIM_HH_
 
 #include "Aria/ariaUtil.h"
 #include <set>
@@ -209,7 +209,7 @@ class LogInterface {
   std::string name;
 public:
 
-  LogInterface(const std::string& _name) : name(_name) {}
+  explicit LogInterface(const std::string& _name) : name(_name) {}
 
   virtual ~LogInterface() = default;
   LogInterface(const LogInterface& other) = delete;

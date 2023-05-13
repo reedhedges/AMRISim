@@ -315,14 +315,17 @@ class RobotInterface : public LogInterface {
     virtual std::string laserType(size_t i) = 0;
     virtual std::string laserName(size_t i) = 0;
 
-    virtual void logState()
+    virtual void logState() 
     {
-      int x, y, th, tv, rv;
-      bool stall, motorsEnabled;
-      getMotionState(x, y, th, tv, rv, stall, motorsEnabled);
+      int x{0}, y{0}, th{0}, tv{0}, rv{0};
+      bool stall{false}, motorsEnabled{false};
+      bool valid = getMotionState(x, y, th, tv, rv, stall, motorsEnabled);
       log("Times: last=%d, sim=%d, real=%d", getLastInterval(), getSimInterval(), getRealInterval());
-      log("State config: requestedOpenSonar=%d, sonarOpen=%d, laserOpen=%d, motorsEnabled=%d, stalled=%d", 
-              sonarOpenRequested(), sonarOpen(), laserOpen(), motorsEnabled, stall);
+      log("State config: requestedOpenSonar=%d, sonarOpen=%d, laserOpen=%d", sonarOpenRequested(), sonarOpen(), laserOpen());
+      if(valid)
+        log(" motorsEnabled=%d, stalled=%d", motorsEnabled, stall);
+      else
+        log(" motorsEnabled=? stalled=?");
       size_t numlasers = numLasers();
       log(" havePosition=%d, haveGripper=%d, haveFrontSonar=%d, haveRearSonar=%d, haveSonar=%d, numSonarReadings=%d, numLasers=%u",
         havePositionData(), haveGripper(), haveFrontSonar(), haveRearSonar(), haveSonar(), numSonarReadings(), numlasers);

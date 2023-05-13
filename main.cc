@@ -78,9 +78,9 @@
 #include "Tracy.hpp"
 #endif
 
-using namespace AMRISim;
-
 #include <stdio.h>
+
+
 // if defined, measure time it takes to do world updates in main loop
 //#define DEBUG_LOOP_TIME 1
 
@@ -567,13 +567,13 @@ int main(int argc, char** argv)
           model = arg.substr(0, sep);
           name = model;
 
-          int i = 2;
-          for (; robotInstanceRequests.find(name) != robotInstanceRequests.end() && i <= 999; ++i)
+          int j = 2;
+          for (; robotInstanceRequests.find(name) != robotInstanceRequests.end() && i <= 999; ++j)
           {}
 
           char buf[4];
-          assert(i <= 999);
-          int r = snprintf(buf, 4, "%03d", i);
+          assert(j <= 999);
+          int r = snprintf(buf, 4, "%03d", j);
           assert(r >= 4);
           name = model + "_" + buf;
         } else {
@@ -1284,7 +1284,7 @@ int main(int argc, char** argv)
 
   /* Create any robot factories specified */
   int facport = opt.port;
-  for(std::list<std::string>::iterator i = robotFactoryRequests.begin(); i != robotFactoryRequests.end(); i++)
+  for(std::list<std::string>::iterator i = robotFactoryRequests.begin(); i != robotFactoryRequests.end(); ++i)
   {
     const char *modelname = (*i).c_str();
     stg_print_msg("AMRISim: Creating new robot factory for \"%s\"...", modelname);
@@ -1391,7 +1391,7 @@ int main(int argc, char** argv)
   /* Create interfaces for each position model.
    * TODO create robot models in stage here too instead of in the world file in create_stage_world. */
   for(std::map<std::string, std::string>::const_iterator i = robotInstanceRequests.begin();
-      i != robotInstanceRequests.end(); i++)
+      i != robotInstanceRequests.end(); ++i)
   {
     const std::string& name = (*i).first;
     const std::string& model = (*i).second;
@@ -1436,6 +1436,7 @@ int main(int argc, char** argv)
 
 #ifndef AMRISIM_NOGUI
   /* Set window mode as requested */
+  using namespace AMRISim; // contains Options
   switch(opt.windowmode)
   {
     case Options::MAXIMIZE_WINDOW:
@@ -1562,7 +1563,7 @@ int main(int argc, char** argv)
       //ArTime t;
       AMRISim::sleep((unsigned int) untilStageUpdate);
       //print_debug("Waiting for stage update: sleep(%ld) took %ld ms", untilStageUpdate, t.mSecSince());
-      if(lastStageUpdate.mSecSince() > stageUpdateWarningTime)
+      if(lastStageUpdate.mSecSince() > stageUpdateWarningTime) UNLIKELY
         print_warning("Took >%u ms since last stage simulation update (%ld, interval is %ld)", stageUpdateWarningTime, lastStageUpdate.mSecSince(), stageUpdateFreq);
       lastStageUpdate.setToNow();
       stageUpdateDue.setToNow(); 
@@ -1575,7 +1576,7 @@ int main(int argc, char** argv)
       //ArTime t;
       AMRISim::sleep((unsigned int) untilClientOutput);
       //print_debug("Waiting for client output: sleep(%ld) took %ld ms", untilClientOutput, t.mSecSince());
-      if(lastClientOutput.mSecSince() > clientOutputWarningTime)
+      if(lastClientOutput.mSecSince() > clientOutputWarningTime) UNLIKELY
         print_warning("Warning: Took >%u ms since last clients output update (%ld, interval is %ld)", clientOutputWarningTime, lastClientOutput.mSecSince(), clientOutputFreq);
       lastClientOutput.setToNow();
       clientOutputDue.setToNow();
@@ -1645,7 +1646,7 @@ int main(int argc, char** argv)
         lastRobotFactory.mSecSince() > RobotFactoryMaxFreq)
     {
      lastRobotFactory.setToNow();
-      for (std::set<RobotFactory *>::iterator robotFac_it = robotFactories.begin(); robotFac_it != robotFactories.end(); robotFac_it++)
+      for (std::set<RobotFactory *>::iterator robotFac_it = robotFactories.begin(); robotFac_it != robotFactories.end(); ++robotFac_it)
       {
         (*robotFac_it)->createNewRobotsFromClientsList();
       }

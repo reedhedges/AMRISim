@@ -46,7 +46,7 @@ support, see instructions below.
 
 ### Linux
 
-To build AMRISim on Linux, you will need ROS1 noetic, 
+To build AMRISim on Linux, you will (optionally) need ROS1 noetic, 
 Aria or AriaCoda, GTK 2.x, including 
 development packages, and the full GNU development tools: 
 G++, make, libtool, automake, and autoconf.  
@@ -71,6 +71,9 @@ is expected to be installed in /opt/ros/noetic.
 The ROS1 environment must be setup before building:
   
     . /opt/ros/noetic/setup.bash
+
+If you do not wish to include ROS1 support in AMRISim, it can
+be disabled during build (see below).
 
 Follow the instructions below to build AMRISim.
 
@@ -208,18 +211,18 @@ ARIACoda in an "../AriaCoda" directory (in the parent directory, i.e.
 both the AriaCoda source code and AMRISim source code should be
 in the same parent directory).  
 
-If you want to use the version of
-ARIA already installed on your system, set the ARIA environment variable to
-its installation location:
+If you want to use a version of ARIA or AriaCoda in a different location,
+set the ARIA environment variable to its installation or source location:
 
-For Linux:
+Examples:
+
     export ARIA=/usr/local/Aria
 
-For Windows with MinGW:
-    export ARIA="/c/Program Files/MobileRobots/Aria"
+    export ARIA=$HOME/stuff/AriaCoda
 
-Or, if you have unpacked and built the ARIA source code in ~/ARIA-src-2.9.2:
     export ARIA=~/ARIA-src-2.9.2
+
+    export ARIA="/c/Program Files/MobileRobots/Aria"
 
 AMRISim uses `pkg-config` to determine appropriate build flags for ROS1.
 To allow `pkg-config` to determine these, the ROS1 build/run environment
@@ -234,7 +237,9 @@ compilation options:
 
     CC                      Set the C compiler; if unset, "cc" is used.
 
-    CFLAGS                  Additional compilation flags.
+    EXTRA_CFLAGS            Additional compilation flags. E.g. EXTRA_CFLAGS="-march=native -mtune=native"
+
+    EXTRA_CXXFLAGS          Additional compilation flags for C++ code (not used for C files.)  E.g. EXTRA_CXXFLAGS=-std=c++20
     
     LFLAGS                  Additional linker flags.
   
@@ -271,12 +276,10 @@ compilation options:
   
     AMRISIM_INCLUDE_ROS1    Include (yes) or omit (no) ROS1 support (see details below)
 
-For example, to build with debugging options enabled:
+For example, to build with debugging options enabled but ROS1 support disabled:
 
-    make AMRISIM_DEBUG=1
+    make AMRISIM_DEBUG=1 AMRISIM_INCLUDE_ROS1=no
 
-
-You can also edit Makefile if necessary.
 
 Note: AMRISim requires certain resources at runtime (such the robot models definitions
 file) to work correctly, so you must either install AMRISim with
@@ -284,7 +287,7 @@ file) to work correctly, so you must either install AMRISim with
 source directory (or another directory containing AMRISim's resources):
 
 For example:
-  export AMRISIM=~/AMRISim-0.7.3
+  export AMRISIM=~/AMRISim
 
 If you do not set this, AMRISim will attempt to load the robot models
 definitions from /usr/local/AMRISim/PioneerRobotModels.world.inc, which
@@ -315,7 +318,7 @@ source files and headers containing ROS1 and Pioneer support. Do
 so with the `dep` rule and the desired variable value:
 
     make dep AMRISIM_INCLUDE_ROS1=no
-    make AMRISIM_INCLUDEROS1=no
+    make AMRISIM_INCLUDE_ROS1=no
 
 Or together:
 
@@ -323,7 +326,7 @@ Or together:
 
 You can also set environment variables as well:
 
-    export AMRISIM_INCLUDEROS1=no
+    export AMRISIM_INCLUDE_ROS1=no
     make dep
     make all
 

@@ -132,7 +132,6 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
 
   struct stat path_st;
   struct stat file_st;
-  char fileName[256];
   char curPath[256];
   char copyPath[256];
 
@@ -173,6 +172,7 @@ bool MapLoader::newMap(const std::string& newmapfile, [[maybe_unused]] RobotInte
     const int sr = system(cpCommand);
     assert(sr == 0);
 
+    char fileName[256];
     ArUtil::getFileName(newmapfile.c_str(), fileName, 256);
 
     std::string newname;
@@ -1193,7 +1193,7 @@ stg_model_t* MapLoader::loadReflector(ArMapObject* obj, stg_model_t* /*map_model
   size_t i = 0;
   for(; stg_world_model_name_lookup(world, token) != NULL; i++)
   {
-    snprintf(token, 32, "Reflector:%lu", i); // try next number
+    snprintf(token, 32, "Reflector:%zu", i); // try next number
   }
 
   // find a unique id number
@@ -1264,7 +1264,7 @@ stg_model_t* MapLoader::loadBoxObstacle(ArMapObject* obj, stg_model_t* /*map_mod
   size_t i = 0;
   for(; stg_world_model_name_lookup(world, token) != NULL; i++)
   {
-    snprintf(token, 32, "Box:%lu", i); // try next number
+    snprintf(token, 32, "Box:%zu", i); // try next number
   }
 
   // find a unique name
@@ -1358,10 +1358,10 @@ bool MapLoader::shouldReloadMap(const std::string& newmapfile)
       strftime(filemod_buff, sizeof(filemod_buff), "%b %d %H:%M:%S", timeinfo);
       //delete(timeinfo);
       //if (lastMapReloadTime != 0)
-      {
+      //{
         timeinfo = localtime (&(lastMapReloadTime));
         strftime(modrec_buff, sizeof(modrec_buff), "%b %d %H:%M:%S", timeinfo);
-      }
+      //}
       //delete(timeinfo);
       //ArLog::log(ArLog::Normal, "shouldReloadMap: %s's last update: %s, lastMapReloadTime: %s", newmapfile.c_str(), filemod_buff, modrec_buff);
     }

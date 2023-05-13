@@ -3,7 +3,7 @@
     "istream": "cpp"
   },
   "clangtidy.buildPath": "${workspaceFolder}",
-  "clangtidy.fileFilter": ".*\\.(h|hpp|cpp|cc)$",
+  "clangtidy.fileFilter": ".*\\.(hh|hpp|cpp|cc)$",
   "clangtidy.outputPath": "${workspaceFolder}/clang_tidy",
   "clangtidy.sourcePath": "${workspaceFolder}",
   "cSpell.words": [

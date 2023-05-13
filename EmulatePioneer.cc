@@ -28,6 +28,7 @@
 #include "MapLoader.hh"
 #include "ArMap.h"
 #include "ArGPSCoords.h"
+#include "util.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -660,7 +661,7 @@ int EmulatePioneer::processAll(int maxTime)
 
   //printf("processAll(%d) ourActiveInstances.size()==%d\n", maxTime, ourActiveInstances.size());
 
-  if(ourActiveInstances.size() == 0)
+  if(ourActiveInstances.size() == 0) UNLIKELY
     return IDLE;
   if(maxTime < 0)
     maxTime = 0;
@@ -692,7 +693,7 @@ int EmulatePioneer::processAll(int maxTime)
     EmulatePioneer *ep = *i;
 
     // process session, delete object if requested
-    if( ep == NULL ) {
+    if( ep == NULL ) UNLIKELY {
       print_warning("EP::processAll: Encountered NULL EmulatePioneer* instance! Ignoring");
       continue;
     }
@@ -707,7 +708,7 @@ int EmulatePioneer::processAll(int maxTime)
       status = ep->status;
       //print_debug("EP::processAll: after processSession(%p). Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, AMRISim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
 
-      if(status & DISCONNECTED)
+      if(status & DISCONNECTED) UNLIKELY
       {
         //print_debug("EP::processAll: after processSession: %p disconnected. Status=0x%x (%s) [DISCONNECTED=%p, DELETEME=%p, DISCONNECTED|DELETEME=%p]", ep, status, AMRISim::byte_as_bitstring(status).c_str(), DISCONNECTED, DELETEME, DISCONNECTED|DELETEME);
         //print_debug("EP::processAll: after processSession: removing %p from active list...", ep);
@@ -719,7 +720,7 @@ int EmulatePioneer::processAll(int maxTime)
           print_debug("!!!!!!!!! EP::processAll: why did it not throw? !!!!!!!!!!!"); exit(-99);
         }
       }
-      else
+      else LIKELY
       {
         ++i; // advance through ourActiveInstances normally
       }
@@ -754,7 +755,7 @@ int EmulatePioneer::processAll(int maxTime)
   } while(i != ourNextActiveInstance); // stop if we've wrapped around
 
 
-  if(n < ourActiveInstances.size())
+  if(n < ourActiveInstances.size()) UNLIKELY
   {
     print_warning("Processed only %zu out of %zu clients in one loop. This may indicate too many clients, network problems, or some other problem. (The other clients will be processed in next loop.)", n, ourActiveInstances.size());
   }
@@ -782,7 +783,7 @@ bool EmulatePioneer::processSession()
     }
 */
 
-    if(!sessionActive || !session)
+    if(!sessionActive || !session) UNLIKELY
     {
       // Either still in SYNC and newSession() hasn't been called yet, or for processSession() was called after endSession() [which should NOT happen]
       //print_debug("EmulatePioneer::processSession: client not connected. returning.");
@@ -794,7 +795,7 @@ bool EmulatePioneer::processSession()
     // If it's been too long since we received a command, 
     // warn (like the robot's watchdog behavior, but don't stop).  
     // If it's been way too long, // exit.
-    if(params.WatchdogTime != 0 && session->gotLastValidCommand.mSecSince() > params.WatchdogTime && !session->inWatchdogState)
+    if(params.WatchdogTime != 0 && session->gotLastValidCommand.mSecSince() > params.WatchdogTime && !session->inWatchdogState) UNLIKELY
     {
       warn("Have not received a valid command packet in %d msec. (Watchdog timeout is %d msec.) [no action taken other than this warning]",
           session->gotLastValidCommand.mSecSince(), params.WatchdogTime);
@@ -803,7 +804,7 @@ bool EmulatePioneer::processSession()
     }
 
     // check for client timeout
-    if(session->gotLastCommand.mSecSince() > CLIENT_CONNECTION_TIMEOUT)
+    if(session->gotLastCommand.mSecSince() > CLIENT_CONNECTION_TIMEOUT) UNLIKELY
     {
       warn("Have not received any data from client in %.1f sec, ", (double)(session->gotLastCommand.mSecSince())/1000.0);
       // rh 3/21/2012 we decided not to close connection due to this timeout.
@@ -813,7 +814,7 @@ bool EmulatePioneer::processSession()
     }
 
     // check if we are done performing an estop (Fast stop)
-    if(session->eStopInProgress)
+    if(session->eStopInProgress) UNLIKELY
     {
       int x, y, theta;
       robotInterface->getVelocity(x, y, theta);
@@ -847,14 +848,14 @@ bool EmulatePioneer::processSession()
       // disconnected because we will never get an error on write. This is OK
       // if the only time session->sipGen.stop() is called, is from a CLOSE command,
       // since the client connection is forced closed then anyway.
-      if(sip)
+      if(sip) LIKELY
       {
         //print_debug("Sending SIP; %ld ms since last", session->sentLastSIP.mSecSince());
-        if(sip->getLength() > 200)
+        if(sip->getLength() > 200) UNLIKELY
           warn("I'm sending a SIP that's more than 200 bytes long (%d bytes)! (This violates the protocol and ought not happen.)", sip->getLength());
 //puts("sending SIP");fflush(stdout);
         int fd = session->connection.getSocket()->getFD();
-        if(session->connection.write(sip->getBuf(), sip->getLength()) < 0)
+        if(session->connection.write(sip->getBuf(), sip->getLength()) < 0) UNLIKELY
         {
           warn("Error sending SIP to client. Closing connection. (fd=%d)", fd);
           endSession();       
@@ -871,7 +872,7 @@ bool EmulatePioneer::processSession()
       while(ArRobotPacket* laserPkt = session->laserGen.getPacket())
       {
         int fd = session->connection.getSocket()->getFD();
-        if(session->connection.write(laserPkt->getBuf(), laserPkt->getLength()) == -1)
+        if(session->connection.write(laserPkt->getBuf(), laserPkt->getLength()) == -1) UNLIKELY
         {
           warn("Error sending laser packet to client. Closing connection. (fd=%d)", fd);
           endSession();       
@@ -1874,7 +1875,7 @@ ArRobotPacket* SIPGenerator::getPacket()
   bool stalled, motorsEnabled;
   const bool havedata = robotInterface->getMotionState(x, y, theta, transVel, rotVel, stalled, motorsEnabled);
 
-  if(havedata) [[likely]]
+  if(havedata) LIKELY
   {
 
     // different packet ID if robot is moving or stopped: (or should it be for
@@ -2348,13 +2349,13 @@ bool EmulatePioneer::insideBadGPSSector(const ArPose& p)
   return false;
 }
 
-bool EmulatePioneer::sendMapChanged(std::string mapname, bool user, int8_t status)
+bool EmulatePioneer::sendMapChanged(const std::string& mapname, bool user, int8_t stat)
 {
   ArRobotPacket pkt;
   pkt.empty();
   pkt.setID(102);
   pkt.uByteToBuf(user);
-  pkt.byteToBuf(status);
+  pkt.byteToBuf(stat);
   pkt.strToBuf(mapname.c_str());
   pkt.finalizePacket();
   return session->connection.write(pkt.getBuf(), pkt.getLength());
@@ -2395,12 +2396,6 @@ void EmulatePioneer::loadMapObjects(ArMap *map)
 }
 
 
-void Session::checkLogStats(LogInterface* l)
-{
-  if((unsigned long) loggedStats.mSecSince() >= AMRISim::log_stats_freq) {
-    logStats(l);
-  }
-}
 
 void Session::logStats(LogInterface *l)
 {
@@ -2413,24 +2408,5 @@ void Session::logStats(LogInterface *l)
   miscPacketsSent = 0;
 }
 
-void Session::gotPacket()
-{
-  ++packetsReceived;
-  gotLastCommand.setToNow();
-  gotLastValidCommand.setToNow();
-}
 
-void Session::sentPacket()
-{
-  ++packetsSent;
-}
 
-void Session::sentLaserPacket()
-{
-  ++laserPacketsSent;
-}
-
-void Session::sentMiscPacket()
-{
-  ++miscPacketsSent;
-}

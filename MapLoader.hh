@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef _EP_STAGE_MAP_LOADER_HH_
-#define _EP_STAGE_MAP_LOADER_HH_
+#ifndef EP_STAGE_MAP_LOADER_HH_
+#define EP_STAGE_MAP_LOADER_HH_
 
 #include <set>
 #include <string>
@@ -40,25 +40,23 @@ class ArMapObject;
 class RobotInterface;
 class ArFunctor;
 
-class MapLoadedInfo {
-public:
-  double min_x;
-  double min_y;
-  double max_x;
-  double max_y;
-  double home_x;
-  double home_y;
-  double home_th;
-  bool have_home;
+struct MapLoadedInfo {
+  double min_x = 0;
+  double min_y = 0;
+  double max_x = 0;
+  double max_y = 0;
+  double home_x = 0;
+  double home_y = 0;
+  double home_th = 0;
+  bool have_home = false;
   std::string filename;
-  int status; ///< 0=not reloaded, already loaded; 1=loaded; 2=error, file not found
-  ArMap *map;
-  MapLoadedInfo() : min_x(0), min_y(0), max_x(0), max_y(0), home_x(0), home_y(0), home_th(0), have_home(false), status(1), map(0)
-  {}
+  int status = 0; ///< 0=not reloaded, already loaded; 1=loaded; 2=error, file not found
+  ArMap *map = nullptr;
+  //MapLoadedInfo() : min_x(0), min_y(0), max_x(0), max_y(0), home_x(0), home_y(0), home_th(0), have_home(false), status(1), map(nullptr)
+  //{}
 };
 
-typedef ArFunctor1<MapLoadedInfo>* MapLoadedCallback;
-  ///< minx, miny, maxx, maxy, homex, homey, hometh
+using MapLoadedCallback = ArFunctor1<MapLoadedInfo>*;
 
 /** Load data from an ActivMedia/MobileRobots map file into
  * a Stage world, and keep track of models created. This class contains
@@ -164,7 +162,8 @@ private:
     stg_laser_return_t laser_return = 1;
     bool sonar_return = true;
     ObjectClass() {}
-    ObjectClass(const std::string& _name) : name(_name), obstacle(true), laser_return(1), sonar_return(1) {}
+    explicit ObjectClass(const std::string& _name) : name(_name) {}
+//, obstacle(true), laser_return(1), sonar_return(1) {}
   };
   stg_model_t* loadReflector(ArMapObject* cairnObj, stg_model_t* map_model, stg_laser_return_t laser_return);
   stg_model_t* loadBoxObstacle(ArMapObject* cairnObj, stg_model_t* map_model, ObjectClass objclass);

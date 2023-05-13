@@ -23,11 +23,12 @@
  *
  */
 
-#ifndef _EP_STAGE_INTERFACE_HH_
-#define _EP_STAGE_INTERFACE_HH_
+#ifndef EP_STAGE_INTERFACE_HH_
+#define EP_STAGE_INTERFACE_HH_
 
 #include "RobotInterface.hh"
-//#include "ArMutex.h"
+#include "util.h"
+
 #include <string>
 #include <set>
 #include <deque>
@@ -130,107 +131,107 @@ class StageInterface final : public virtual RobotInterface
     bool areMotorsEnabled;
 
   public:
-    virtual void openSonar();
-    virtual void closeSonar();
-    virtual bool sonarOpen() { return subscribedToSonar && openedSonar; }
-    virtual void openLaser(size_t i);
-    virtual void closeLaser(size_t i);
-    virtual bool laserOpen(size_t i) { return i < lasers.size() && lasers[i].opened; }
-    virtual void enableMotors(bool e);
-    virtual void transVel(int v);
-    virtual void latVel(int v);
-    virtual void rotVel(int v);
-    virtual void move(int m);
-    virtual void heading(int h);
-    virtual void deltaHeading(int h);
-    virtual void stop();
-    virtual void stop(int transdecel, int rotdecel);
-    virtual void setAccel(int a);
-    virtual void setDecel(int d);
-    virtual void setRotAccel(int a);
-    virtual void setRotDecel(int d);
-    virtual void setLatAccel(int a);
-    virtual void setLatDecel(int d);
-    virtual void setMaxVel(int v) ;
-    virtual void setMaxRotVel(int v);
-    virtual void setDefaultVel(int v);
-    virtual void setDefaultRotVel(int v);
-    virtual void setOdom(int x, int y, int theta);
-    virtual void setSimulatorPose(long int x, long int y, long int z, int theta);
+    virtual void openSonar() override;
+    virtual void closeSonar() override;
+    virtual bool sonarOpen() override { return subscribedToSonar && openedSonar; }
+    virtual void openLaser(size_t i) override;
+    virtual void closeLaser(size_t i) override;
+    virtual bool laserOpen(size_t i) override { return i < lasers.size() && lasers[i].opened; }
+    virtual void enableMotors(bool e) override;
+    virtual void transVel(int v) override;
+    virtual void latVel(int v) override;
+    virtual void rotVel(int v) override;
+    virtual void move(int m) override;
+    virtual void heading(int h) override;
+    virtual void deltaHeading(int h) override;
+    virtual void stop() override;
+    virtual void stop(int transdecel, int rotdecel) override;
+    virtual void setAccel(int a) override;
+    virtual void setDecel(int d) override;
+    virtual void setRotAccel(int a) override;
+    virtual void setRotDecel(int d) override;
+    virtual void setLatAccel(int a) override;
+    virtual void setLatDecel(int d) override;
+    virtual void setMaxVel(int v) override ;
+    virtual void setMaxRotVel(int v) override;
+    virtual void setDefaultVel(int v) override;
+    virtual void setDefaultRotVel(int v) override;
+    virtual void setOdom(int x, int y, int theta) override;
+    virtual void setSimulatorPose(long int x, long int y, long int z, int theta) override;
     virtual void setSimulatorPose(const Pose& pose) override;
-    virtual void resetSimulatorPose();
-    virtual void stall(bool stalled);
+    virtual void resetSimulatorPose() override;
+    virtual void stall(bool stalled) override;
 
     // data:
-    virtual bool havePositionData();
-    virtual bool haveGripper();
-    virtual bool haveFrontSonar();
-    virtual bool haveRearSonar();
-    virtual bool haveSonar();
-    virtual bool haveLaser(size_t i);
-    virtual int xpos();
-    virtual int ypos();
-    virtual int theta();
-    virtual int xspeed();
-    virtual int yspeed();
-    virtual int rotspeed();
-    virtual bool getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &enabled);
-    virtual void getPosition(int &x, int &y, int &theta);
-    virtual void getVelocity(int &x, int &y, int &theta);
+    virtual bool havePositionData() override;
+    virtual bool haveGripper() override;
+    virtual bool haveFrontSonar() override;
+    virtual bool haveRearSonar() override;
+    virtual bool haveSonar() override;
+    virtual bool haveLaser(size_t i) override;
+    virtual int xpos() override;
+    virtual int ypos() override;
+    virtual int theta() override;
+    virtual int xspeed() override;
+    virtual int yspeed() override;
+    virtual int rotspeed() override;
+    virtual bool getMotionState(int &x, int &y, int &theta, int &transVel, int &rotVel, bool &stallflag, bool &enabled) override;
+    virtual void getPosition(int &x, int &y, int &theta) override;
+    virtual void getVelocity(int &x, int &y, int &theta) override;
     virtual bool motorsEnabled() const override { return areMotorsEnabled; }
-    virtual long getSimulatorPoseX();
-    virtual long getSimulatorPoseY();
-    virtual int getSimulatorPoseTheta();
-    virtual void getSimulatorPose(long &x, long &y, long &z, int &theta);
+    virtual long getSimulatorPoseX() override;
+    virtual long getSimulatorPoseY() override;
+    virtual int getSimulatorPoseTheta() override;
+    virtual void getSimulatorPose(long &x, long &y, long &z, int &theta) override;
     virtual Pose getSimulatorPose() override;
-    virtual bool stalled();
-    virtual size_t numSonarReadings();
+    virtual bool stalled() override;
+    virtual size_t numSonarReadings() override;
     virtual unsigned int getSonarRange(size_t i) override;
     virtual RobotInterface::Pose getSonarSensorPose(size_t i) override;
     virtual unsigned int getMaxSonarRange() override;
-    virtual size_t forEachSonarReading(SonarReadingFunc &func, const size_t &start = 0);
-    virtual char gripperState();
-    virtual size_t numLasers() { return lasers.size(); }
-    virtual std::string laserName(size_t i) { if(i <= lasers.size()) return ""; return lasers[i].name; }
-    virtual std::string laserType(size_t i) { if(i <= lasers.size()) return ""; return lasers[i].type; }
-    virtual size_t numLaserReadings(size_t lasernum);
-    virtual unsigned int getLaserReading(size_t lasernum, size_t i);
-    virtual size_t forEachLaserReading(size_t lasernum, LaserReadingFunc &func, const size_t &start = 0);
-    virtual int getLaserReflectance(size_t lasernum, int i);
-    virtual double getLaserResolution(size_t lasernum);  ///< Degrees between readings
-    virtual void setLaserResolution(size_t lasernum, double deg);  ///< Degrees between readings
-    virtual double getLaserFOV(size_t lasernum); ///< Total laser FOV
-    virtual void setLaserFOV(size_t lasernum, double deg); ///< Total laser FOV
-    virtual double getLaserStartAngle(size_t lasernum);  ///< Angle of first reading relative to robot
-    virtual double getLaserEndAngle(size_t lasernum);  ///< Angle of first reading relative to robot
-    virtual void setLaserAngles(size_t lasernum, double first, double last); ///< Angle of first and last readings relative to robot
-    virtual void error_s(const char* message); ///< critical error! locks stage mutex
-    virtual void warn_s(const char* message);  ///< locks stage mutex
-    virtual void inform_s(const char* message); ///< locks stage mutex
-    virtual void log_s(const char* message); ///< locks stage mutex
-    virtual void log_error_s(const char *message);
-    virtual void shutdown(int errorcode = 0);
-    virtual int getLastInterval();
-    virtual int getSimInterval();
-    virtual int getRealInterval();
-    virtual std::vector< RobotInterface::DeviceInfo > getDeviceInfo();
-    virtual bool haveStateOfCharge();
-    virtual void updateStateOfCharge();
+    virtual size_t forEachSonarReading(SonarReadingFunc &func, const size_t &start = 0) override;
+    virtual char gripperState() override;
+    virtual size_t numLasers() override { return lasers.size(); }
+    virtual std::string laserName(size_t i) override { if(i < lasers.size()) LIKELY return lasers[i].name; else return ""; }
+    virtual std::string laserType(size_t i) override { if(i < lasers.size()) LIKELY return lasers[i].type; else return ""; }
+    virtual size_t numLaserReadings(size_t lasernum) override;
+    virtual unsigned int getLaserReading(size_t lasernum, size_t i) override;
+    virtual size_t forEachLaserReading(size_t lasernum, LaserReadingFunc &func, const size_t &start = 0) override;
+    virtual int getLaserReflectance(size_t lasernum, int i) override;
+    virtual double getLaserResolution(size_t lasernum) override;  ///< Degrees between readings
+    virtual void setLaserResolution(size_t lasernum, double deg) override;  ///< Degrees between readings
+    virtual double getLaserFOV(size_t lasernum) override; ///< Total laser FOV
+    virtual void setLaserFOV(size_t lasernum, double deg) override; ///< Total laser FOV
+    virtual double getLaserStartAngle(size_t lasernum) override;  ///< Angle of first reading relative to robot
+    virtual double getLaserEndAngle(size_t lasernum) override;  ///< Angle of first reading relative to robot
+    virtual void setLaserAngles(size_t lasernum, double first, double last) override; ///< Angle of first and last readings relative to robot
+    virtual void error_s(const char* message) override; ///< critical error! locks stage mutex
+    virtual void warn_s(const char* message) override;  ///< locks stage mutex
+    virtual void inform_s(const char* message) override; ///< locks stage mutex
+    virtual void log_s(const char* message) override; ///< locks stage mutex
+    virtual void log_error_s(const char *message) override;
+    virtual void shutdown(int errorcode = 0) override;
+    virtual int getLastInterval() override;
+    virtual int getSimInterval() override;
+    virtual int getRealInterval() override;
+    virtual std::vector< RobotInterface::DeviceInfo > getDeviceInfo() override;
+    virtual bool haveStateOfCharge() override;
+    virtual void updateStateOfCharge() override;
 
-    virtual double getSimulatorOdomErrorX();
-    virtual double getSimulatorOdomErrorY();
-    virtual double getSimulatorOdomErrorTh();
-    virtual bool haveSimulatorOdomError() { return true; }
+    virtual double getSimulatorOdomErrorX() override;
+    virtual double getSimulatorOdomErrorY() override;
+    virtual double getSimulatorOdomErrorTh() override;
+    virtual bool haveSimulatorOdomError() override { return true; }
 
 
     /// Set whether this robot (and all of its component models) can be seen by other robots' sensors (laser,
     /// sonar)
-    virtual void setInvisible(bool s);
+    virtual void setInvisible(bool s) override;
 
     /// Set whether other robots can collide with this robot (and any of its component submodels)
-    virtual void setEphemeral(bool s);
+    virtual void setEphemeral(bool s) override;
 
-    virtual float getSimGPSDOP();
+    virtual float getSimGPSDOP() override;
 
 };
 

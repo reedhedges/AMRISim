@@ -35,4 +35,25 @@
     (strlen(long_arg) > 0 && strcmp(arg_given, "--" long_arg) == 0) || \
     (strlen(long_arg) > 0 && strcmp(arg_given, "-" long_arg) == 0)  )
 
+#if (__cplusplus >= 202000)
+  //#warning Building as C++20
+  #if __has_cpp_attribute(likely)
+    #define LIKELY [[likely]]
+  #else
+    #warning Building as C++20 or later but do not have [[likely]] according to __has_cpp_attribute(likely)
+    #define LIKELY
+  #endif
+  #if __has_cpp_attribute(unlikely)
+    #define UNLIKELY [[unlikely]]
+  #else
+    #warning Building as C++20 or later but do not have [[unlikely]] according to __has_cpp_attribute(unlikely)
+    #define UNLIKELY
+  #endif
+#else
+  //#warning not C++20
+  #define LIKELY
+  #define UNLIKELY
+#endif
+
+
 #endif

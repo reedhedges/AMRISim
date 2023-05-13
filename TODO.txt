@@ -9,8 +9,18 @@
 * Update to GTK 4 (see https://docs.gtk.org/gtk4/migrating-3to4.html).  Remove deprecated use, GTK 2.x support.
 * Update Windows MSYS build procedure and documentation (use GTK4) (see https://www.gtk.org/docs/installations/windows/)
 * Fix all warnings, fix all c++ code to correct usage for c++17.
+* Maybe get rid of "RTK" in stage and use Cairo/GDK directly?? (Kind of a lot of work.) 
+* In Stage, don't allocate small objects and pass pointers; just copy struct directly: (IN PROGRESS)
+  * stg_rtk_region_t (which is just a cairo_rect_int_t)
+  * stg_rtk_color_t, stg_rtk_point_t (these are not generally allocated)
+  * stg_rtk_stroke_t ? 
+* In Stage, some pairs of values are used for points and sizes separately; use a struct
+  which can be returned from accessor functions, and easily passed as parameter as well.
+* In Stage, could we combine stg_rtk_canvas_t's flags into one int struct member?
+* Does the movie capture stuff work? If not, remove code.
 * Still some constants defined with #define in EmulatePioneer.cpp, MapLoader.cpp, etc.
 * Update stage build for newer versions of autotools
+* Stage optimization: Store separate dynamically sized arrays (like std::vector) containing full objects; not array of pointers (model implementation should not allocate memory for the model struct, just initialize given pointer into model array.)  For each type of object (model) for state update (and render? -- then object (model) type determines render order, which might be fine. object types should have separate functions to draw their shape representation and sensor data visualizations)  
 * Debian/Ubuntu Packaging
 * Remove unused stuff 
 * Remove use of temp file
@@ -67,7 +77,7 @@
     to verify that the state of the simuator is correct?
   * Feature to record Pioneer protocol output
 * Add command to turn odometry error on/off
-* Add command to change any property?
+* Add GUI command to change any property?
 * Dynamically configurable model hierarcy and properties in GUI.
 * Replace GUI? Qt? Remote Web Frontend UI? Or just upgrade to newer GTK versions?
 * Maybe a remotely acessible web view (or start with simple
@@ -80,4 +90,5 @@
 * Rewind/play back simulation.
 * Run embedded scripts with access to simulator or stage API? (In thread safe
   way)
-
+* Optimize stg_rtk_canvas_t -- it is probably storing more than it needs to. Some of these don't need to be variables but constants. Some items can be stored as pointers in separate objects (which are allocated and initialized with the canvas struct). It can be reordered to reduce padding. 
+* Add command line options that enable setting of process priority (and/or main thread priority and affinity.) 

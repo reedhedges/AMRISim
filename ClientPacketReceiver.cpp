@@ -216,7 +216,7 @@ bool ClientPacketReceiver::readData(unsigned int msWait)
         // put rest of data <= myReadLength into packet.
         const int avail = n-i;
         assert(avail > 0);
-        const int rest = ArUtil::findMin(avail, myReadLength);
+        const int rest = std::min(avail, myReadLength);
         //printf("STATE_ACQUIRE_DATA: myReadDataCount=%d, i=%d, n=%d, avail=n-i=%d, myReadLength=%d. will take %d bytes of data for this packet.\n", myReadDataCount, i, n, n-i, myReadLength, rest);
         assert(rest > 0);
         myPacket.dataToBuf(myReadBuff+i, (size_t)rest);

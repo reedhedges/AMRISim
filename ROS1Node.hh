@@ -43,20 +43,22 @@
 
 class ROS1Node final : public ClientInterface, LogInterface {
 private:
-  RobotInterface *robot;
+  RobotInterface *robot = nullptr;
 
   ros::NodeHandle nodeHandle;
   ros::Publisher pose_pub;
   ros::Publisher bumpers_pub; 
   ros::Publisher sonar_pub;
   ros::Publisher sonar_pointcloud2_pub;
-  bool publish_sonar, publish_sonar_pointcloud2;
   ros::Publisher motors_state_pub;
-  std_msgs::Bool motors_state;
-  bool published_motors_state;
   ros::Subscriber cmdvel_sub;
   ros::ServiceServer enable_srv;
   ros::ServiceServer disable_srv;
+  std_msgs::Bool motors_state;
+
+  bool publish_sonar, publish_sonar_pointcloud2;
+  bool published_motors_state;
+
   bool enable_motors_cb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
   bool disable_motors_cb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
@@ -72,12 +74,12 @@ private:
   class PublishCallback : public virtual ros::CallbackInterface {
     ROS1Node *target;
   public:
-    PublishCallback(ROS1Node *rn) : target(rn) {}
-    virtual ros::CallbackInterface::CallResult call() {
+    explicit PublishCallback(ROS1Node *rn) : target(rn) {}
+    virtual ros::CallbackInterface::CallResult call() override {
       target->publish();
       return CallResult::TryAgain;
     }
-    virtual bool ready() {
+    virtual bool ready() override {
       return true; // TODO could get hint from simulation loop in main about whether it's time, but this is not neccesary as long as that main loop calls ros::spinOnce() to determine interval.
     }
   };

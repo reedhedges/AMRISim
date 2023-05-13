@@ -28,8 +28,8 @@
 
 #include "RobotInterface.hh"
 #include "MapLoader.hh"
-
 #include "ClientInterface.hh"
+#include "util.h"
 
 #include <assert.h>
 //#include <pthread.h>
@@ -347,8 +347,8 @@ protected:
   bool extendedInfoFormat;
   bool robotMoved;
 public:
-  LaserPacketGenerator(RobotInterface* _interface = 0, RobotParams* _params = 0, unsigned short deviceIndex = 0) :
-    PacketGenerator(_interface, _params, deviceIndex),
+  LaserPacketGenerator(RobotInterface* _interface = 0, RobotParams* _params = 0, unsigned short _deviceIndex = 0) :
+    PacketGenerator(_interface, _params, _deviceIndex),
     currentReading(0), extendedInfoFormat(false), robotMoved(false)
   {}
 
@@ -397,34 +397,38 @@ public:
  */
 class Session {
 public:
-    bool requestedOpenSonar {false};
-    ArTime started;
-    bool inWatchdogState {false};
-    bool eStopInProgress {false};
-    bool sendingSimstats {false};
-    ArTcpConnection connection;
-    ClientPacketReceiver packetReceiver;
-    ArRobotPacketSender packetSender;
-    CurrentSettings settings;
-    //ArSocket *clientSocket; use EmulatePioneer::myClientSocket instead
-    int syncSeq{0};
-    int handshakeAttempt{0};
-    ArTime syncStart;
-    SIPGenerator sipGen;
-    LaserPacketGenerator laserGen;
-    ArTime sentLastSIP;
-    ArTime gotLastCommand;
-    ArTime gotLastValidCommand;
     unsigned long packetsSent{0};
     unsigned long packetsReceived{0};
     unsigned long laserPacketsSent{0};
     unsigned long miscPacketsSent{0};
+    int syncSeq{0};
+    int handshakeAttempt{0};
+    bool requestedOpenSonar {false};
+    bool inWatchdogState {false};
+    bool eStopInProgress {false};
+    bool sendingSimstats {false};
+    bool gotSimSetPose{false};
+    //ArSocket *clientSocket; use EmulatePioneer::myClientSocket instead
+    ArTime syncStart;
+    ArTime started;
+    ArTime sentLastSIP;
+    ArTime gotLastCommand;
+    ArTime gotLastValidCommand;
     ArTime loggedStats;
     ArTime lastSimSetPoseTime;
     ArPose lastSimSetPose;
-    bool gotSimSetPose{false};
 
-    void init(RobotInterface *robotInterface, RobotParams *params, bool logSipsSent) {
+
+    ArTcpConnection connection;
+    ClientPacketReceiver packetReceiver;
+    ArRobotPacketSender packetSender;
+    CurrentSettings settings;
+
+    SIPGenerator sipGen;
+    LaserPacketGenerator laserGen;
+
+    void init(RobotInterface *robotInterface, RobotParams *params, bool logSipsSent) 
+    {
       sipGen.init(robotInterface, params);
       sipGen.setLogDataSent(logSipsSent);
       laserGen.init(robotInterface, params);
@@ -443,12 +447,36 @@ public:
       //print_debug("Session[0x%x]::init(params=0x%x): sipGen=0x%x, laserGen=0x%x", this, params, &sipGen, &laserGen);
     }
 
-    void checkLogStats(LogInterface *l);
-    void gotPacket();
-    void sentPacket();
-    void sentLaserPacket();
-    void sentMiscPacket();
+    void checkLogStats(LogInterface *l) 
+    {
+      if((unsigned long) loggedStats.mSecSince() >= AMRISim::log_stats_freq) UNLIKELY 
+      logStats(l);
+    }
+
+    void gotPacket()
+    {
+      ++packetsReceived;
+      gotLastCommand.setToNow();
+      gotLastValidCommand.setToNow();
+    }
+
+    void sentPacket()
+    {
+      ++packetsSent;
+    }
+
+    void sentLaserPacket()
+    {
+      ++laserPacketsSent;
+    }
+
+    void sentMiscPacket()
+    {
+      ++miscPacketsSent;
+    }
+
     void logStats(LogInterface *l);
+
     void gotSetSimPose(int x, int y, int th)
     {
       gotSimSetPose = true;
@@ -484,9 +512,9 @@ class EmulatePioneer final : public ClientInterface, public LogInterface
     class DeletionRequest : public virtual AMRISim::DeletionRequest
     {
     private:
-      EmulatePioneer* instance;
+      EmulatePioneer* instance = nullptr;
     public:
-      DeletionRequest(EmulatePioneer* _inst) : instance(_inst) {}
+      explicit DeletionRequest(EmulatePioneer* _inst) : instance(_inst) {}
       virtual void doDelete() override;
     };
 
@@ -707,7 +735,7 @@ public:
     bool sendSIMSTAT(ArDeviceConnection *con);
     bool SRISimCompat;
     bool SRISimLaserCompat;
-    bool sendMapChanged(std::string mapname, bool user = false, int8_t status=1);
+    bool sendMapChanged(const std::string& mapname, bool user = false, int8_t status=1);
     void newMapLoaded(MapLoadedInfo info);
     ArFunctor1C<EmulatePioneer, MapLoadedInfo> newMapLoadedCB;
     ArFunctor1C<EmulatePioneer, ArRobotPacket*> handlePacketCB;
