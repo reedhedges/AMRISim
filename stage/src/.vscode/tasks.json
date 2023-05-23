@@ -1,0 +1,54 @@
+
+
+// Copy this file to .vscode/tasks.json
+
+// https://code.visualstudio.com/docs/editor/tasks
+
+// There are some simple extensions to make it easier to run tasks:
+//  * "Tasks": Puts buttons in the bottom statusbar for each task
+//    * You can add a "statusbar" group inside "options" in a task with options such as "hide", "label", "color", "tooltip". You can use variables in "label" for icons (see <https://code.visualstudio.com/api/references/icons-in-labels> and <https://primer.style/design/foundations/icons>).
+//  * "Tasks Explorer"
+//  * "Build Button"
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "$(wrench) make",
+      "command": "make",
+      "type": "shell",
+      "args": [
+        "-j4"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always"
+      },
+      "group": { "kind": "build", "isDefault": true }
+    },
+
+    {
+      "label": "$(clear-all) make clean",
+      "command": "make",
+      "type": "shell",
+      "args": [ "clean" ],
+      "problemMatcher": [ "$gcc" ],
+      "presentation": { "reveal": "always" },
+      "group": "build"
+    },
+
+    {
+      "label": "$(gear) configure debug ",
+      "command": "./configure",
+      "args": ["-disable-optimizemap", "--enable-debug"],
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+
+
+  ]
+}
