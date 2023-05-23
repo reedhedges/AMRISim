@@ -3,16 +3,16 @@
         {
             "name": "default",
             "includePath": [
-                "${workspaceFolder}/**",
-                "../AriaCoda/include/Aria",
-                "../AriaCoda/include",
-                "/opt/ros/melodic/include/**"
+                "${workspaceFolder}/src",
+                "/usr/include/gtk-4.0",
+                "/usr/include/cairo",
+                "/usr/include/pango-1.0",
+                "/usr/include/gdk-pixbuf-2.0",
+                "/usr/include/glib-2.0"
             ],
             "defines": [
-                "AMRISIM_PIONEER",
-                "AMRISIM_ROS1",
-                "AMRISIM_VERSION=\"version will go here\"",
-                "AMRISIM_BUILDDATE=\"build date will go here\""
+                "GDK_DISABLE_DEPRECATED",
+                "GTK_DISABLE_DEPRECATED"
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",

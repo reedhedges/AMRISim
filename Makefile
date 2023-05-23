@@ -52,6 +52,9 @@
 # GNU autotools are required to build libstage.
 #
 # libnetpbm is needed to build convertBitmapToArMap (not built by default)
+#
+# TODO save some options state (like release/debug) in a file and re-build everything (including ARIA) if options change.
+# (Or just replace this Makefile with CMake.)
 
 
 
@@ -61,7 +64,11 @@ SHELL=$(warning at rule   $@.   Modified prerequisites are: [$?]    All prerequi
 endif
 
 ifdef AMRISIM_RELEASE
-AMRISIM_DEBUG=""
+#TODO how to "undef"? AMRISIM_DEBUG=""
+# TODO check whether $(CXX) is g++ or clang and use alternate LTO options if it's clang.
+ARIA_MAKE_OPTS:=EXTRA_CXXFLAGS=-flto
+else
+ARIA_MAKE_OPTS:="DEBUG=1"
 endif
 
 default: all
@@ -123,7 +130,7 @@ BINARY_DISTRIBUTED_FILES=$(COMMON_DISTRIBUTED_FILES) AMRISim$(binary_suffix) gdb
 SOURCE_DISTRIBUTED_FILES=$(COMMON_DISTRIBUTED_FILES) main.cc README.src.txt \
   *.cpp *.h *.hh *.cc stage/src/*.c stage/src/*.h stage/src/stagecpp.cc \
   stage/src/worldfile.hh stage/src/worldfile.cc stage/src/config.h.in \
-  stage/tests/*.c stage/configure.in stage/*/Makefile.in stage/*/Makefile.am \
+  stage/tests/*.c stage/configure.ac stage/*/Makefile.in stage/*/Makefile.am \
   stage/*/*/Makefile.in stage/*/*/Makefile.am stage/Makefile.in \
   stage/Makefile.am stage/AUTHORS stage/COPYING stage/ChangeLog stage/README \
   stage/README-Windows.txt stage/aclocal.m4 stage/doxygen.conf.in stage/INSTALL \
@@ -139,8 +146,9 @@ SOURCE_DISTRIBUTED_FILES_MAYBE=stage/compile stage/depcomp stage/ltmain.sh
 CFLAGS += -DAMRISIM
 CFLAGS += -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion \
 -Wmisleading-indentation \
--Wnull-dereference -Woverloaded-virtual \
+-Woverloaded-virtual \
 -Wcast-align 
+# -Wnull-dereference Useful to find potential bugs, but we don't neccesarily want to fix all of these warnings (sometimes not worth it or we want to crash on null deref)
 # -Wduplicated-cond -Wduplicated-barnches -Wlogical-op # not on clang, todo only add if CXX is gcc
 # -Wuseless-cast("useless" casts happen alot with GTK)
 # -Wnon-virtual-dtol -Wlifetime (clang only)
@@ -153,7 +161,7 @@ CXXFLAGS += $(EXTRA_CXXFLAGS)
 
 ifdef AMRISIM_DEBUG
 
-$(info Debug build)
+$(info AMRISim Debug Build)
 CFLAGS += -g -Og
 STAGE_CONFIGURE_ARGS = --disable-optimize --enable-debug 
 datestamp = $(shell date +%Y%m%d)
@@ -185,10 +193,13 @@ dist-all:
 
 else
 
-CFLAGS += -O2
-STAGE_CONFIGURE_ARGS = --enable-debug --enable-optimize=2 
+$(info AMRISim Release Build)
 
-LFLAGS += $(EXTRA_LFLAGS) $(RELEASE_EXTRA_LFLAGS)
+CXXFLAGS += -O3 -flto
+CFLAGS += -O3 -flto
+STAGE_CONFIGURE_ARGS = --enable-debug --enable-optimize --enable-lto
+
+LFLAGS += -flto=auto -fuse-linker-plugin $(EXTRA_LFLAGS) $(RELEASE_EXTRA_LFLAGS)
 
 dist-all: all
 
@@ -206,9 +217,10 @@ ifndef TAR_DIRECTORY
 TAR_DIRECTORY = AMRISim-$(VERSION)
 endif
 
-#ifndef ARIA
-#ARIA = ../AriaCoda
-#endif
+ifndef ARIA
+$(info Assuming libAria source code is in ../AriaCoda. Set ARIA variable to override.)
+ARIA = ../AriaCoda
+endif
 
 ifdef ARIA
 ARIA_LFLAG=-L$(ARIA)/lib
@@ -331,8 +343,8 @@ endif
 endif #host is MINGW32 or not
 
 ifdef ARIA
-# libAria.a file used as make rule dependency. use ARIA_LINK variable for link
-# option in link commands instead..
+# The LIBARIA variable is the make rule target and dependency. The ARIA_LINK variable is used in the link command line.
+# There is a rule below to build $(LIBARIA) with desired optimization or other options.
 LIBARIA=$(ARIA)/lib/libAria.a
 else
 LIBARIA=
@@ -460,11 +472,11 @@ ROS1_LINK = $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/opt/ros/$(ROS1RELEASE)/
 endif
 
 ifeq ($(AMRISIM_INCLUDE_PIONEER),yes)
-MSIM_CFLAGS = -DAMRISIM_PIONEER
+MSIM_CXXFLAGS += -DAMRISIM_PIONEER
 endif
 
-MSIM_CFLAGS += -DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" \
-  -I. $(CFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
+MSIM_CXXFLAGS += -DAMRISIM_VERSION=\"$(VERSION)\" -DAMRISIM_BUILDDATE="\"$(DATESTR)\"" \
+  -I. $(CXXFLAGS) -I$(STAGEDIR) -I$(STAGEDIR)/replace  -I$(STAGEDIR)/src \
 	$(GTK_CFLAGS) $(ARIA_CFLAGS) $(ROS1_CFLAGS)
 
 MSIM_LFLAGS  =  $(LFLAGS) 
@@ -494,19 +506,19 @@ all: AMRISim$(binary_suffix) $(EXTRA_TARGETS) columbia.map
 altdebug:  AMRISim_debug$(binary_suffix)
 
 %.o: %.cc
-	$(CXX) -c $(MSIM_CFLAGS) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(MSIM_CXXFLAGS) -o $@ $<
 
 # Make sure main.o gets rebuilt if dist/version.num changes, unless its missing (e.g. in source distribution package)
 ifneq ($(VERSION_NUM_FILE),)
 main.o: main.cc $(VERSION_NUM_FILE)
-	$(CXX) -c $(MSIM_CFLAGS) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(MSIM_CXXFLAGS) -o $@ $<
 endif
 
 %.o: %.cpp
-	$(CXX) -c $(MSIM_CFLAGS) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(MSIM_CXXFLAGS) -o $@ $<
 
-%.o: %.c
-	$(CC) -c $(MSIM_CFLAGS) -o $@ $<
+#%.o: %.c
+#	$(CC) -c $(MSIM_CFLAGS) -o $@ $<
 
 # Manually rebuild dep
 dep: clean cleandep 
@@ -516,7 +528,7 @@ include Makefile.dep
 
 Makefile.dep:  $(STAGEDIR)/src/config.h
 	$(info Building Makefile.dep)
-	$(CXX) $(MSIM_CFLAGS) -MM $(SOURCES) >Makefile.dep
+	$(CXX) $(MSIM_CXXFLAGS) -MM $(SOURCES) >Makefile.dep
 
 
 cleandep:
@@ -527,10 +539,10 @@ cleandep:
 # to build stage twice in parallel if using parallel jobserver, which causes
 # corrupted output files.
 AMRISim$(binary_suffix): $(STAGEDIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CXXFLAGS) $(MSIM_LFLAGS) -o $@ $(OBJS) $(STAGELIBS) $(GTK_LINK) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
 
 mobilesimd: $(STAGE_DIR)/src/stage.h $(STAGEDIR)/src/config.h $(STAGELIBDIR)/libstage_nogui.a $(OBJS) $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
+	$(CXX) $(MSIM_CXXFLAGS) -DAMRISIM_NOGUI $(MSIM_LFLAGS) -o mobilesimd $(OBJS) $(STAGELIBS) $(ARIA_LINK) $(ROS1_LINK) $(SYSTEM_LINK)
 
 AMRISim_debug$(binary_suffix): AMRISim
 	cp AMRISim$(binary_suffix) AMRISim_debug$(binary_suffix)
@@ -573,20 +585,23 @@ rezAMRISim: AMRISim
 %.html: %.md
 	pandoc -s --toc -f markdown -o $@ $<
 
-$(ARIA)/lib/libAria.a: FORCE
-	$(MAKE) -C $(ARIA) lib/libAria.a
+$(LIBARIA): FORCE
+	$(MAKE) -C $(ARIA) lib/libAria.a $(ARIA_MAKE_OPTS)
+
+rebuild-aria: FORCE
+	$(MAKE) -B -C $(ARIA) lib/libAria.a $(ARIA_MAKE_OPTS)
 
 #test_mainloop: test_mainloop.cc $(ARIA_OBJS)
-#	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
+#	$(CXX) $(MSIM_CXXFLAGS) $(MSIM_LFLAGS) -O3 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
 #
 #test_sleep_time: test_sleep_time.cc $(ARIA_OBJS)
-#	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
+#	$(CXX) $(MSIM_CXXFLAGS) $(MSIM_LFLAGS) -O3 -o $@ $< $(ARIA_OBJS) $(SYSTEM_LINK) && strip $@
 
 test_mainloop: test_mainloop.cc $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
+	$(CXX) $(MSIM_CXXFLAGS) $(MSIM_LFLAGS) -O3 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
 
 test_sleep_time: test_sleep_time.cc $(LIBARIA)
-	$(CXX) $(MSIM_CFLAGS) $(CXXFLAGS) $(MSIM_LFLAGS) -O2 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
+	$(CXX) $(MSIM_CXXFLAGS) $(MSIM_LFLAGS) -O3 -o $@ $< $(ARIA_LINK) $(SYSTEM_LINK) && strip $@
 
 
 ifndef AUTOCONF
@@ -620,7 +635,7 @@ $(STAGEDIR)/config.status $(STAGEDIR)/Makefile $(STAGEDIR)/src/config.h: $(STAGE
 	touch $@
 
 
-$(STAGEDIR)/configure:  $(STAGEDIR)/configure.in
+$(STAGEDIR)/configure:  $(STAGEDIR)/configure.ac
 	+cd $(STAGEDIR); \
 	  if test -d /usr/local/share/aclocal; then args="$(STAGE_AUTOCONF_ARGS) -I /usr/local/share/aclocal"; else args="$(STAGE_AUTOCONF_ARGS)"; fi; \
 	  echo running $(AUTORECONF) -i $$args and $(AUTOCONF) $$args ; \
@@ -634,7 +649,7 @@ stageconf: $(STAGEDIR)/config.status
 
 
 convertBitmapToArMap: convertBitmapToArMap.cc $(LIBARIA)
-	$(CXX) $(CFLAGS) $(ARIA_CFLAGS) $(CXXFLAGS) -o $@ $< $(ARIA_LINK) $(LIBNETPBM) $(SYSTEM_LINK) -lpthread
+	$(CXX) $(ARIA_CFLAGS) $(CXXFLAGS) -o $@ $< $(ARIA_LINK) $(LIBNETPBM) $(SYSTEM_LINK) -lpthread
 
 
 help:
@@ -651,11 +666,11 @@ help:
 	@echo '       make srcdist-dev'
 	@echo '       make bindist-release'
 	@echo '       make bindist-dev'
-	@echo '       make rpm'
-	@echo '       make dev-rpm'
 	@echo '       make deb'
 	@echo '       make dev-deb'
 	@echo '       make clang-tidy or clang-tidy-headers - Run clang-tidy. Set CLANG_TIDY_OPTS variable to add additional command-line options.'
+	@echo '       make rebuild-aria - force rebuilding of $$(ARIA)/lib/libAria.a'
+	@echo
 	@echo 'Set environment variable ARIA to specify location of AriaCoda or ARIA library directory. (Will assume ARIA header files in include subdirectory and library in lib subdirectory.)'
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE_GPROF to build with profiling information for use with gprof'
@@ -671,8 +686,8 @@ info:
 	@echo
 	@echo OBJS=$(OBJS)
 	@echo
-	@echo MSIM_CFLAGS=$(MSIM_CFLAGS)
 	@echo CXXFLAGS=$(CXXFLAGS)
+	@echo MSIM_CXXFLAGS=$(MSIM_CXXFLAGS)
 	@echo
 	@echo MSIM_LFLAGS=$(MSIM_LFLAGS)
 	@echo
@@ -712,7 +727,8 @@ cleanAMRISim:
 cleanAll: clean
 
 distclean: 
-	-$(MAKE) -C $(STAGEDIR) -k -j1 clean distclean 
+	+$(MAKE) -C $(ARIA) -k -j1 clean distclean
+	+$(MAKE) -C $(STAGEDIR) -k -j1 clean distclean 
 	-rm *.o
 	-rm tags
 
@@ -829,10 +845,10 @@ tags: $(SOURCES) $(HEADERS) $(STAGE_SRC)
 
 
 tidy: compile_flags.txt
-	clang-tidy $(CLANG_TIDY_OPTS) -header-filter=".*\.hh"   $(SOURCES) $(HEADERS) -- -x c++ $(MSIM_CFLAGS) $(CXXFLAGS)
+	clang-tidy $(CLANG_TIDY_OPTS) -header-filter=".*\.hh"   $(SOURCES) $(HEADERS) -- -x c++ $(MSIM_CXXFLAGS)
 
 tidy-headers: compile_flags.txt
-	clang-tidy $(CLANG_TIDY_OPTS) -header-filter=".*\.hh"   $(HEADERS) -- -x c++ $(MSIM_CFLAGS) $(CXXFLAGS)
+	clang-tidy $(CLANG_TIDY_OPTS) -header-filter=".*\.hh"   $(HEADERS) -- -x c++ $(MSIM_CXXFLAGS)
 
 clang-tidy: tidy
 
@@ -840,7 +856,7 @@ clang-tidy-headers: tidy-headers
 
 compile_flags.txt: FORCE
 	-rm $@
-	for f in $(MSIM_CFLAGS) $(CXXFLAGS); do echo "$$f" >> $@; done
+	for f in $(MSIM_CXXFLAGS) $(CXXFLAGS); do echo "$$f" >> $@; done
 
 cppcheck: FORCE
 	cppcheck --enable=all --language=c++ --relative-paths=./ -I . -j 4 -DAMRISIM -DARIA_STATIC -DAMRISIM_VERSION="$(VERSION)" -DAMRISIM_BUILDDATE="$(DATESTR)" -DAMRISIM_PIONEER=1 -DAMRISIM_ROS1=1 $(SOURCES) $(HEADERS)

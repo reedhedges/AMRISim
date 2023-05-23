@@ -21,10 +21,22 @@
       "group": { "kind": "build", "isDefault": true }
     },
     {
-      "label": "make AMRISIM_INCLUDE_ROS1=no",
+      "label": "make debug, no ROS1",
+      "options": {"statusbar": {"tooltip": "make AMRISIM_DEBUG=yes AMRISIM_INCLUDE_ROS1=no"}},
       "command": "make",
       "type": "shell",
-      "args": [ "-j4", "AMRISIM_INCLUDE_ROS1=no", "ARIA=../AriaCoda" ],
+      "args": [ "-j4", "AMRISIM_DEBUG=yes", "AMRISIM_INCLUDE_ROS1=no", "ARIA=../AriaCoda" ],
+      "problemMatcher": [ "$gcc" ],
+      "presentation": { "reveal": "always" },
+      "group": "build"
+    },
+
+    {
+      "label": "make release, no ROS1",
+      "options": {"statusbar": {"tooltip": "make AMRISIM_RELEASE=yes AMRISIM_INCLUDE_ROS1=no"}},
+      "command": "make",
+      "type": "shell",
+      "args": [ "-j4", "AMRISIM_RELEASE=yes", "AMRISIM_INCLUDE_ROS1=no", "ARIA=../AriaCoda" ],
       "problemMatcher": [ "$gcc" ],
       "presentation": { "reveal": "always" },
       "group": "build"
