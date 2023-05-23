@@ -1,6 +1,7 @@
 AMRISim
 *.o
 *.Po
+*.Tpo
 *.a
 *.so
 .*.sw?
@@ -21,3 +22,5 @@ stage/autom4te.cache
 checks.json
 README.html
 compile_flags.txt
+clang_tidy
+clang-tidy.txt
