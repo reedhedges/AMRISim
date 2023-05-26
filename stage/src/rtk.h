@@ -111,6 +111,13 @@ extern char rtk_last_function[128];
 
 
 
+// Struct describing a point.
+// (Note, should be equivalent to stg_point_t. Really RTK and stage should be generally merged...)
+typedef struct
+{  
+  double x, y; 
+} stg_rtk_point_t;
+
 
 /***************************************************************************
  * Library functions
@@ -592,8 +599,7 @@ void stg_rtk_fig_ellipse_arc( stg_rtk_fig_t *fig, double ox, double oy, double o
 
 // Create a polygon
 void stg_rtk_fig_polygon(stg_rtk_fig_t *fig, double ox, double oy, double oa,
-			 int point_count, double points[][2], int filled);
-			 //int point_count, double* points, int filled);
+			 int point_count, stg_rtk_point_t* points, int filled);
 
 // Draw an arrow from point (ox, oy) with orientation oa and length len.
 void stg_rtk_fig_arrow(stg_rtk_fig_t *fig, double ox, double oy, double oa,
@@ -661,12 +667,6 @@ typedef struct _stg_rtk_stroke_t
   
 } stg_rtk_stroke_t;
 
-
-// Struct describing a point
-typedef struct
-{  
-  double x, y; 
-} stg_rtk_point_t;
 
 
 // Struct describing a point stroke

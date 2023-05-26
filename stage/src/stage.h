@@ -498,7 +498,7 @@ For help with libstage, please use the mailing list playerstage_users@lists.sour
   */
 
   /** define a point on the plane */
-  typedef struct
+  typedef struct _stg_point
   {
     stg_meters_t x, y;
   } stg_point_t;

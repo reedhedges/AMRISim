@@ -2536,12 +2536,10 @@ int model_render_polygons( stg_model_t* mod, char* name,
     {
       const size_t npoints = polys[p].points->len;
 
-      // poyls[p].points is a GArray* of stg_points_t objects
-      // this in theory can be directly cast to double[][2] accepted by
-      // stg_rtk_fig_polygon (assuming stg_points_t is always only 
-      // two doubles): 
-      double (*pts)[2] = polys[p].points->data;
+      // poyls[p].points is a GArray* of stg_point_t objects, cast the GArray's data member to a standard array of stg_rtk_point_t objects in order to pass to RTK.  stg_rtk_point_t is identical to stg_point_t.
+      stg_rtk_point_t *pts = (stg_rtk_point_t*) (polys[p].points->data);
 
+      // previously in stage we cast stg_point_t array to array of double[2] to pass through to RTK api, but let's avoid that now; RTK api now takes stg_rtk_point_t wich we assume is identical to stg_point_t.
       //but this alternate code copies it to make sure the data is in the right
       //format:
       /*

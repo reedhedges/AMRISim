@@ -791,20 +791,19 @@ int laser_render_data( stg_model_t* mod, char* name,
 	  bearing += sample_incr;
 	}
       
-      // hmm, what's the right cast to get rid of the compiler warning
-      // for the points argument? the function expects a double[][2] type. 
       
+  // give polygons to rtk. note: we assume that stg_rtk_point_t is equivalent to stg_point_t. (both are structs containing pair of doubles x and y.)
   if( mod->world->win->fill_polygons )
 	{
 	  stg_rtk_fig_color_rgb32( bg, fill_color );
-	  stg_rtk_fig_polygon( bg, 0,0,0, sample_count+1, (double*)points, TRUE );
+	  stg_rtk_fig_polygon( bg, 0,0,0, sample_count+1, (stg_rtk_point_t*)points, TRUE );
 	}
       
-      stg_rtk_fig_color_rgb32( fg, laser_color );
-      stg_rtk_fig_polygon( fg, 0,0,0, sample_count+1, (double*)points, FALSE ); 	
+  stg_rtk_fig_color_rgb32( fg, laser_color );
+  stg_rtk_fig_polygon( fg, 0,0,0, sample_count+1, (stg_rtk_point_t*)points, FALSE ); 	
       
-      // loop through again, drawing bright boxes on top of the polygon
-      for( s=0; s<sample_count; s++ )
+  // loop through again, drawing bright boxes on top of the polygon
+  for( s=0; s<sample_count; s++ )
 	{      
 	  // if this hit point is bright, we draw a little box
 	  if( samples[s].reflectance > 0 )

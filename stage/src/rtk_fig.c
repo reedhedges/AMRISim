@@ -915,27 +915,23 @@ void stg_rtk_fig_ellipse_arc( stg_rtk_fig_t *fig, double ox, double oy, double o
 
 // Create a polygon
 void stg_rtk_fig_polygon(stg_rtk_fig_t *fig, double ox, double oy, double oa,
-			 int point_count, double points[][2], int filled)
+			 int point_count, stg_rtk_point_t *points, int filled)
 {
-  int i;
-  stg_rtk_point_t *npoints;
-
-  npoints = malloc(point_count * sizeof(stg_rtk_point_t));
-  
+  //int i;
+  //stg_rtk_point_t *npoints;
+  //npoints = malloc(point_count * sizeof(stg_rtk_point_t));
   //printf( "created a polygon of %d points: ", point_count );
-
-  for (i = 0; i < point_count; i++)
-  {
-    npoints[i].x = points[i][0];
-    npoints[i].y = points[i][1];
-
+  //for (i = 0; i < point_count; i++)
+  //{
+  //  npoints[i] = points;
+  //  npoints[i] = points;
     //printf( "(%.2f,%.2f) ", npoints[i].x, npoints[i].y );
-  }
+  //}
 
   //
 
-  stg_rtk_fig_polygon_alloc(fig, ox, oy, oa, 1, filled, point_count, npoints);
-  free(npoints);
+  stg_rtk_fig_polygon_alloc(fig, ox, oy, oa, 1, filled, point_count, points); //npoints);
+  //free(npoints);
   
 /*   // experimental */
 /*   GnomeCanvasPoints* gp = gnome_canvas_points_new( point_count ); */
