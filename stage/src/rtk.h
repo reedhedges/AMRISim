@@ -186,7 +186,7 @@ typedef struct _stg_rtk_canvas_t
   GdkFont *font;
 
   // Default font name
-  char *fontname;
+  //not needed char *fontname;
 
   // Canvas background color
   GdkColor bgcolor;

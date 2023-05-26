@@ -85,8 +85,8 @@ enum { MOD_SHIFT = GDK_SHIFT_MASK, MOD_CNTL = GDK_CONTROL_MASK, MOD_ALT1 = GDK_M
 
 /* Fonts to try */
 //#define NUMFONTS 16 
-#define NUMFONTS 12 
-const char* fontnames[NUMFONTS] = {
+#define NUMFONTS 13 
+static const char* fontnames[NUMFONTS] = {
   "-*-monospace-medium-r-*-*-*-140-*-*-*-*-*-*",
   "-*-freemono-medium-r-*-*-*-140-*-*-*-*-*-*",
   "-*-monospace-medium-r-*-*-*-120-*-*-*-*-*-*",
@@ -267,11 +267,13 @@ stg_rtk_canvas_t *stg_rtk_canvas_create(stg_rtk_app_t *app)
 
   for(i = 0; i < NUMFONTS; ++i)
   {
-    canvas->fontname = fontnames[i];
-    canvas->font = gdk_font_load(canvas->fontname);
+    const char *fontname = fontnames[i];
+    //canvas->fontname = fontnames[i];
+    //cont char *fontname = canvas->fontname;
+    canvas->font = gdk_font_load(fontname);
     if(canvas->font)
     {
-      stg_print_message("Using font: %s", canvas->fontname);
+      stg_print_message("Using font: %s", fontname);
       gdk_font_ref(canvas->font);
       break;
     }
@@ -373,9 +375,9 @@ void stg_rtk_canvas_destroy(stg_rtk_canvas_t *canvas)
   gtk_widget_hide(GTK_WIDGET(canvas->frame));
   gtk_widget_destroy(GTK_WIDGET(canvas->frame));
   
-  // fontname was strdup()ed 
-  if (canvas->fontname)
-    free(canvas->fontname);
+  // fontname was strdup()ed  (was it? check in init)
+  //if (canvas->fontname)
+  //  free(canvas->fontname);
 
   if(canvas->font)
     gdk_font_unref(canvas->font);
@@ -483,15 +485,15 @@ void stg_rtk_canvas_font(stg_rtk_canvas_t *canvas, const char *fontname)
     canvas->font = NULL;
   }
 
-  if (canvas->fontname)
-  {
-    free(canvas->fontname);
-    canvas->fontname = strdup(fontname);
-  }
+  //if (canvas->fontname)
+  //{
+  //  free(canvas->fontname);
+  //  canvas->fontname = strdup(fontname);
+ // }
 
   // Load the default font
   if (canvas->font == NULL)
-    canvas->font = gdk_font_load(canvas->fontname);
+    canvas->font = gdk_font_load(fontname);
 
   // Text extents will have changed, so recalc everything.
   stg_rtk_canvas_calc(canvas);
