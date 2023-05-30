@@ -461,7 +461,7 @@ stg_color_t stg_lookup_color(const char *name)
   FILE *file = NULL;
   const char *filename = NULL;
   const char **filenamep = NULL;
-  gpointer *found;
+  gpointer foundp;
 
   
   if( name == NULL ) // no string?
@@ -478,9 +478,12 @@ stg_color_t stg_lookup_color(const char *name)
   }
   
   // search the cache and return a color if found
-  found = g_hash_table_lookup(stg_color_cache, name);
-  if(found)
-    return (stg_color_t) *found;
+  foundp = g_hash_table_lookup(stg_color_cache, name);
+  if(foundp)
+  {
+    stg_color_t *cp = (stg_color_t*)foundp;
+    return *cp;
+  }
 
   // if not found, find an X11 color file to open
   for(filenamep = stg_color_files; filenamep && *filenamep; filenamep++)
