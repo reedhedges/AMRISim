@@ -225,11 +225,11 @@ void stg_rtk_fatal_error_dialog(const char* primary_text, const char* secondary_
     GtkDialog* dialog = (GtkDialog*) gtk_message_dialog_new (
             GTK_WINDOW(parent), GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL, 
             GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE, 
-            primary_text);
+            "%s", primary_text);
 #if GTK_CHECK_VERSION(2,6,0)
     gtk_message_dialog_format_secondary_text(
             GTK_MESSAGE_DIALOG(dialog),
-            secondary_text);
+            "%s", secondary_text);
 #else
     GtkWidget* label = gtk_label_new(secondary_text);
     gtk_widget_show(label);
