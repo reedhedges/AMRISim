@@ -536,14 +536,13 @@ For help with libstage, please use the mailing list playerstage_users@lists.sour
   } stg_polygon_t; 
 
   
-  /// return an array of @a count polygons. Caller must free() the space.
+  /// return an array of @a count polygons. Allocates. Caller must free() the space.
   stg_polygon_t* stg_polygons_create( int count );
   
   /// destroy an array of @a count polygons
   void stg_polygons_destroy( stg_polygon_t* p, size_t count );
   
-  /** creates a unit square polygon
-   */
+  /** creates a unit square polygon. Allocates memory.  */
   stg_polygon_t* stg_unit_polygon_create( void );
     
   /// Copies @a count points from @a pts into polygon @a poly, allocating
