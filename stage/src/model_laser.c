@@ -311,13 +311,14 @@ static stg_color_t laser_color=0, bright_color=0, fill_color=0, cfg_color=0, geo
 
 int laser_init( stg_model_t* mod )
 {
-  // seed random number generator (though ranger might have already done it)
-  static int first_time = 1;
-  if(first_time)
-  {
-    first_time = 0;
-    srand(time(NULL));
-  }
+  // seed random number generator 
+  // this is now done in stg_init().
+  //static int first_time = 1;
+  //if(first_time)
+  //{
+  //  first_time = 0;
+  //  srand(time(NULL));
+  //}
 
   // we do this just the first time a laser is created
   if( init == 0 )
@@ -551,7 +552,9 @@ int laser_update( stg_model_t* mod )
 
 
 #if ENABLE_LASER_NOISE
-  reading_angle_error = ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg->reading_angle_error;
+  //reading_angle_error = ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg->reading_angle_error;
+  double err = cfg->reading_angle_error;
+  reading_angle_error = STG_RANDOM_IN(-err, err);
 #else
   reading_angle_error = 0;
 #endif
@@ -587,9 +590,12 @@ int laser_update( stg_model_t* mod )
     
 #ifdef ENABLE_LASER_NOISE
     // add some random noise except in special max. range condiion
-    ///@bug this assumes that the position model has initialized the random number generator!
     if(range < cfg->range_max)
-      range += ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg->noise;
+    {
+      double noise = cfg->noise;
+      range += STG_RANDOM_IN(-noise, noise);
+      //range += ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg->noise;
+    }
 #endif
 
     // record the range in mm
@@ -685,7 +691,9 @@ int laser_update( stg_model_t* mod )
     stg_matrix_lock(mod->world->matrix);
 
 #if ENABLE_LASER_NOISE
-    reading_angle_error = ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg->reading_angle_error;
+    double err = cfg->reading_angle_error;
+    //reading_angle_error = ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg->reading_angle_error;
+    reading_angle_error = STG_RANDOM_IN(-err, err);
 #endif  // else, reading_angle_error is already 0 from before
     itl_reset(itl, pz.x, pz.y, bearing+reading_angle_error, cfg->range_max, PointToBearingRange);
     bearing += sample_incr;

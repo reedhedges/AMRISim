@@ -252,13 +252,14 @@ int ranger_init( stg_model_t* mod )
   int c;
   gboolean debug;
 
-  // seed random number generator (though laser might have already done it)
-  static int first_time = 1;
-  if(first_time)
-  {
-    first_time = 0;
-    srand(time(NULL));
-  }
+  // seed random number generator
+  // this is now done in stg_init().
+  //static int first_time = 1;
+  //if(first_time)
+  //{
+  //  first_time = 0;
+  //  srand(time(NULL));
+  //}
 
   // override the default methods
   mod->f_startup = ranger_startup;
@@ -499,7 +500,8 @@ int ranger_update( stg_model_t* mod )
       if(cfg[t].enable_throwaway && (maxrange - minrange) >= cfg[t].throwaway_thresh)
       {
         // throw it away sometimes:
-        double r = (double)rand() / (double)RAND_MAX;
+        //double r = (double)rand() / (double)RAND_MAX;
+        double r = STG_RANDOM_IN(0.0, 1.0);
         if( ( r ) <= cfg[t].throwaway_prob )
         {
           range = cfg[t].bounds_range.max;
@@ -513,11 +515,12 @@ int ranger_update( stg_model_t* mod )
         
 
 #ifdef ENABLE_RANGER_NOISE
-    // Add noise except during special max-range condition:
-    ///@bug this assumes that the position model has initialized the random number generator!
-    if(range < cfg[t].bounds_range.max && cfg[t].noise != 0.0)
+    // Add noise except during special max-range condition (or if noise is 0):
+    double noise = cfg[t].noise;
+    if(noise > 0.0 && range < cfg[t].bounds_range.max)
     {
-      range += ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg[t].noise;
+      //range += ((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * cfg[t].noise;
+      range += STG_RANDOM_IN(-noise, noise);
     }
 #endif
 

@@ -252,16 +252,17 @@ int position_init( stg_model_t* mod )
   PRINT_DEBUG( "created position model" );
   
 
-  if( first_time )
-    {
-      first_time = 0;
-      // seed the RNG on startup
-#ifdef HAVE_SRAND48
-      srand48( time(NULL) );
-#else
-      srand(time(NULL));
-#endif
-    }
+  // seed the RNG on startup
+  // now called once in stg_init
+  //if( first_time )
+  //  {
+  //    first_time = 0;
+//#ifdef HAVE_SRAND48
+//      srand48( time(NULL) );
+//#else
+//      srand(time(NULL));
+//#endif
+//    }
 
   // no power consumed until we're subscribed
   //mod->watts = 0.0; 

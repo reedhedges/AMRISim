@@ -929,7 +929,7 @@ void stg_world_add_model( stg_world_t* world,
   assert(world->models_by_name);
 
 #if 1
-  srand(time(NULL));
+  // called in stg_init: srand(time(NULL));
   stg_id_t rand_key_num = (stg_id_t) rand();
   while(stg_world_get_model( world, rand_key_num ))
     rand_key_num = (stg_id_t) rand();

@@ -210,6 +210,9 @@ int stg_init( int argc, char** argv )
       stg_print_warning("stg_init failed to set locale to \"POSIX\" or \"C\"; config file may not be parse correctly");
 
   srand(time(NULL));
+#ifdef HAVE_SRAND48
+  srand48( time(NULL) );
+#endif
 
   memset(stg_last_error_message, 0, sizeof(stg_last_error_message));
 

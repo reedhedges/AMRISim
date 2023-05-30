@@ -1325,9 +1325,10 @@ int main(int argc, char** argv)
     
     if(mobilesim_startplace == mobilesim_start_random)
     {
-      startPose.x = STG_RANDOM_RANGE(map_min_x, map_max_x) / 1000.0;
-      startPose.y = STG_RANDOM_RANGE(map_min_y, map_max_y) / 1000.0;
-      startPose.a = rand() % 360;
+      startPose.x = STG_RANDOM_IN(map_min_x, map_max_x) / 1000.0;
+      startPose.y = STG_RANDOM_IN(map_min_y, map_max_y) / 1000.0;
+      //startPose.a = rand() % 360;
+      startPose.a = STG_RANDOM_IN(0, 359);
     }
 
     stg_model_t *model = stg_world_new_model(world, modelname.c_str(), NULL, (robotname=="")?NULL:robotname.c_str());
@@ -1805,19 +1806,19 @@ void mobilesim_get_map_home(double *home_x, double *home_y, double *home_th)
   {
 
     if(home_x) {
-      if(map_min_x == 0 && map_max_x == 0) 
-        *home_x = map_home_x = STG_RANDOM_RANGE(-25000, 25000);
+      if(map_min_x == 0.0 && map_max_x == 0.0) 
+        *home_x = map_home_x = STG_RANDOM_IN(-25000.0, 25000.0);
       else
-        *home_x = map_home_x = STG_RANDOM_RANGE(map_min_x, map_max_x); 
+        *home_x = map_home_x = STG_RANDOM_IN(map_min_x, map_max_x); 
     }
     if(home_y) {
-      if(map_min_y == 0 && map_max_y == 0)
-        *home_y = map_home_y = STG_RANDOM_RANGE(-25000, 25000);
+      if(map_min_y == 0.0 && map_max_y == 0.0)
+        *home_y = map_home_y = STG_RANDOM_IN(-25000.0, 25000.0);
       else
-        *home_y = map_home_y = STG_RANDOM_RANGE(map_min_y, map_max_y);
+        *home_y = map_home_y = STG_RANDOM_IN(map_min_y, map_max_y);
     }
     if(home_th) {
-      *home_th = map_home_th = STG_RANDOM_RANGE(0, 359);
+      *home_th = map_home_th = STG_RANDOM_IN(0.0, 359.0);
     }
   }
   else

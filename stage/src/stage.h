@@ -2008,21 +2008,19 @@ For help with libstage, please use the mailing list playerstage_users@lists.sour
 #define STG_RAND() ((double)rand()/(double)RAND_MAX)
 #endif
 
-/** Random integer in range.
-    @deprecated
-*/
-#define STG_RANDOM_RANGE(min,max) ( (min == max) ? min : ( ((rand())%(int)rint(max-min)) + min ) )
 
-/** generate a random number in the range (min,max) */
+/** generate a random double in the range (min,max) */
 #define STG_RANDOM_IN(min, max) ( \
   assert(min <= max), \
   (min == max) ? min : \
   ( min + ( STG_RAND() * (max-min) ) ) \
 )
 
-/** generate a random floating point number in the range (-err/2,+err/2) */
-#define STG_RANDOM_ERR(err) (((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * err)
+/* generate a random double in the range (-err/2,+err/2) */
+// not used #define STG_RANDOM_ERR(err) (((double)(rand() - RAND_MAX/2) / (double)RAND_MAX) * err)
 
+/** Random integer in range.  */
+#define STG_RANDOM_INT_IN(min,max) ( (min == max) ? min : ( ((rand())%(int)rint(max-min)) + min ) )
 
 /** @} */
 
