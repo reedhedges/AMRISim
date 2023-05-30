@@ -1814,7 +1814,7 @@ void EmulatePioneer::endSession()
     myClientSocket->close();
     if(myDeleteClientSocketOnDisconnect)
     {
-      print_debug("Deleting clientSocket %p...", myClientSocket);
+      //print_debug("Deleting clientSocket %p...", myClientSocket);
       delete myClientSocket;
     }
   }
@@ -1951,9 +1951,12 @@ ArRobotPacket* SIPGenerator::getPacket()
 
   }
   if(params->BatteryType == 2)
-    pkt.byteToBuf(0);  // battery state of charge should be reported later in sip instead of voltage
+    pkt.uByteToBuf(0);  // battery state of charge should be reported later in sip instead of voltage
   else
-    pkt.byteToBuf( (int8_t) (robotInterface->getBatteryVoltage() * 10.0) ); // battery voltage, decivolts, one byte
+  {
+    // battery voltage, decivolts, one byte
+    pkt.uByteToBuf( (uint8_t) (robotInterface->getBatteryVoltage() * 10.0) ); 
+  }
 
   // Stall and bumper flags. bumpers are not implemented yet.
   // Simulation will stall if we hit something (or are extremely close to
