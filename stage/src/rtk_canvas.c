@@ -48,8 +48,9 @@
 #include "blinker.h"
 #include "gui.h"
 
-// Defined in stage.h/stage.c:
+// Defined in stage.h/stage.c (avoid including whole header file):
 void stg_print_warning(char* m, ...);
+void stg_print_message(char* m, ...);
 
 // Declare some local functions
 static gboolean stg_rtk_on_destroy(GtkWidget *widget, stg_rtk_canvas_t *canvas);

@@ -1188,7 +1188,7 @@ void stg_model_remove_property_toggles( stg_model_t* mod, const char* propname)
   // remove the action:
   gtk_action_group_remove_action(_stg_dynamic_data_action_group, act);
 
-  // TODO free these??
+  // TODO BUG -- free these!
   //    GtkToggleActionEntry entry = entry for action 'act';
   //    free entry.name;
   //    free entry.label;

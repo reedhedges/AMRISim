@@ -202,7 +202,7 @@ bool MapLoader::newMap(ArMap *newmap, MapLoadedCallback cb)
   return newMap(cb);
 }
 
-bool MapLoader::newMap(MapLoadedCallback cb)
+bool MapLoader::newMap([[maybe_unused]] MapLoadedCallback cb)
 {
 #ifdef DEBUG
   ArLog::log(ArLog::Normal, "MapLoader::newMap(MLCb): cb: %p", (void*)cb);
@@ -1444,7 +1444,7 @@ void MapLoader::invokeMapLoadedCallback(MapLoadedCallback cb, int status, const 
 }
 
 
-void MapLoader::invokeMapLoadedCallbacks(int status, const std::string& filename, ArMap* map) const // JPL - experimental
+void MapLoader::invokeMapLoadedCallbacks([[maybe_unused]] int status, [[maybe_unused]] const std::string& filename, [[maybe_unused]] ArMap* themap) const // JPL - experimental
 {
   if (callbacks.empty())
     return;

@@ -1248,9 +1248,11 @@ void stg_world_display_message_s(stg_world_t* w, time_t timestamp, const char* c
         gui_unlock();
       }
       else
+      {
         // just print the error, then exit code -1.
         stg_quit_request_code(-1);
-        break;
+      }
+      break;
     case STG_MSG_WARNING:
       // Warning
       gui_lock();

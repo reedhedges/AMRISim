@@ -1,5 +1,4 @@
 
-#define PACKPOSE(P,X,Y,A) {P->x=X; P->y=Y; P->a=A;}
 
 #define _GNU_SOURCE
 
@@ -64,6 +63,7 @@
 
 //extern int _stg_disable_gui;
 
+#define PACKPOSE(P,X,Y,A) {P->x=X; P->y=Y; P->a=A;}
 
 static stg_bool_t print_debug_for_jon = FALSE; // TODO: remove
 static int tab_cnt_for_jon = 0; // TODO: remove

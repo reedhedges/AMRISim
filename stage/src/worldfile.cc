@@ -540,7 +540,8 @@ bool CWorldFile::LoadTokenInclude(FILE *file, int *line, int include, bool echo)
     // There's no bounds-checking, but what the heck.
     char *tmp = strdup(this->filename);
     fullpath = (char*) malloc(PATH_MAX);
-    getcwd(fullpath, PATH_MAX);
+    char *s = getcwd(fullpath, PATH_MAX);
+    assert(s != NULL);
     strcat( fullpath, PATHSEPSTR ); 
     strcat( fullpath, dirname(tmp));
     strcat( fullpath, PATHSEPSTR ); 

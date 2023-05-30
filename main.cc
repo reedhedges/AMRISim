@@ -2170,10 +2170,10 @@ stg_world_t* create_stage_world(const char* mapfile,
     }
     else
     {
-      const char *errormsg = "AMRISim: Error creating and initializing world environment";
-      const char *prefixtext = " (worldfile saved as";
-      const char *postfixtext = ")";
-      const size_t maxlen = strlen(errormsg) + strlen(prefixtext) + MAX_PATH_LEN + strlen(postfixtext);
+      static constexpr const char *errormsg = "AMRISim: Error creating and initializing world environment";
+      static constexpr const char *prefixtext = " (worldfile saved as";
+      static constexpr const char *postfixtext = ")";
+      static constexpr size_t maxlen = strlen(errormsg) + strlen(prefixtext) + MAX_PATH_LEN + strlen(postfixtext);
       char message[maxlen];
       char renamed_worldfile[MAX_PATH_LEN];
       snprintf(renamed_worldfile, MAX_PATH_LEN-1, "%s%cAMRISim-stage_world_ERROR.world", tempdir, PATHSEPCH);
