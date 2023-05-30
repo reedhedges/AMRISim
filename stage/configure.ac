@@ -199,6 +199,11 @@ AC_ARG_ENABLE([lto],
   [AS_HELP_STRING([--enable-lto],[Enable link-time optimization if --enable-optimize was also given.])]
 )
 
+AC_ARG_ENABLE([address-sanitizer], [AS_HELP_STRING([Enable memory/address runtime sanitizers])])
+
+AC_ARG_ENABLE([ub-sanitizer], [AS_HELP_STRING([Enable undefined behavior runtime sanitizers])])
+
+AC_ARG_ENABLE([stack-protection], [AS_HELP_STRING([Enable stack protection compile options])])
 
 
 dnl Check if we can use -flto=thin (i.e. clang).  Otherwise we try -flto.
@@ -219,7 +224,6 @@ else
   CFLAGS=$(echo $CFLAGS | sed 's/-g//g')
 fi
 
-AC_MSG_NOTICE([enable_optimize = $enable_optimize])
 OPT_EXTRA_CFLAGS="-ffunction-sections -fdata-sections"
 if test "x$enable_optimize" = "xyes"
 then
@@ -255,6 +259,31 @@ then
   CXX="$CXX -pg -g -fprofile-arcs"
   CC="$CC -pg -g -fprofile-arcs"
 fi
+
+
+if test x"$enable_address_sanitizer" = "xyes"
+then
+# TODO use different options if compiler is clang
+AC_MSG_NOTICE([Address sanitizer enabled])
+CFLAGS="$CFLAGS -fsanitize=address -fsanitize-recover=address -fsanitize-address-use-after-scope"
+LDFLAGS="$LDFLAGS -lasan"
+fi
+
+if test x"$enable_ub_sanitizer" = "xyes"
+then
+# TODO use different options if compiler is clang
+AC_MSG_NOTICE([UB sanitizer enabled])
+CFLAGS="$CFLAGS -fsanitize=undefined -fsanitize-recover=undefined -fsanitize=float-cast-overflow -fsanitize=float-divide-by-zero"
+LDFLAGS="$LDFLAGS -lubsan"
+fi
+
+if test x"$enable_stack_protection" = "xyes"
+then
+# TODO use different options if compiler is clang
+AC_MSG_NOTICE([Stack protection enabled])
+CXXFLAGS="$CXXFLAGS -fstack-protector-strong -mshstk -fcf-protection=full"
+fi
+
 
 dnl   Optional models:
 dnl   TODO: define a macro for doing these things

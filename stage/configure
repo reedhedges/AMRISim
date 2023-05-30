@@ -775,6 +775,9 @@ enable_debug
 enable_optimize
 enable_profile
 enable_lto
+enable_address_sanitizer
+enable_ub_sanitizer
+enable_stack_protection
 enable_gripper_model
 enable_blobfinder_model
 enable_fiducial_model
@@ -1445,6 +1448,12 @@ Optional Features:
 
   --enable-lto            Enable link-time optimization if --enable-optimize
                           was also given.
+
+  Enable memory/address runtime sanitizers
+
+  Enable undefined behavior runtime sanitizers
+
+  Enable stack protection compile options
 
   --disable-gripper-model Don't include gripper model
   --disable-blobfinder-model
@@ -6445,6 +6454,26 @@ then :
 fi
 
 
+# Check whether --enable-address-sanitizer was given.
+if test ${enable_address_sanitizer+y}
+then :
+  enableval=$enable_address_sanitizer;
+fi
+
+
+# Check whether --enable-ub-sanitizer was given.
+if test ${enable_ub_sanitizer+y}
+then :
+  enableval=$enable_ub_sanitizer;
+fi
+
+
+# Check whether --enable-stack-protection was given.
+if test ${enable_stack_protection+y}
+then :
+  enableval=$enable_stack_protection;
+fi
+
 
 
 have_flto_thin=no
@@ -6575,8 +6604,6 @@ else
   CFLAGS=$(echo $CFLAGS | sed 's/-g//g')
 fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: enable_optimize = $enable_optimize" >&5
-printf "%s\n" "$as_me: enable_optimize = $enable_optimize" >&6;}
 OPT_EXTRA_CFLAGS="-ffunction-sections -fdata-sections"
 if test "x$enable_optimize" = "xyes"
 then
@@ -6617,6 +6644,34 @@ then
   CXX="$CXX -pg -g -fprofile-arcs"
   CC="$CC -pg -g -fprofile-arcs"
 fi
+
+
+if test x"$enable_address_sanitizer" = "xyes"
+then
+# TODO use different options if compiler is clang
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Address sanitizer enabled" >&5
+printf "%s\n" "$as_me: Address sanitizer enabled" >&6;}
+CFLAGS="$CFLAGS -fsanitize=address -fsanitize-recover=address -fsanitize-address-use-after-scope"
+LDFLAGS="$LDFLAGS -lasan"
+fi
+
+if test x"$enable_ub_sanitizer" = "xyes"
+then
+# TODO use different options if compiler is clang
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: UB sanitizer enabled" >&5
+printf "%s\n" "$as_me: UB sanitizer enabled" >&6;}
+CFLAGS="$CFLAGS -fsanitize=undefined -fsanitize-recover=undefined -fsanitize=float-cast-overflow -fsanitize=float-divide-by-zero"
+LDFLAGS="$LDFLAGS -lubsan"
+fi
+
+if test x"$enable_stack_protection" = "xyes"
+then
+# TODO use different options if compiler is clang
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Stack protection enabled" >&5
+printf "%s\n" "$as_me: Stack protection enabled" >&6;}
+CXXFLAGS="$CXXFLAGS -fstack-protector-strong -mshstk -fcf-protection=full"
+fi
+
 
 
 opt_gripper_model=yes

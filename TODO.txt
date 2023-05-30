@@ -10,10 +10,15 @@
 * Update Windows MSYS build procedure and documentation (use GTK4) (see https://www.gtk.org/docs/installations/windows/)
 * Fix all warnings, fix all c++ code to correct usage for c++17.
 * Maybe get rid of "RTK" in stage and use Cairo/GDK directly?? (Kind of a lot of work.) 
-* In Stage, don't allocate small objects and pass pointers; just copy struct directly: (IN PROGRESS)
+* A few memory leaks still exist in stage: 
+    * Some strings are allocated with strdup() in stg_model_add_property_toggles() but not freed in stg_model_remove_property_toggles() (see XXX BUG comment. GTK api is complicated here...)
+* In Stage, model properties are always copied. Add stg_model_set_property_ptr() or similar so that some models can manage their own memory, especially arrays of data. (Or I guess we can use existing API and pass pointer to pointer as set_property argument, so that just the pointer is copied.) In some places, code even allocates a temporary array or other data, uses stg_model_set_property() which copies it, then frees the temporary data!
+* In Stage, don't allocate small objects and pass pointers; just copy struct directly. (IN PROGRESS)
+  This often results in model code allocating data, using stg_model_set_property() which copies it, then freeing the data! 
   * stg_rtk_region_t (which is just a cairo_rect_int_t)
   * stg_rtk_color_t, stg_rtk_point_t (these are not generally allocated)
   * stg_rtk_stroke_t ? 
+  * stg_polygon_t from stg_polygon_create() and stg_unit_polygon_create().
 * In Stage, some pairs of values are used for points and sizes separately; use a struct
   which can be returned from accessor functions, and easily passed as parameter as well.
 * In Stage, could we combine stg_rtk_canvas_t's flags into one int struct member?
@@ -65,6 +70,7 @@
 * Use more modern portable C++/stdlib features
   * Use std::chrono etc.
   * smart pointers
+  * In Stage (and AMRISim), use std::random_device and uniform_real/int_distribution instead of rand(), or another better random number generation API (is there a C equivalent to those?).  Though drand48() is used for sensors and might be ok. Verify.
 * Include some useful startup scripts for unattended operation eg systemd, 
   maybe docker config or info, AWS template (at least document requirements in
   README), etc.

@@ -237,7 +237,7 @@ compilation options:
 
     CC                      Set the C compiler; if unset, "cc" is used.
 
-    EXTRA_CFLAGS            Additional compilation flags. E.g. EXTRA_CFLAGS="-march=native -mtune=native"
+    EXTRA_CFLAGS            Additional compilation flags for C code. E.g. EXTRA_CFLAGS="-march=core2 -mtune=intel"
 
     EXTRA_CXXFLAGS          Additional compilation flags for C++ code (not used for C files.)  E.g. EXTRA_CXXFLAGS=-std=c++20
     
@@ -248,9 +248,19 @@ compilation options:
   
     AMRISIM_RELEASE         Build with optimizations enabled and debugging
                             disabled. This is the default state.
+
+    AMRISIM_RELEASE_NATIVE  Same as AMRISIM_RELEASE but also adds -march=native -mtune=native compilation 
+                            flags to optimize for the build system. Use this if just running AMRISim on the same 
+                            local machine that you are building it on.
   
-    AMRISIM_PROFILE         Build with profiling enabled with -pg; analyze later
+    AMRISIM_PROFILE_GPROF   Build with profiling enabled with -pg; analyze later
                             with gprof.
+
+    AMRISIM_PROFILE_TRACY   Build with profiling enabled for the "Tracy" tool.
+
+    AMRISIM_SANITIZERS      Build with address and undefined behavior sanitizers enabled. (ARIA and stage are also built with the same flags.)
+
+    AMRISIM_STACKPROTECT    Build with stack protection compilation flags. (ARIA and Stage are also built with the same flags.)
   
     prefix                  Installation directory base (default is /usr/local)
      

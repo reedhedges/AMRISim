@@ -13,8 +13,8 @@
 #   installed_bindir Overrides desired 'bin' directory (normally $(DESTDIR)/$(INSTALL_DIR))
 #   CXX	         C++ compiler (default is make's default, usually 'c++')
 #   CC           C compiler (default is make's default, usually 'cc')
-#   EXTRA_CXXFLAGS       Compilation flags.  This Makefile will also append various options (see below)
-#   EXTRA_CFLAGS       Compilation flags.  This Makefile will also append various options (see below)
+#   EXTRA_CXXFLAGS     Compilation flags for C++ files (both AMRISim and stage library).  This Makefile will also append various options (see below)
+#   EXTRA_CFLAGS       Compilation flags for C files (both AMRISim and stage library).  This Makefile will also append various options (see below)
 #   EXTRA_LFLAGS       Linker flags (e.g. library directories). This Makefile will also append various options (see below)
 #   STAGEDIR     Where to find the Stage source code (default is stage/)
 #   STAGELIBDIR  Where to find the Stage library for linking (default is $(STAGEDIR)/src/)
@@ -25,7 +25,10 @@
 #
 # Some variables that set build options:
 #   AMRISIM_DEBUG     If defined, then build an unoptimized debug version instead of release version.
-#   AMRISIM_RELEASE   If defined, disable DEBUG (default).
+#   AMRISIM_RELEASE   If defined, disable DEBUG (default) and enable optimizations.
+#   AMRISIM_RELEASE_NATIVE  Like AMRISIM_RELEASE but adds -march=native -mtune=native compile options. Use if you will run AMRISim on the same machine you are building it on. If only AMRISIM_RELEASE is set, then no CPU/tune options are used. These can be added to EXTRA_CFLAGS and EXTRA_CXXFLAGS if desired.
+#   AMRISIM_SANITIZERS      If defined, enable address/memory, UB, and other sanitizer(s).
+#   AMRISIM_STACKPROTECT    If defined, enable stack protection options.
 #   AMRISIM_PROFILE_GPROF   If defined, then gprof profiling will be enabled with -pg.
 #   AMRISIM_PROFILE_TRACY   If defined, then Tracy profiling will be enabled by compiling in the Tracy client stub from $(TRACY)
 #   AMRISIM_INCLUDE_ROS1 If set to yes, then include ROS1 interface. Default is yes on Linux, no on Windows
@@ -63,13 +66,43 @@ REAL_SHELL = $(SHELL)
 SHELL=$(warning at rule   $@.   Modified prerequisites are: [$?]    All prerequisites are: [$^])$(REAL_SHELL)
 endif
 
+ifdef AMRISIM_RELEASE_NATIVE
+AMRISIM_RELEASE=1
+endif
+
 ifdef AMRISIM_RELEASE
 #TODO how to "undef"? AMRISIM_DEBUG=""
-# TODO check whether $(CXX) is g++ or clang and use alternate LTO options if it's clang.
-ARIA_MAKE_OPTS:=EXTRA_CXXFLAGS=-flto
+
+# TODO check whether $(CXX) is g++ or clang and use -flto=thin if it's clang.
+ifdef AMRISIM_RELEASE_NATIVE
+ARIA_EXTRA_CXXFLAGS="-flto -march=native -mtune=native $(EXTRA_CXXFLAGS)"
 else
-ARIA_MAKE_OPTS:="DEBUG=1"
+ARIA_EXTRA_CXXFLAGS="-flto $(EXTRA_CXXFLAGS)"
 endif
+
+endif
+
+ifdef AMRISIM_SANITIZERS
+# TODO use different options if compiler is clang
+ARIA_EXTRA_CXXFLAGS+=-fsanitize=address -fsanitize-recover=address -fsanitize-address-use-after-scope -fsanitize=undefined -fsanitize-recover=undefined -fsanitize=float-cast-overflow -fsanitize=float-divide-by-zero
+ARIA_EXTRA_LFLAGS+=-lasan -lubsan
+
+ifndef AMRISIM_RELEASE
+$(warning Recommend using AMRISIM_RELEASE=1 with AMRISIM_SANITIZERS=1)
+endif
+endif
+
+ifdef AMRISIM_STACKPROTECT
+# TODO use different stack protection flags if compiler is clang
+ARIA_EXTRA_CXXFLAGS+=-fstack-protector-strong -mshstk -fcf-protection=full
+endif
+
+ifdef AMRISIM_DEBUG
+ARIA_MAKE_OPTS:=DEBUG=1 EXTRA_CXXFLAGS="$(ARIA_EXTRA_CXXFLAGS)"
+else
+ARIA_MAKE_OPTS:=EXTRA_CXXFLAGS="$(ARIA_EXTRA_CXXFLAGS)"
+endif
+
 
 default: all
 
@@ -187,6 +220,7 @@ endif #ifdef lastDevReleaseVer
 # In debug mode, replace version with special dev tag with timestamp:
 VERSION:=$(VERSION)-dev$(DEV_RELEASE_VER)
 
+# TODO include other options here:
 dist-all:
 	$(warning Re-running make dist-all with AMRISIM_RELEASE=1)
 	$(MAKE) dist-all AMRISIM_RELEASE=1
@@ -198,6 +232,12 @@ $(info AMRISim Release Build)
 CXXFLAGS += -O3 -flto
 CFLAGS += -O3 -flto
 STAGE_CONFIGURE_ARGS = --enable-debug --enable-optimize --enable-lto
+
+ifdef AMRISIM_RELEASE_NATIVE
+$(info AMRISim adding native optimization flags -march=native -mtune=native)
+CXXFLAGS += -march=native -mtune=native
+CFLAGS += -march=native -mtune=native
+endif
 
 LFLAGS += -flto=auto -fuse-linker-plugin $(EXTRA_LFLAGS) $(RELEASE_EXTRA_LFLAGS)
 
@@ -212,6 +252,18 @@ CC += -pg -g -O0
 STAGE_CONFIGURE_ARGS += --enable-profile --enable-debug --disable-optimize
 endif	 #AMRISIM_PROFILE
 
+ifdef AMRISIM_SANITIZERS
+# TODO use different options if compiler is clang
+CXXFLAGS += -fsanitize=address -fsanitize-recover=address -fsanitize-address-use-after-scope -fsanitize=undefined -fsanitize-recover=undefined -fsanitize=float-cast-overflow -fsanitize=float-divide-by-zero
+LFLAGS += -lasan -lubsan
+STAGE_CONFIGURE_ARGS += --enable-address-sanitizer --enable-ub-sanitizer
+endif
+
+ifdef AMRISIM_STACKPROTECT
+# TODO use different options if compiler is clang
+CXXFLAGS += -fstack-protector-strong -mshstk -fcf-protection=full
+STAGE_CONFIGURE_ARGS += --enable-stack-protection
+endif
 
 ifndef TAR_DIRECTORY
 TAR_DIRECTORY = AMRISim-$(VERSION)
@@ -675,8 +727,10 @@ help:
 	@echo 'Set environment variable AMRISIM_DEBUG to build a debug version (with optimization disabled, more debugger information, no compiler warnings, and with logging to terminal on Windows)'
 	@echo 'Set environment variable AMRISIM_PROFILE_GPROF to build with profiling information for use with gprof'
 	@echo 'Set environment variable AMRISIM_PROFILE_TRACY to build with profiling support with the Tracy profiling/analysis tool. Set TRACY to tracy source directory.'
-	@echo 'Set enviroment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
-	@echo 'Set enviroment variable AMRISIM_INCLUDE_ROS1 to yes to force inclusion of ROS1 interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
+	@echo 'Set environment variable AMRISIM_SANITIZERS to enable address/memory, UB, and other sanitizer(s).'
+	@echo 'Set environment variable AMRISIM_STACKPROTECT to enable stack protection options.'
+	@echo 'Set environment variable AMRISIM_INCLUDE_PIONEER to yes to force inclusion of Pioneer interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
+	@echo 'Set environment variable AMRISIM_INCLUDE_ROS1 to yes to force inclusion of ROS1 interface or no to force omission (regardless of platform defaults). Rebuild with new make dependencies using "make dep all".'
 	@echo 'Set CC, CXX, EXTRA_CFLAGS, EXTRA_CXXFLAGS, EXTRA_LFLAGS variables to customize compilation of both AMRISim and stage internal library.'
 
 info:
@@ -721,10 +775,13 @@ clean: cleanStage cleanAMRISim
 cleanStage:
 	+$(MAKE) -C $(STAGEDIR) -j1 clean
 
+cleanAria:
+	+$(MAKE) -C $(ARIA) -j1 clean
+
 cleanAMRISim:
 	-rm AMRISim$(binary_suffix) *.o
 
-cleanAll: clean
+cleanAll: clean cleanAria cleanStage
 
 distclean: 
 	+$(MAKE) -C $(ARIA) -k -j1 clean distclean
