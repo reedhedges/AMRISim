@@ -1149,7 +1149,7 @@ int position_update( stg_model_t* mod )
         break;
         
         default:
-          PRINT_ERR1( "unknown steering mode %d", (int)drive );
+          PRINT_ERR1( "unknown steering mode %d", (int)(*drive) );
       }
     }
     break;
@@ -1499,8 +1499,8 @@ int position_render_data( stg_model_t* mod, char* name,
   if( mod->subs )
     {  
       char buf[512];
-      gboolean useDeg;
-      const char* rotUnits;
+      //gboolean useDeg;
+      //const char* rotUnits;
       const char* transmode;
       const char* rotmode;
 
@@ -1526,11 +1526,14 @@ int position_render_data( stg_model_t* mod, char* name,
       stg_rtk_fig_line( fig, odom->pose.x, 0, odom->pose.x, odom->pose.y );
 
       // draw text next to the robot's actual pose in stage (next to its icon) 
+      
+      /* XXX TODO if world->display_degrees is false, don't convert to degrees for display.
       useDeg = mod->world->display_degrees;
       if(useDeg)
         rotUnits = "deg";
       else
         rotUnits = "rad";
+      */
       switch(cmd->transmode)
       {
         case STG_POSITION_CONTROL_POSITION:

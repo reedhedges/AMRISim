@@ -556,7 +556,7 @@ void stg_rtk_fig_render(stg_rtk_fig_t *fig)
   STG_F()
   int i;
   stg_rtk_stroke_t *stroke;
-  GdkDrawable *drawable;
+  //GdkDrawable *drawable;
   GdkGC *gc;
   GdkColormap *colormap;
   GdkColor color;
@@ -570,7 +570,7 @@ void stg_rtk_fig_render(stg_rtk_fig_t *fig)
 
 //printf("rendering figure %s/%s\n", fig->username, fig->name);
 
-  drawable = (fig->layer <= STK_BACKGROUND_LAYER ? fig->canvas->bg_pixmap : fig->canvas->fg_pixmap);
+  //drawable = (fig->layer <= STK_BACKGROUND_LAYER ? fig->canvas->bg_pixmap : fig->canvas->fg_pixmap);
   gc = fig->canvas->gc;
   colormap = fig->canvas->colormap;
 

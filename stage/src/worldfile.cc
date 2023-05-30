@@ -1126,12 +1126,14 @@ bool CWorldFile::ParseTokenEntity(int entity, int *index, int *line, const char 
 bool CWorldFile::ParseTokenProperty(int entity, int *index, int *line)
 {
   int i, property;
-  int name, value, count;
+  int name;
+  // int count;
+  // int value;
   CToken *token;
 
   name = *index;
-  value = -1;
-  count = 0;
+  //value = -1;
+  //count = 0;
 
   for (i = *index + 1; i < this->token_count; i++)
   {
