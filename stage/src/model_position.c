@@ -862,7 +862,7 @@ void battery_update( stg_model_t * mod, double dt, int x_accel_state, int y_acce
     else if (x_accel_state == BMS_DECEL)
     {
       double pct_of_max = speed_cfg->current_decel.x / speed_cfg->max_decel.x;
-      charge_change -= (soc_rates->decel * dt);
+      charge_change -= (soc_rates->decel * dt * pct_of_max);
     }
   }
 
