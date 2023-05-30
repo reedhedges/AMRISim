@@ -530,7 +530,9 @@ int gui_world_update( stg_world_t* world )
     world->sim_time % 1000 // milliseconds
   );
   //printf("avg ratio update %lu = %f (sim=%f, real=%f)\n", foo++, world->avg_interval_ratio, (double)(world->sim_interval), (double)(world->real_interval_measured));
-  world->avg_interval_ratio = (world->avg_interval_ratio * 0.80) +  ( ( (double)world->sim_interval / (double)world->real_interval_measured ) * 0.20 );
+  const double r = (double)(world->real_interval_measured);
+  const double s = (double)(world->sim_interval);
+  if(r != 0 && s != 0) world->avg_interval_ratio = (world->avg_interval_ratio * 0.80) +  ( (s/i) * 0.20 );
 #ifdef DEBUG
   snprintf(timeavg_str, 225, "(inst. sim/real time: %2.2f, avg: %2.2f, sim_int=%lu, desired real_int=%lu, real_meas=%lu)",
       (double)world->sim_interval/(double)world->real_interval_measured,

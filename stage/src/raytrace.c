@@ -319,7 +319,10 @@ stg_model_t* _itl_collect_matching( itl_t* itl,
       // ray could leave through the top edge
       // solve x for known y      
       yleave = cell->ymax; // top edge
-      xleave = (yleave - c) / tana;
+      if(tana == 0)
+        xleave = 0;
+      else
+        xleave = (yleave - c) / tana;
     
       // if the edge crossing was not in cell bounds     
       if( !(GTE(xleave,cell->xmin) && LT(xleave,cell->xmax)) )
@@ -345,7 +348,10 @@ stg_model_t* _itl_collect_matching( itl_t* itl,
       // ray could leave through the bottom edge
       // solve x for known y      
       yleave = cell->ymin; // bottom edge
-      xleave = (yleave - c) / tana;
+      if(tana == 0) 
+        xleave = 0;
+      else
+        xleave = (yleave - c) / tana;
     
       // if the edge crossing was not in cell bounds     
       if( !(GTE(xleave,cell->xmin) && LT(xleave,cell->xmax)) )

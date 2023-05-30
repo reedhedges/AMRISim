@@ -532,6 +532,7 @@ int laser_update( stg_model_t* mod )
   // make a scan buffer (static for speed, so we only have to allocate
   // memory when the number of samples changes).
   scan = realloc( scan, sizeof(stg_laser_sample_t) * cfg->samples );
+  assert(scan);
   
   // only compute every second sample, for speed
   //for( t=0; t<cfg.samples-1; t+=2 )

@@ -1715,7 +1715,8 @@ const char *CWorldFile::ReadFilename(int entity, const char *name, const char *v
     // There's no bounds-checking, but what the heck.
     char *tmp = strdup(this->filename);
     char *fullpath = (char*) malloc(PATH_MAX);
-    getcwd(fullpath, PATH_MAX);
+    char *s = getcwd(fullpath, PATH_MAX);
+    assert(s != NULL);
     strcat( fullpath, "/" ); 
     strcat( fullpath, dirname(tmp));
     strcat( fullpath, "/" ); 

@@ -133,7 +133,8 @@ stg_matrix_t* stg_matrix_create( double ppm, double width, double height )
 {
   double sz;
   stg_matrix_t* matrix = NULL;
-  assert( matrix = (stg_matrix_t*)calloc( sizeof(stg_matrix_t), 1 ));
+  matrix = (stg_matrix_t*)calloc(1, sizeof(stg_matrix_t));
+  assert(matrix);
 
   matrix->ppm = ppm; // base resolution
 
