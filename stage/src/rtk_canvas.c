@@ -1268,7 +1268,7 @@ void stg_rtk_on_release(GtkWidget *widget, GdkEventButton *event, stg_rtk_canvas
 
 void stg_rtk_canvas_on_scroll(GtkWidget *widget, GdkEventScroll *event, stg_rtk_canvas_t *canvas)
 {
-    int button;
+    int button = -1;
     switch(event->direction)
     {
         case GDK_SCROLL_DOWN: button = MBUTTON_SCROLLDOWN; break;
@@ -1276,6 +1276,7 @@ void stg_rtk_canvas_on_scroll(GtkWidget *widget, GdkEventScroll *event, stg_rtk_
         case GDK_SCROLL_LEFT: button = MBUTTON_SCROLLLEFT; break;
         case GDK_SCROLL_RIGHT: button = MBUTTON_SCROLLRIGHT; break;
     }
+    assert(button != -1);
     stg_rtk_canvas_mouse(canvas, EVENT_SCROLL, button, event->x, event->y, event->state);
 }
 
