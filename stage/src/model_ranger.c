@@ -338,6 +338,9 @@ void ranger_destroy(stg_model_t *mod)
 {
   if(mod->world->gui_enabled)
     stg_model_remove_property_toggles(mod, "ranger_data");
+  stg_ranger_sample_t *data = stg_model_get_property(mod, "ranger_data", NULL);
+  if(data)
+    free(data);
 }
 
 int ranger_startup( stg_model_t* mod )
@@ -382,8 +385,10 @@ int ranger_update( stg_model_t* mod )
 {     
   size_t len = 0;
   stg_ranger_config_t* cfg;
-  stg_ranger_sample_t* ranges;
   int t, rcount;
+
+  static stg_ranger_sample_t* ranges = NULL;
+  static size_t ranges_size = 0;
 
 
   if( mod->subs < 1 )
@@ -391,17 +396,39 @@ int ranger_update( stg_model_t* mod )
 
   //PRINT_DEBUG1( "[%d] updating rangers", mod->world->sim_time );
   
-  cfg =
-    stg_model_get_property( mod, "ranger_cfg", &len );
-  
+  // ranger_cfg is an array of stg_ranger_confit, one for each ranger sensor. therefore,
+  // len is length of stg_range_config_t in bytes times number of ranger sensors
 
+  // ranges is a static array of one stg_ranger_sample_t value for each ranger sensor.
+  // allocate or reallocate.
+
+  cfg = stg_model_get_property( mod, "ranger_cfg", &len );
   if( len < sizeof(stg_ranger_config_t) )
+  {
+    if(len > 0) stg_print_error("Internal warning: ranger_cfg property is less than size of stg_ranger_config_t struct??");
+    if(ranges)
+      free(ranges);
+    ranges = NULL;
+    ranges_size = 0;
+    stg_model_set_property(mod, "ranger_data", NULL, 0);
     return 0; // nothing to see here
-  
-  rcount = len / sizeof(stg_ranger_config_t);
-  
-  ranges = (stg_ranger_sample_t*)
-    calloc( sizeof(stg_ranger_sample_t), rcount );
+  }
+  rcount = len / sizeof(stg_ranger_config_t); // number of ranger sensors
+
+  if(rcount != ranges_size)
+  {
+    ranges = realloc(ranges, sizeof(stg_ranger_sample_t) * rcount);
+    assert(ranges);
+    if(!ranges) 
+    {
+      ranges_size = 0;
+      stg_model_set_property(mod, "ranger_data", NULL, 0);
+      stg_print_error("Error reallocating range sample array in ranger_update()!");
+      return 0;
+    }  
+    ranges_size = rcount;
+  }
+
   
 
   if( fig_debug_rays ) stg_rtk_fig_clear( fig_debug_rays );
@@ -535,12 +562,9 @@ int ranger_update( stg_model_t* mod )
 
   }
 
-
-
         
   // Set property
   stg_model_set_property( mod, "ranger_data", ranges, sizeof(stg_ranger_sample_t) * rcount );
-  free( ranges );
   return 0;
 }
 
@@ -660,6 +684,8 @@ int ranger_render_data( stg_model_t* mod, char* name, void* data, size_t len, vo
   dlen = 0;
   samples = 
     stg_model_get_property( mod, "ranger_data", &dlen );
+
+  if(!samples) return 0;
   
   // iff we have the right amount of data
   if( dlen == rcount * sizeof(stg_ranger_sample_t) )
