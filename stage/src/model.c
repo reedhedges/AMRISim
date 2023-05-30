@@ -309,14 +309,28 @@ void stg_model_global_to_local( stg_model_t* mod, stg_pose_t* pose )
  Warning: any extant pointers to old data may become invalid
  after this function if reallocated (depending on platform implementation of 
    realloc)
+  If 'len' is 0, any existing memory is freed, property data is nulled (will be allocated again on next call with data).
+  If 'data' argument is NULL, then size for 'len' space is allocated and all space is set to 0.
+  Otherwise, memmove() is used to set the data from the memory pointed to by the 'data' pointer.
 */
 void storage_ordinary( stg_property_t* prop, 
 		       void* data, size_t len )
 {
+  assert(prop);
+  if(len == 0)
+  {
+    if(prop->data) free(prop->data);
+    prop->data = NULL;
+    return;
+  }
   if (data == prop->data && len > 0) return;  // don't need to reallocate or copy
   prop->data = realloc( prop->data, len );
+  assert(prop->data);
   prop->len = len;
-  memmove( prop->data, data, len );
+  if(data == NULL)
+    memset(prop->data, 0, len);
+  else
+    memmove(prop->data, data, len);
   // realloc can result in overlapping memory areas, can't use memcpy( prop->data, data, len );
 }
 
