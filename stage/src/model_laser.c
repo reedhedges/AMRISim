@@ -357,6 +357,8 @@ int laser_init( stg_model_t* mod )
   {
     stg_polygon_t* square = stg_unit_polygon_create();
     stg_model_set_property( mod, "polygons", square, sizeof(stg_polygon_t));
+    // set_property copied the data, we can free it; in future,
+    free(square);
   }
 
 
@@ -425,6 +427,11 @@ void laser_destroy(stg_model_t* mod)
       ++i;
     }
   }
+
+  // Destroy scan data array allocated in laser_update
+  stg_laser_sample_t *data = stg_model_get_property(mod, "laser_data", NULL);
+  if(data)
+    free(data);
 
 }
 
@@ -505,6 +512,9 @@ int laser_update( stg_model_t* mod )
   if(cfg->samples == 0)
   {
     if( fig_debug_rays ) stg_rtk_fig_clear( fig_debug_rays );
+    if(scan)
+      free(scan);
+    scan = NULL;
     stg_model_set_property( mod, "laser_data", NULL, 0);
     return 0;
   }

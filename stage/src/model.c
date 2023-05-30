@@ -2396,6 +2396,7 @@ void stg_model_load_from_worldfile_section_id(stg_model_t *mod, int id)
     if( polycount != -1 )
     {
       stg_model_init_polygons(mod, polys, polycount);
+      free(polys);
     }
   }
 
